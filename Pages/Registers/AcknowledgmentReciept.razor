@@ -1,0 +1,240 @@
+﻿@page "/AcknowledgmentReciept"
+
+@using System.Data
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+@using OrisonFeeAnalysis.Entities.Main
+@using Syncfusion.Blazor.Spinner;
+@using Syncfusion.Blazor.Calendars;
+@using Syncfusion.Blazor.Data
+@using Newtonsoft.Json
+
+
+@inject NavigationManager NavigationManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+@inject IJSRuntime jsRuntime
+
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+
+
+<div>
+    @if (AllowOpen == true)
+    {
+        <div class="box-card-shadow">
+            <div class="row">
+                <div class="col-md-12">
+                    <SfComboBox @bind-Value="@Dropval" TValue="string" TItem="string" DataSource="@ComboList" Width="180px">
+                    </SfComboBox>
+                    <SfDatePicker @bind-Value="@SDate" Format="dd/MM/yyyy" Width="150px"></SfDatePicker>
+                    <SfDatePicker @bind-Value="@TDate" Format="dd/MM/yyyy" Width="150px"></SfDatePicker>
+                    <SfButton IconCss="Icon search" CssClass="e-btn4" @onclick="@Search_Click"></SfButton>
+                    <SfButton IconCss="Icon preprint" CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="box-card-shadow">
+
+            <SfGrid ID="Grid" DataSource="@AcknowledgmentRecieptList"
+                    GridLines="GridLine.Both"
+                    AllowExcelExport="true"
+                    AllowPdfExport="true"
+                    AllowFiltering="true"
+                    AllowPaging="true"
+                    AllowResizing="true"
+                    AllowSorting="true"
+                    RowHeight="24"
+                    Width="100%"
+                    @ref="Grid">
+                <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                <GridPageSettings PageSize="50"></GridPageSettings>
+                <GridSelectionSettings CellSelectionMode="CellSelectionMode.Box" Mode="Syncfusion.Blazor.Grids.SelectionMode.Cell" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+
+                <GridColumns>
+                    <GridColumn HeaderText="Sl.No" Width="50px">
+
+                        <Template>
+                            @{
+                                var con = (context as dtReciept);
+                                var Index = GetRowCounter(con.ID);
+                            }
+                            <span>@(Index.Result)</span>
+                        </Template>
+                    </GridColumn>
+
+                    <GridColumn Field=@nameof(dtReciept.ID) IsPrimaryKey="true" HeaderText="ID" Visible="false" TextAlign="TextAlign.Left" Width="75"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.PAccountCode) HeaderText="Parent Code" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.PartyCode) HeaderText="Esis No" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.Party) HeaderText="Student Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.VNO) HeaderText="Voucher Number" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Center" Width="120"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.Debit) HeaderText="Debit" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.Credit) HeaderText="Credit" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.ChequeNo) HeaderText="Cheque No" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.BankName) HeaderText="Bank Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtReciept.Description) HeaderText="Description" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="170"></GridColumn>
+
+
+                    @*<GridColumn Field=@nameof(dtReciept.VID) HeaderText="VID" Visible="false" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.VEID) HeaderText="VEID" Visible="false" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.ChequeDate) Format="dd/MM/yyyy" HeaderText="Cheque Date" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.VDate) HeaderText="VDate" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.RefNo) HeaderText="RefNo" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.CreatedUser) HeaderText="Created User" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.PostedDate) Format="dd/MM/yyyy" HeaderText="PostedDate" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.PostedVID) Visible="false" HeaderText="PostedVID" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtReciept.PostedVNo) HeaderText="Posted VNo" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.Status) HeaderText="Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtReciept.AccountID1) HeaderText="AccountID1" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.Party) HeaderText="Party" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.ContactNo) HeaderText="Contact No" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.Mobile2) HeaderText="Mobile2" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.Email) HeaderText="Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.PartyID) Visible="false" HeaderText="PartyID" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.AccountID) Visible="false" HeaderText="AccountID" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.PAccountName) HeaderText="PAccount Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.StStatus) HeaderText="StStatus" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtReciept.Date) HeaderText="Date" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.SubStatus) HeaderText="Sub-Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.VoucherAgainst) HeaderText="Voucher Against" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.Remark) HeaderText="Remark" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtReciept.ModifiedUser) HeaderText="Modified User" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>*@
+
+
+
+                </GridColumns>
+            </SfGrid>
+        </div>
+
+    }
+    @if (Loading == true)
+    {
+        <div class="spin-row w-100" style="padding-top:300px">
+            <SfSpinner Size="60" Label="Loading..." Type="SpinnerType.Bootstrap4" Visible="true"></SfSpinner>
+        </div>
+    }
+</div>
+
+
+
+@code {
+    string Dropval = "Posted", Category;
+    DateTime SDate { get; set; } = DateTime.Now;
+    DateTime TDate { get; set; } = DateTime.Now;
+    int BranchID, UserID, AccountID;
+    string academiYear = "";
+    public bool AllowOpen = false, Loading = false;
+
+    public List<dtReciept> AcknowledgmentRecieptList = new List<dtReciept>();
+    SfGrid<dtReciept> Grid;
+    dtReciept Reciept = new dtReciept();
+
+    public List<string> ComboList = new List<string> { "Posted", "Not Posted", "Returned", "Hold" };
+
+
+    protected async override Task OnInitializedAsync()
+    {
+
+
+        try
+        {
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            academiYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+
+
+
+            if (Category == "Administrator")
+            {
+                AllowOpen = false;
+                Loading = true;
+
+                //AcknowledgmentRecieptList = (await _accountsmain.GetAcknowledgmentRecieptList((Convert.ToDateTime(SDate.ToString("MM/dd/yyyy"))), (Convert.ToDateTime(TDate.ToString("MM/dd/yyyy"))), Dropval, BranchID,academiYear)).ToList();
+
+
+
+                Loading = false;
+
+                AllowOpen = true;
+
+            }
+            else
+            {
+                AllowOpen = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            await ClearLocalStorage();
+
+            throw ex;
+        }
+
+
+    }
+
+    string LogoutUrl;
+    public async Task ClearLocalStorage()
+    {
+        LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
+
+        await sessionStorage.ClearAsync();
+        //Must check localstorage userid in each razor page
+
+        NavigationManager.NavigateTo(LogoutUrl);
+
+    }
+
+    public async Task Search_Click()
+    {
+        Loading = true;
+        AcknowledgmentRecieptList = (await _accountsmain.GetAcknowledgmentRecieptList((Convert.ToDateTime(SDate.ToString("MM/dd/yyyy"))), (Convert.ToDateTime(TDate.ToString("MM/dd/yyyy"))), Dropval, BranchID,academiYear)).ToList();
+        await InvokeAsync(StateHasChanged);
+        Loading = false;
+
+    }
+
+    public async Task<double> GetRowCounter(int? val)
+    {
+        var index = await Grid.GetRowIndexByPrimaryKeyAsync(val);
+        var currentPage = Grid.PageSettings.CurrentPage;
+        if (Grid.AllowPaging && currentPage > 1)
+        {
+            index = (((currentPage - 1) * Grid.PageSettings.PageSize) + index);
+        }
+        return index + 1;
+
+    }
+
+    public async Task DownLoadDocs()
+    {
+        var Data = await Grid.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        var Result = _BoldReport.GetReport("ACKNOWLEDGEMENT RECEIPT", dt, null);
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Result.FileStream.CopyTo(ms);
+        await jsRuntime.InvokeVoidAsync(
+                  "jsSaveAsFile",
+                  "ACKNOWLEDGEMENT RECEIPT.pdf",
+                  Convert.ToBase64String(ms.ToArray()));
+    }
+}

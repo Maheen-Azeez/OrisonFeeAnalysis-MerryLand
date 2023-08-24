@@ -1,0 +1,1179 @@
+﻿@*@page "/Optional"*@
+
+@page "/OptionalSubject/{AccountID:int}/{SCode}"
+
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Inputs;
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Calendars;
+@using OrisonFeeAnalysis.Entities.Student;
+@using Microsoft.Extensions.Localization;
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.Data;
+@using Microsoft.AspNetCore.Components;
+@using System.Collections.ObjectModel;
+@using OrisonFeeAnalysis.Contract;
+@using Syncfusion.Blazor.Popups;
+@using OrisonFeeAnalysis.Resources;
+@using BlazorStrap;
+@inject HttpClient Http
+@inject NavigationManager uriHelper
+@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@*@inject IStringLocalizer<SfResources> Localizer*@
+@*@inject OrisonFeeAnalysis.Contract.IStudentManager StudentService*@
+@inject OrisonFeeAnalysis.Contract.IStudentMaster StudentMasterService
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+@inject IJSRuntime IJS
+@inject IJSRuntime JsRuntime;
+@inject IStringLocalizer<SfResources> Localizer
+@inject OrisonFeeAnalysis.Contract.IPostingManager _IPostingManager
+@inject OrisonFeeAnalysis.Contract.IOptionalManager _IOptionalManagers
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+<style>
+    .TotalAmountpaystyle {
+        font-weight: bolder;
+        font-size: larger;
+        width: 100%;
+    }
+</style>
+
+<div class="box-card-shadow">
+    <div class="row">
+        <div class="col-md-9">
+            <SfButton @onclick="@Back_Click" IconCss="Icon back" CssClass="e-btn" Content=@Localizer["Back"] />
+            <SfButton @onclick="@Save_Click" Content=@Localizer["Save"] IconCss="Icon save" CssClass="e-btn" />
+            <SfButton @onclick="@search" IconCss="Icon sum" CssClass="e-btn" Content=@Localizer["Total"] />
+
+            @if (AllowOpen == true)
+            {
+                <SfButton Content="Post" IsPrimary="true" CssClass="e-btn" OnClick="@FeeSchedulePost_Click"></SfButton>
+            }
+
+            <BSAlert Color="BlazorStrap.Color.Success" @bind-IsOpen="@IsOpen" AutoHide="true">
+                @Success
+            </BSAlert>
+            <BSAlert Color="BlazorStrap.Color.Danger" @bind-IsOpen="@IsOpenDanger" AutoHide="true">
+                @Failed
+            </BSAlert>
+        </div>
+        <div class="col-md-3">
+            <div class="header-div-style">
+                <label class="header-label">@Localizer["CAIE SUBJECT SELECTION"]</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box-card-shadow">
+    <div class="row">
+        <div class=" col-md-3">
+            <label class="label">@Localizer["Academic Year"]</label>
+            <SfComboBox TValue="string" TItem="SchoolAcademicYear" PopupHeight="230px" Placeholder="" @bind-Value="@CmbAccYear" DataSource="@CmbYear">
+                <ComboBoxFieldSettings Text="AcademicYear" Value="AcademicYear"></ComboBoxFieldSettings>
+            </SfComboBox>
+        </div>
+        <div class="col-md-3">
+            <label class="label">@Localizer["Class"]</label>
+            <SfComboBox TValue="string" TItem="SchoolClass" @bind-Value="@DTStudentTrans.Class" DataSource="Class" Enabled="true">
+                <ComboBoxFieldSettings Text="Class" Value="Class"></ComboBoxFieldSettings>
+            </SfComboBox>
+        </div>
+        <div class="col-md-3">
+            <label class="label">@Localizer["Division"]</label>
+            <SfComboBox TValue="string" TItem="SchoolClass" @bind-Value="@DTStudentTrans.Division" DataSource="Division" Enabled="true">
+                <ComboBoxFieldSettings Text="Division" Value="Division"></ComboBoxFieldSettings>
+            </SfComboBox>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="label">@Localizer["Student Code & Name"]</label>
+            <div class="w-100" style="display: flex;">
+                <SfTextBox @bind-Value="@DTAccount.AccountCode" CssClass="textbox" Width="25%"></SfTextBox>
+                <SfComboBox TValue="string" TItem="dtStudentRegister" @bind-Value="@DTAccount.AccountName" DataSource="namess" CssClass="e-multi-column"
+                            AllowFiltering="true" PopupHeight="200"
+                            EnableVirtualization="true" AllowCustom="false">
+                    <ComboBoxTemplates TItem="dtStudentRegister">
+                        <HeaderTemplate>
+                            <table><tr><th style="width:100px">@Localizer["Student Code"]</th><th>Student Name</th></tr></table>
+                        </HeaderTemplate>
+                        <ItemTemplate Context="studentContext">
+                            <table><tbody><tr><td style="width:100px">@((studentContext as dtStudentRegister).AccountCode)</td><td>@((studentContext as dtStudentRegister).AccountName)</td></tr> </tbody></table>
+                        </ItemTemplate>
+                    </ComboBoxTemplates>
+                    <ComboBoxFieldSettings Text="AccountCode" Value="AccountCode"></ComboBoxFieldSettings>
+                    <ComboBoxFieldSettings Text="AccountName" Value="AccountName"></ComboBoxFieldSettings>
+                    <ComboBoxEvents TValue="string" TItem="dtStudentRegister" ValueChange="@SelectedStudentlist"></ComboBoxEvents>
+                </SfComboBox>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <label class="label">@Localizer["Options"]</label>
+            <SfComboBox TValue="string" TItem="CceElectiveSubjectMaster" PopupHeight="230px" @bind-Value="GetOptionals.Combo" DataSource="Options">
+                <ComboBoxEvents TValue="string" ValueChange="@Selectedsubject" TItem="CceElectiveSubjectMaster" />
+                <ComboBoxFieldSettings Text="Combo" Value="Combo" />
+            </SfComboBox>
+        </div>
+
+        <div class="col-md-3">
+            <label class="label">@Localizer["Subjects"]</label>
+            <SfMultiSelect TValue="CceElectiveSubjectMaster[]" TItem="CceElectiveSubjectMaster" AllowFiltering="true" @bind-Value="value" Mode="@VisualMode.CheckBox" DataSource="SubjectName" ShowSelectAll="@ShowSelectAllCheckBox" EnableSelectionOrder="@EnableSelectionOrders" ShowDropDownIcon="@EnableDropDownIcon" FilterBarPlaceholder="Search Subjects" PopupHeight="350px">
+
+                <MultiSelectFieldSettings Text="SubjectName" Value="SubjectName"></MultiSelectFieldSettings>
+                <MultiSelectEvents ValueChange="@Selectedamountss" TItem="CceElectiveSubjectMaster" TValue="CceElectiveSubjectMaster[]"></MultiSelectEvents>
+            </SfMultiSelect>
+        </div>
+    </div>
+    @if (AllowOpen == true)
+    {
+        <div class="row">
+
+            <div class="col-md-3">
+                <label class="label">@Localizer["Amount"]</label>
+
+                <SfNumericTextBox TValue="decimal" @bind-Value="@tot" CssClass="textbox" Enabled="false"></SfNumericTextBox>
+            </div>
+            <div class="col-md-3">
+                <label class="label">@Localizer["Total Exam Fee"]</label>
+                <SfTextBox @bind-Value="sumagg" CssClass="textbox"></SfTextBox>
+            </div>
+
+            <div class="col-md-3">
+                <label class="label">@Localizer["Late Amendment Fee"]</label>
+                <SfTextBox @bind-Value="fine" CssClass="textbox"></SfTextBox>
+            </div>
+            <div class="col-md-3">
+                <label class="label">@Localizer["Revaluation Fee"]</label>
+                <SfTextBox @bind-Value="revaluation" CssClass="textbox"></SfTextBox>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label class="label">@Localizer["Date"]</label>
+                <SfDatePicker AllowEdit="true" TValue="DateTime?" ShowClearButton="true" Format="dd/MM/yyyy" @bind-Value="Dates.Date">
+                </SfDatePicker>
+                <SfButton @onclick="@Save_Clicks" Content=@Localizer["Set Date"] IconCss="Icon save" CssClass="w-50" />
+
+            </div>
+
+            <div class="col-md-3">
+                <label class="label">@Localizer["Re-examination ?"]</label>
+                <SfComboBox @bind-Value="@Reexam" TValue="string" TItem="string" DataSource="@reexams">
+                </SfComboBox>
+                <SfButton @onclick="@Save_Clickss" CssClass="w-50" Content=@Localizer["Set Exam"] IconCss="Icon save" />
+
+            </div>
+            <div class="col-md-3" hidden="hidden">
+                <SfTextBox @bind-Value="newid" CssClass="textbox" Enabled="false"></SfTextBox>
+            </div>
+            <div class="col-md-3">
+                <label class="label">@Localizer["Total Amount to pay"]</label>
+                <SfTextBox @bind-Value="Totalpayamount" CssClass="textbox" class="TotalAmountpaystyle"></SfTextBox>
+            </div>
+
+        </div>
+
+
+
+
+    }
+</div>
+
+<div class="box-card-shadow">
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="pl-2" style="background-color:#E8EEFA; height: 28px;">
+                <label style="font-size:medium;color:#0a1971">@Localizer["Details"]</label>
+            </div>
+            <div class="row" style="padding-top:5px">
+                <div class="col-md-3">
+                    <label class="label">I.G.C.S.E Exam Count</label>
+                    <SfTextBox @bind-Value="countigcse.Option1" CssClass="textbox" Enabled="false"></SfTextBox>
+                </div>
+                <div class="col-md-3">
+                    <label class="label">A.S Level Exam Count</label>
+                    <SfTextBox @bind-Value="aslevel.Option2" CssClass="textbox" Enabled="false"></SfTextBox>
+                </div>
+                <div class="col-md-3">
+                    <label class="label">A Level Exam Count </label>
+                    <SfTextBox @bind-Value="alevel.Option3" CssClass="textbox" Enabled="false"></SfTextBox>
+                </div>
+                <div class="col-md-3" style="padding-top: 15px">
+
+                </div>
+            </div>
+
+            @*<div class="row" style="padding-top:30px;">*@
+            <div class="table-responsive" style="position: relative; min-height: 600px; min-width: 300px; padding-top: 30px; ">
+                <SfGrid DataSource="@OptionalManagerListss" ID="OptionalManagerLists" @ref="OptionalManagerLists"
+                        GridLines="GridLine.Both"
+                        AllowFiltering="true"
+                        AllowPaging="true"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        Width="100%"
+                        ShowColumnChooser="true"
+                        AllowSelection="true"
+                        AllowResizing="true"
+                        AllowSorting="true"
+                        EnableAltRow="true"
+                        RowHeight="25">
+
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                    <GridPageSettings PageSize="50"></GridPageSettings>
+                    <GridEditSettings AllowDeleting="true" />
+                    <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" Mode="Syncfusion.Blazor.Grids.SelectionMode.Both"></GridSelectionSettings>
+                    <GridEvents RowSelected="GetSelectedRecords_Posting" RowDeselected="DeselectRecords" DataBound="DataBoundBranch" RowDataBound="RowDataBoundBranch" TValue="CceElectiveSubjectChild"></GridEvents>
+                    <GridAggregates>
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                                <GridAggregateColumn Field=@nameof(CceElectiveSubjectChild.Amount) Type="AggregateType.Sum" Format="#.00">
+                                    <FooterTemplate>
+                                        @{ var aggregate = (context as AggregateTemplateContext);
+                                            @if (aggregate != null)
+                                            {
+                                                sumagg = (aggregate.Sum).ToString();
+                                            }
+                                            <div>
+                                                TOTAL: @aggregate.Sum
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+                    </GridAggregates>
+                    @*<GridSelectionSettings CheckboxOnly="true" PersistSelection="true"></GridSelectionSettings>*@
+                    <GridColumns>
+                        @*<GridColumn Type="ColumnType.CheckBox" AllowFiltering="false" AllowSorting="false" Width="30"></GridColumn>*@
+                        <GridColumn HeaderText="S.No" Width="50" Context="context1">
+                            <Template>
+                                @{ var con = (context1 as CceElectiveSubjectChild);
+                                    var Index = GetRowCounter(con.Etid);
+                                }
+                                <span>@(Index.Result)</span>
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectChild.Etid) HeaderText="@Localizer["Id"]" Width="120" Visible="false" IsPrimaryKey="true"></GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectChild.Options) HeaderText="@Localizer["Exam"]" Width="80"></GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectChild.SubjectName) HeaderText="@Localizer["Optional Name"]" Width="200"></GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectChild.Amount) HeaderText="@Localizer["Amount"]" Width="80" Format="#.00"></GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectChild.Posted) HeaderText="@Localizer["Post Status"]" Width="40" Format="#.00"></GridColumn>
+
+                        <GridColumn Width="40px" HeaderText="@Localizer["Delete"]">
+                            <Template Context="MasterContext">
+                                @{ var Etid = (MasterContext as CceElectiveSubjectChild).Etid;
+                                    <a @onclick="@(() => { Delete_Click(Etid); })"><img src="Images/delete1.png" style="height:20px;width:20px; cursor:pointer;" /></a>
+                                }
+                            </Template>
+                        </GridColumn>
+
+                    </GridColumns>
+                </SfGrid>
+                <br />
+                <SfGrid DataSource="@feerev" ID="feerevss" @ref="feerevss"
+                        GridLines="GridLine.Both"
+                        AllowFiltering="true"
+                        AllowPaging="true"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        Width="100%"
+                        ShowColumnChooser="true"
+                        AllowResizing="true"
+                        AllowSorting="true"
+                        EnableAltRow="true"
+                        RowHeight="25">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                    <GridPageSettings PageSize="50"></GridPageSettings>
+                    <GridAggregates>
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                                <GridAggregateColumn Field=@nameof(CceElectiveSubjectParent.Fine) Type="AggregateType.Sum" Format="#.00">
+                                    <FooterTemplate>
+                                        @{ var aggregate = (context as AggregateTemplateContext);
+
+                                            <div>
+                                                TOTAL: @aggregate.Sum
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+
+
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                                <GridAggregateColumn Field=@nameof(CceElectiveSubjectParent.Revaluation) Type="AggregateType.Sum" Format="#.00">
+                                    <FooterTemplate>
+                                        @{ var aggregates = (context as AggregateTemplateContext);
+
+                                            <div>
+                                                TOTAL: @aggregates.Sum
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+                    </GridAggregates>
+
+                    <GridColumns>
+                        <GridColumn HeaderText="S.No" Width="20" Context="context1">
+                            <Template>
+                                @{ var con = (context1 as CceElectiveSubjectParent);
+                                    var Index = GetRowCounters(con.Id);
+                                }
+                                <span>@(Index.Result)</span>
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectParent.Id) IsPrimaryKey="true" HeaderText="ID" Width="20" Visible="false"></GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectParent.Fine) HeaderText="Fine" Width="100" Format="#.00"></GridColumn>
+                        <GridColumn Field=@nameof(CceElectiveSubjectParent.Revaluation) HeaderText="Revaluation" Width="20" Format="#.00"></GridColumn>
+
+                        <GridColumn Width="20px" HeaderText="@Localizer["Delete"]">
+                            <Template Context="MasterContext">
+                                @{ var Id = (MasterContext as CceElectiveSubjectParent).Id;
+                                    <a @onclick="@(() => { Delete_Clicks(Id); })"><img src="Images/delete1.png" style="height:20px;width:20px; cursor:pointer;" /></a>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+            @*</div>*@
+            @*</fieldset>*@
+        </div>
+    </div>
+</div>
+@{
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupVisible" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:green">
+                        Posted Successfully !!!
+                    </p>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" @onclick="@popClose_Click" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupDeVisible" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:green">
+                        Deposted Successfully !!!
+                    </p>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" @onclick="@popClose_Click" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupSendError" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:red">
+                        Please Reduce The Discount And Try Again !!!
+                    </p>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" @onclick="@(() => PopupSendError = false)" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupError" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:red">
+                        Something went wrong !!!
+                    </p>
+                    <p style="color:red">
+                        Check Invoice No !!!
+                    </p>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" @onclick="@(() => PopupError = false)" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupSaveError" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:red">
+                        Fee Posting Failed!!!
+                    </p>
+
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" @onclick="@(() => PopupSaveError = false)" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupFeeError" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:red">
+                        Please Select FeeSchedule!!!
+                    </p>
+
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" @onclick="@(() => PopupFeeError = false)" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupFeeCheck" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:red">
+                        Please select the FeeSchedule!!!
+                    </p>
+
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" @onclick="@(() => PopupFeeCheck = false)" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupLoading" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:black">
+                        Loading...
+                    </p>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+}
+
+@code {
+    [Parameter]
+    public int AccountID { get; set; }
+    [Parameter]
+    public string SCode { get; set; }
+    public string StudentCode, cls, Op, sub, div;
+    public bool IsOpen = false, IsOpenDanger = false;
+    public decimal i, sum = 0;
+    public CceElectiveSubjectMaster[] value;
+    public string amt, subttt, g;
+    bool AllowOpen = true, Open, OpenError, visible = false;
+    public string Category, Success, Failed, subts;
+    double b, finetot, a, l;
+    public decimal k, f;
+    int c, d;
+    int? Idnew;
+    decimal ttf = 0, totalfinesum;
+    string newid = "";
+    public string Reexam;
+
+
+
+    IEnumerable<string> reexams = new List<string>() {
+      "Yes",
+      "No"
+
+
+    };
+    public string sumagg, fine, revaluation, Totalpayamount;
+    bool PopupLoading { get; set; }
+    bool PopupVisible { get; set; }
+    bool PopupDeVisible { get; set; }
+    bool PopupError { get; set; }
+    bool PopupSaveError { get; set; }
+    bool PopupFeeError { get; set; }
+    bool PopupFeeCheck { get; set; }
+    bool PopupImport { get; set; }
+    bool PopupSendError { get; set; }
+    bool PopupImportError { get; set; }
+    int vtype;
+    int Etid = 3;
+    int ETID, Id, Idne;
+    long vID;
+    decimal tot, p, o, q, n;
+    public bool IsAdmin = false;
+    string[] authorsList;
+    public SchoolStudentTran DTStudentTrans = new SchoolStudentTran();
+    public IList<SchoolClass> Class = new List<SchoolClass>();
+    public Accounts DTAccount = new Accounts();
+    public string aggregate;
+    int BranchID, user, RowCount;
+    public string Status = "", CompanyCode;
+    public CceElectiveSubjectChild opt = new CceElectiveSubjectChild();
+    public List<SchoolAcademicYear> CmbYear = new List<SchoolAcademicYear>();
+    public string CmbAccYear = "";
+    public IList<SchoolClass> CmbCls = new List<SchoolClass>();
+    public string CmbAcccls = "";
+    SchoolAcademicYear objAccYear = new SchoolAcademicYear();
+    SchoolClass objAccCls = new SchoolClass();
+    dtStudentRegister studentname = new dtStudentRegister();
+    public IList<SchoolClass> Division = new List<SchoolClass>();
+    public CceElectiveSubjectChild GetOptional = new CceElectiveSubjectChild();
+    public List<CceElectiveSubjectChild> OptionalManagerListss = new List<CceElectiveSubjectChild>();
+    public List<CceElectiveSubjectChild> OptionalManages = new List<CceElectiveSubjectChild>();
+
+    public List<CceElectiveSubjectChild> optls = new List<CceElectiveSubjectChild>();
+    public SfGrid<CceElectiveSubjectChild> OptionalManagerLists { get; set; }
+
+    public List<CceElectiveSubjectParent> feerev = new List<CceElectiveSubjectParent>();
+    public SfGrid<CceElectiveSubjectParent> feerevss { get; set; }
+
+    public List<CceElectiveSubjectMaster> Options = new List<CceElectiveSubjectMaster>();
+    public List<CceElectiveSubjectMaster> SubjectName = new List<CceElectiveSubjectMaster>();
+    public CceElectiveSubjectMaster Amounts = new CceElectiveSubjectMaster();
+    public CceElectiveSubjectMaster Dates = new CceElectiveSubjectMaster();
+    public CceElectiveSubjectMaster getdate = new CceElectiveSubjectMaster();
+
+    public CceElectiveSubjectMaster getExam = new CceElectiveSubjectMaster();
+
+
+
+    public List<CceElectiveSubjectMaster> Amountss = new List<CceElectiveSubjectMaster>();
+    public CceElectiveSubjectMaster GetOptionals = new CceElectiveSubjectMaster();
+    public CceElectiveSubjectMaster GetOptionalsss = new CceElectiveSubjectMaster();
+    public CceElectiveSubjectMaster setdate = new CceElectiveSubjectMaster();
+
+
+    public CceElectiveSubjectMaster subjects = new CceElectiveSubjectMaster();
+    public CceElectiveSubjectChild countigcse = new CceElectiveSubjectChild();
+    public CceElectiveSubjectChild subjectbycomm = new CceElectiveSubjectChild();
+
+    public CceElectiveSubjectChild aslevel = new CceElectiveSubjectChild();
+    public CceElectiveSubjectChild alevel = new CceElectiveSubjectChild();
+    public CceElectiveSubjectChild subt = new CceElectiveSubjectChild();
+    public CceElectiveSubjectParent idnewcount = new CceElectiveSubjectParent();
+    public CceElectiveSubjectParent finesum = new CceElectiveSubjectParent();
+    public CceElectiveSubjectParent revaluationsum = new CceElectiveSubjectParent();
+
+    List<double> SelectIndex { get; set; }
+
+
+    public List<dtStudentRegister> names = new List<dtStudentRegister>();
+    public dtStudentRegister AccountName = new dtStudentRegister();
+    public SchoolFeeMaster DTFeeMaster = new SchoolFeeMaster();
+    public SchoolStudent DTStudent = new SchoolStudent();
+    public IList<Accounts> name = new List<Accounts>();
+    public List<dtStudentRegister> namess = new List<dtStudentRegister>();
+
+    List<CceElectiveSubjectMaster> amlist = new List<CceElectiveSubjectMaster>();
+    public bool ShowSelectAllCheckBox { get; set; } = true;
+    public bool EnableSelectionOrders { get; set; } = true;
+    public bool EnableDropDownIcon { get; set; } = true;
+    private bool CheckSelectAll { get; set; } = true;
+    private bool DropDownButton { get; set; } = true;
+    private bool SelectionReorder { get; set; } = true;
+    public List<CceElectiveSubjectMaster> amts = new List<CceElectiveSubjectMaster>();
+    string op;
+    ObservableCollection<dtPostingVoucher> objpostvoucherTemp = new ObservableCollection<dtPostingVoucher>();
+    public List<double> RowIndexesBranch = new List<double>();
+    public void OnSelectAllChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        this.ShowSelectAllCheckBox = args.Checked;
+    }
+    public void OnDropDownButtonChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        this.EnableDropDownIcon = args.Checked;
+    }
+    public void OnSeletionReorder(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        this.EnableSelectionOrders = args.Checked;
+
+    }
+    public async Task Back_Click()
+    {
+        IJS.InvokeVoidAsync("history.back", -1);
+    }
+
+    public void SelectedStudentlist(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, dtStudentRegister> arg)
+    {
+        if (arg.ItemData != null)
+        {
+            DTAccount.AccountName = arg.ItemData.AccountName;
+            DTAccount.AccountCode = arg.ItemData.AccountCode;
+            value = null;
+        }
+    }
+    public async Task Selectedsubject()
+    {
+        if (GetOptionals.Combo != null)
+        {
+            Op = GetOptionals.Combo;
+
+            SubjectName = await _IOptionalManagers.Getsubject(BranchID, Op, CmbAccYear);
+        }
+    }
+
+    int rd = 0;
+    CceElectiveSubjectMaster totObj = new CceElectiveSubjectMaster();
+
+    public string UsingLoopStringAdditionAssignment(string[] value)
+    {
+        var result = string.Empty;
+        foreach (var item in value)
+        {
+            result += item;
+        }
+        return result;
+    }
+    public async Task Selectedamountss(MultiSelectChangeEventArgs<CceElectiveSubjectMaster[]> args)
+    {
+        CceElectiveSubjectMaster[] total;
+        amts = await _IOptionalManagers.Getamts();
+        tot = 0;
+        if (args.Value != null)
+        {
+            System.Text.StringBuilder divstring = new System.Text.StringBuilder();
+
+            foreach (var dy in args.Value)
+            {
+                var temp1 = dy.SubjectName + ",";
+                divstring.Append(temp1);
+
+                totObj = amts.Where(a => a.SubjectName == dy.SubjectName).FirstOrDefault();
+                tot = tot + Convert.ToDecimal(totObj.Amount);
+            }
+
+            sub = divstring.ToString();
+            sub = sub.TrimEnd(',');
+            opt.SubjectName = sub;
+        }
+    }
+    public async Task Selectedamount()
+    {
+        if (subjects.SubjectName != null)
+        {
+            sub = subjects.SubjectName;
+            Amounts = Amountss.FirstOrDefault();
+        }
+    }
+    public async Task popClose_Click()
+    {
+        PopupVisible = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            getdate = await _IOptionalManagers.getdate();
+            Dates.Date = getdate.Date;
+            getExam = await _IOptionalManagers.getExam();
+            Reexam = getExam.SubjectName;
+            Category = await SessionStorage.GetItemAsync<string>("Category");
+            StudentCode = SCode;
+            BranchID = await SessionStorage.GetItemAsync<int>("BranchID");
+            user = await SessionStorage.GetItemAsync<int>("UserID");
+            RowCount = await SessionStorage.GetItemAsync<int>("RowCount");
+            CmbYear = (await StudentMasterService.GetAcademicYear(BranchID)).ToList();
+            objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
+            CmbAccYear = objAccYear.AcademicYear.ToString();
+            DTFeeMaster.AcademicYear = objAccYear.AcademicYear.ToString();
+            await InvokeAsync(StateHasChanged);
+            DTAccount = await StudentMasterService.GetDTAccount(AccountID);
+            Class = (await StudentMasterService.GetClass(BranchID)).ToList();
+            Division = (await StudentMasterService.GetDivision(BranchID)).ToList();
+            DTStudentTrans = await StudentMasterService.GetDTStudentTrans(AccountID, BranchID, CmbAccYear);
+            DTAccount = await StudentMasterService.GetDTAccount(AccountID);
+            vtype = Convert.ToInt32(await _IPostingManager.GetVtype("Student Fee"));
+            cls = DTStudentTrans.Class;
+            div = DTStudentTrans.Division;
+
+            GetOptionals = await _IOptionalManagers.GetOptions(BranchID, CmbAccYear, cls);
+            if (GetOptionals.Combo != null)
+            {
+                Op = GetOptionals.Combo;
+
+                SubjectName = await _IOptionalManagers.Getsubject(BranchID, Op, CmbAccYear);
+            }
+
+            if (cls == "X")
+            {
+                Options = await _IOptionalManagers.GetOption(BranchID, CmbAccYear, cls);
+            }
+            if (cls == "XI")
+            {
+                Options = await _IOptionalManagers.GetOption1(BranchID, CmbAccYear);
+            }
+            if (cls == "XII")
+            {
+                Options = await _IOptionalManagers.GetOption2(BranchID, CmbAccYear);
+            }
+
+            namess = (await _IOptionalManagers.GetStudentss(BranchID, CmbAccYear, cls, div)).ToList();
+            OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+
+            countigcse = await _IOptionalManagers.countigcse(BranchID, StudentCode);
+            aslevel = await _IOptionalManagers.countaslevel(BranchID, StudentCode);
+            alevel = await _IOptionalManagers.countalevel(BranchID, StudentCode);
+            finesum = await _IOptionalManagers.finesum(BranchID, StudentCode);
+            revaluationsum = await _IOptionalManagers.revaluationsum(BranchID, StudentCode);
+            feerev = await _IOptionalManagers.Getfeedata(BranchID, CmbAccYear, StudentCode);
+            subjectbycomm = await _IOptionalManagers.subtt(BranchID, StudentCode, Idne);
+            if (Category == "Administrator")
+
+            {
+                AllowOpen = true;
+                visible = true;
+                Open = false;
+            }
+            else
+            {
+                AllowOpen = false;
+                visible = false;
+            }
+            await load();
+
+        }
+        catch (Exception ex)
+        {
+            IsOpenDanger = true;
+            Failed = "The class you selected does not have permission to open CAIE Subject";
+        }
+    }
+
+    public async Task load()
+    {
+        idnewcount = await _IOptionalManagers.idnew();
+        if (idnewcount.Idnew == 0)
+        {
+            Idnew = 10001;
+            newid = Idnew.ToString();
+        }
+        else
+        {
+            d = idnewcount.Idnew + 1;
+            newid = d.ToString();
+            await this.InvokeAsync(StateHasChanged);
+        }
+        k = Convert.ToDecimal(fine);
+        f = Convert.ToDecimal(sumagg);
+        k = k + f;
+        g = Convert.ToString(k);
+        q = Convert.ToDecimal(sumagg);
+    }
+
+    public async Task GetSelectedRecords_Posting(RowSelectEventArgs<CceElectiveSubjectChild> args)
+    {
+        OptionalManages = await this.OptionalManagerLists.GetSelectedRecordsAsync();
+
+    }
+
+    public async Task DeselectRecords(RowDeselectEventArgs<CceElectiveSubjectChild> args)
+    {
+        OptionalManages = new List<CceElectiveSubjectChild>();
+    }
+
+    public async Task search()
+    {
+        finesum = await _IOptionalManagers.finesum(BranchID, StudentCode);
+
+        revaluationsum = await _IOptionalManagers.revaluationsum(BranchID, StudentCode);
+        p = finesum.Fine;
+        o = revaluationsum.Revaluation;
+        q = Convert.ToDecimal(sumagg);
+        n = p + o + q;
+        Totalpayamount = Convert.ToString(n);
+        feerev = await _IOptionalManagers.Getfeedata(BranchID, CmbAccYear, StudentCode);
+
+
+        OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+        await this.InvokeAsync(StateHasChanged);
+
+
+    }
+    public void DataBoundBranch()
+    {
+        if (RowIndexesBranch.Count != 0)
+        {
+            OptionalManagerLists.SelectRows(RowIndexesBranch.ToArray());
+            RowIndexesBranch = new List<double>();
+        }
+
+    }
+    public async Task RowDataBoundBranch(RowDataBoundEventArgs<CceElectiveSubjectChild> args)
+    {
+        var dataSource = args.Data;
+        var RowIndexValueBranch = await OptionalManagerLists.GetRowIndexByPrimaryKeyAsync(args.Data.BranchId);
+        RowIndexesBranch.Add(RowIndexValueBranch);
+
+        await InvokeAsync(StateHasChanged);
+    }
+    public async Task Save_Clicks()
+    {
+        CceElectiveSubjectMaster MM = new CceElectiveSubjectMaster();
+        MM.Date = Dates.Date;
+        HttpResponseMessage response = await _IOptionalManagers.SaveDate(MM);
+        getdate = await _IOptionalManagers.getdate();
+        Dates.Date = getdate.Date;
+        countigcse = await _IOptionalManagers.countigcse(BranchID, StudentCode);
+        aslevel = await _IOptionalManagers.countaslevel(BranchID, StudentCode);
+        alevel = await _IOptionalManagers.countalevel(BranchID, StudentCode);
+
+        if (response.IsSuccessStatusCode)
+        {
+
+
+            IsOpen = true;
+            Success = "Added Successfully";
+
+        }
+
+    }
+    public async Task Save_Clickss()
+    {
+        CceElectiveSubjectMaster PP = new CceElectiveSubjectMaster();
+        PP.SubjectName = Reexam;
+
+
+        HttpResponseMessage response = await _IOptionalManagers.SAVEEXAM(PP);
+        getExam = await _IOptionalManagers.getExam();
+        Reexam = getExam.SubjectName;
+        countigcse = await _IOptionalManagers.countigcse(BranchID, StudentCode);
+        aslevel = await _IOptionalManagers.countaslevel(BranchID, StudentCode);
+        alevel = await _IOptionalManagers.countalevel(BranchID, StudentCode);
+
+        if (response.IsSuccessStatusCode)
+        {
+
+
+            IsOpen = true;
+            Success = "Added Successfully";
+
+        }
+
+    }
+
+    public async Task Save_Click()
+    {
+        OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+        Save();
+
+    }
+
+
+    public async Task Save()
+    {
+        System.Text.StringBuilder divstring = new System.Text.StringBuilder();
+        CceElectiveSubjectChild MM = new CceElectiveSubjectChild();
+        CceElectiveSubjectParent MMM = new CceElectiveSubjectParent();
+        List<CceElectiveSubjectChild> tt = new List<CceElectiveSubjectChild>();
+        if (fine != null && revaluation != null)
+        {
+            MMM.Idnew = Convert.ToInt32(newid);
+            MMM.StudentCode = DTAccount.AccountCode;
+            MMM.Fine = Convert.ToDecimal(fine);
+            MMM.Revaluation = Convert.ToDecimal(revaluation);
+            await _IOptionalManagers.Savefees(MMM);
+            feerev = await _IOptionalManagers.Getfeedata(BranchID, CmbAccYear, StudentCode);
+            Totalpayamount = null;
+        }
+        else
+        {
+            OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+        }
+        if (value != null)
+        {
+            foreach (var res in value)
+            {
+                totObj = amts.Where(a => a.SubjectName == res.SubjectName).FirstOrDefault();
+
+
+
+                //if (Reexam == "Yes")
+
+                //{ res.SubjectName= res.SubjectName + "(Re-Examination)"; }
+                optls = OptionalManagerListss.Where(a => a.SubjectName == res.SubjectName && a.Options == GetOptionals.Combo).ToList();
+
+                if (optls.Count == 0)
+                {
+                    MM.AccountID = AccountID;
+                    MM.PrevClass = DTStudentTrans.Prevclass;
+                    MM.Class = DTStudentTrans.Class;
+                    MM.Division = DTStudentTrans.Division;
+                    MM.StudentCode = DTAccount.AccountCode;
+                    MM.BranchId = BranchID;
+                    MM.Academicyear = CmbAccYear;
+                    MM.CreatedDate = DateTime.Today;
+                    MM.Options = GetOptionals.Combo;
+                    MM.Amount = totObj.Amount;
+                    MM.SubjectName = res.SubjectName;
+
+                    if (Reexam == "Yes")
+                    {
+
+                        MM.Credit = 1;
+                        // MM.SubjectName = res.SubjectName ;
+
+
+                    }
+
+
+
+                    HttpResponseMessage response = await _IOptionalManagers.SaveOptinal(MM);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        CceElectiveSubjectMaster subjects = new CceElectiveSubjectMaster();
+
+                        CceElectiveSubjectMaster GetOptionals = new CceElectiveSubjectMaster();
+
+                        IsOpen = true;
+                        Success = "Added Successfully";
+                        OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+
+                        await this.InvokeAsync(StateHasChanged);
+                        await OptionalManagerLists.Refresh();
+                        tot = 00000;
+
+                        countigcse = await _IOptionalManagers.countigcse(BranchID, StudentCode);
+                        aslevel = await _IOptionalManagers.countaslevel(BranchID, StudentCode);
+                        alevel = await _IOptionalManagers.countalevel(BranchID, StudentCode);
+                        idnewcount = await _IOptionalManagers.idnew();
+                        d = idnewcount.Idnew + 1;
+                        newid = d.ToString();
+                        await this.InvokeAsync(StateHasChanged);
+                    }
+                    else
+                    {
+                        OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+                        await this.InvokeAsync(StateHasChanged);
+                    }
+                }
+            }
+        }
+        else
+        {
+            OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+            await this.InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async Task<double> GetRowCounter(int? val)
+    {
+        var index = await OptionalManagerLists.GetRowIndexByPrimaryKeyAsync(val);
+        var currentPage = OptionalManagerLists.PageSettings.CurrentPage;
+        if (OptionalManagerLists.AllowPaging && currentPage > 1)
+        {
+            index = (((currentPage - 1) * OptionalManagerLists.PageSettings.PageSize) + index);
+        }
+        return index + 1;
+    }
+    public async Task<double> GetRowCounters(int? val)
+    {
+        var index = await feerevss.GetRowIndexByPrimaryKeyAsync(val);
+        var currentPage = feerevss.PageSettings.CurrentPage;
+        if (OptionalManagerLists.AllowPaging && currentPage > 1)
+        {
+            index = (((currentPage - 1) * OptionalManagerLists.PageSettings.PageSize) + index);
+        }
+        return index + 1;
+
+    }
+    public async Task FeeSchedulePost_Click()
+    {
+        subjectbycomm = await _IOptionalManagers.subtt(BranchID, StudentCode, Idne);
+
+        b = Convert.ToDouble(sumagg);
+
+        string fin, Rev;
+        a = Convert.ToDouble(fine);
+        l = Convert.ToDouble(revaluation);
+
+        //foreach (var tt in OptionalManages)
+        //{
+        //    ttf = ttf + tt.Amount;
+        //}
+        b = b + a + l;
+        ttf = Convert.ToDecimal(b);
+        //foreach (var ssubtt in OptionalManages)
+        //{
+        //    subts = subts + ssubtt.SubjectName.Substring(0, 3) + ",";
+        //}
+        subts = subjectbycomm.Subjectbycomma;
+        if (a != 0)
+        {
+            subts = subts + "," + "Late Amendment Fee,";
+        }
+        if (l != 0)
+        {
+            subts = subts + "Revaluation Fee";
+        }
+        string AY = CmbAccYear.Substring(2, 2);
+
+        dtsVoucher dts = new dtsVoucher();
+        objpostvoucherTemp.Clear();
+
+        dtPostingVoucher objpostvoucher = new dtPostingVoucher();
+        subt = await _IOptionalManagers.subtt(BranchID, StudentCode, Idne);
+        subttt = subt.Subjectbycomma;
+
+        objpostvoucher.EffectiveDate = Convert.ToDateTime(Dates.Date);
+        objpostvoucher.VDate = Convert.ToDateTime(Dates.Date);
+        objpostvoucher.DueDate = Convert.ToDateTime(Dates.Date);
+        objpostvoucher.CreatedDate = DateTime.Today;
+        objpostvoucher.ModifiedDate = DateTime.Today;
+        objpostvoucher.Remark = "Exam Fee";
+        objpostvoucher.VType = vtype;
+        objpostvoucher.BranchID = 31;
+        objpostvoucher.RefNo = "FEE" + AY + DTStudentTrans.AccountId.ToString();
+        objpostvoucher.AccountID = DTStudentTrans.AccountId;
+        objpostvoucher.AccountName = null;
+        objpostvoucher.AccountCode = null;
+        objpostvoucher.UserTrackID = 0;
+        objpostvoucher.CommonNarration = "Exam Fee-" + subts;
+        objpostvoucher.VoucherAgainst = "FEE";
+        objpostvoucher.VATAmt = 0;
+        objpostvoucher.VEDAccountID = DTStudentTrans.AccountId;
+        objpostvoucher.VECAccountID = 177218; /*Merryland*/
+        //objpostvoucher.VECAccountID = 120367; /*testdb*/
+        objpostvoucher.TaxCode = "ZR";
+
+        objpostvoucher.Amount = ttf;
+
+        objpostvoucher.IsCanceled = Convert.ToBoolean(0);
+        objpostvoucher.Posted = Convert.ToBoolean(1);
+        objpostvoucher.CreatedUserID = user;
+        objpostvoucher.ModifiedUserID = user;
+        objpostvoucher.ExchangeRate = 1;
+        objpostvoucher.Currency = 1;
+        objpostvoucher.RowState = "Insert";
+
+        vID = 0;
+        //ventry
+        objpostvoucher.VID = vID;
+        objpostvoucher.Description = "Exam Fee-" + subts;
+        objpostvoucher.VECAccountID = 177218;/* merryland*/
+        //objpostvoucher.VECAccountID = 120367; /*testdb*/
+        objpostvoucher.VECAmount = ttf;
+
+        objpostvoucher.VEDAccountID = DTStudentTrans.AccountId;
+        objpostvoucher.VEDAmount = ttf;
+        objpostvoucher.SlNo = 1;
+        objpostvoucherTemp.Add(objpostvoucher);
+
+        dts.objpostvoucherTemp = objpostvoucherTemp.ToList().ToArray();
+        HttpResponseMessage response = await _IPostingManager.CreatePostingVoucher(dts);//await Http.PostAsJsonAsync("api/Inventory", dts);
+
+        if (response.IsSuccessStatusCode)
+        {
+            int EtId;
+            PopupLoading = false;
+            PopupVisible = true;
+            foreach (var tt in OptionalManagerListss)
+            {
+                EtId = tt.Etid;
+                CceElectiveSubjectChild MMS = new CceElectiveSubjectChild();
+                MMS.Posted = "Posted";
+                MMS.Etid = tt.Etid;
+
+                await _IOptionalManagers.UpdatePost(MMS);
+                OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+                await this.InvokeAsync(StateHasChanged);
+
+            }
+
+        }
+        else
+        {
+            PopupLoading = false;
+            PopupSaveError = true;
+        }
+    }
+
+    public async Task Delete_Click(int Etid)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure? you want to delete");
+        if (confirmed)
+        {
+            await _IOptionalManagers.DeleteMaster(Etid);
+            OptionalManagerListss = await _IOptionalManagers.Getdatas(BranchID, CmbAccYear, StudentCode);
+            await this.InvokeAsync(StateHasChanged);
+            CceElectiveSubjectMaster subjects = new CceElectiveSubjectMaster();
+            CceElectiveSubjectMaster GetOptionals = new CceElectiveSubjectMaster();
+
+            IsOpen = true;
+            Success = "Delete Successfully";
+            countigcse = await _IOptionalManagers.countigcse(BranchID, StudentCode);
+
+            aslevel = await _IOptionalManagers.countaslevel(BranchID, StudentCode);
+            alevel = await _IOptionalManagers.countalevel(BranchID, StudentCode);
+        }
+        await this.InvokeAsync(StateHasChanged);
+    }
+    public async Task PostClick(int Etid)
+    {
+
+    }
+
+
+    public async Task Delete_Clicks(int Id)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>
+    ("confirm", "Are you sure? you want to delete");
+        if (confirmed)
+        {
+
+            await _IOptionalManagers.Deletefee(Id);
+            feerev = await _IOptionalManagers.Getfeedata(BranchID, CmbAccYear, StudentCode);
+            await this.InvokeAsync(StateHasChanged);
+            IsOpen = true;
+            Success = "Delete Successfully";
+        }
+
+        await this.InvokeAsync(StateHasChanged);
+    }
+    public void DataBount()
+    {
+
+    }
+}
+
+

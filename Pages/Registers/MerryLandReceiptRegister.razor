@@ -1,0 +1,767 @@
+﻿@page "/MerryLandReceiptRegister"
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using System.Collections.ObjectModel
+@using Syncfusion.Blazor.Popups
+@using System.IO
+@using System.Net
+@using Microsoft.AspNetCore.Mvc
+@using System.Net.Mail
+@using Newtonsoft.Json
+@using OrisonFeeAnalysis.Entities.General
+@using OrisonFeeAnalysis.Entities.Student
+@using Microsoft.Extensions.Localization
+@using System.Dynamic
+@using OrisonFeeAnalysis.Entities
+@using BlazorStrap;
+@using OrisonFeeAnalysis.Entities.Financial.Main
+@using OrisonFeeAnalysis.Resources
+@inject OrisonFeeAnalysis.Contract.General.IVoucherMasterManager _VoucherMasterManager
+@inject OrisonFeeAnalysis.Contract.Financial.Main.IVoucherDocuments _IVoucherDocuments
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Services.GeneralServices genServ
+@inject OrisonFeeAnalysis.Services.FinServices finServ
+@inject NavigationManager NavigationManager
+@*@inject OrisonSchoolWeb.Services.UserRightsService _UserRights*@
+@inject OrisonFeeAnalysis.Contract.IStudentMaster StudentMasterService
+@*@inject OrisonSchoolWeb.Services.ReportExportService _Export*@
+@inject IJSRuntime jsRuntime
+@inject OrisonFeeAnalysis.Contract.IBoldReportManager _boldReport
+@inject IStringLocalizer<SfResources> Localizer
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+    <link href="css/Style.css" rel="stylesheet" />
+
+</head>
+
+@if (AllowOpen == true)
+{
+
+    <div class="box-card-shadow">
+        <div class="row">
+            <div class="col-md-12">
+                <SfComboBox TValue="string" TItem="VtypeTran" Width="200px" AllowCustom=true Placeholder=@Localizer["Receipt Student"] DataSource="@VoucherTypes">
+                    <ComboBoxFieldSettings Value="ID" Text="VType"></ComboBoxFieldSettings>
+                    <ComboBoxEvents TItem="VtypeTran" TValue="string" ValueChange="@VtypeComboChangeHandler"></ComboBoxEvents>
+                </SfComboBox>
+                <SfButton IsPrimary="true" OnClick="@AddNew" IconCss="Icon add" CssClass="btn">@Localizer["New"]</SfButton>
+                <SfTextBox @ref="search" Input="OnInput" Placeholder=@Localizer["Global Search"] Width="170px" ShowClearButton="true" CssClass="e-btn2" ValueChange="OnSearch" Created="@onCreateSearch"></SfTextBox>
+                <SfDatePicker Width="150px" ShowClearButton="false" Format="dd/MM/yyyy" @bind-Value="@StartDate" Placeholder=@Localizer["Start Date"]></SfDatePicker>
+                <SfDatePicker Width="150px" ShowClearButton="false" Format="dd/MM/yyyy" @bind-Value="@EndDate" Placeholder=@Localizer["End Date"]></SfDatePicker>
+                <SfButton IconCss="Icon search" title=@Localizer["Search"] CssClass="e-btn4" @onclick="@Search_Click" IsPrimary="false" />
+                <SfButton IconCss="Icon filter" title=@Localizer["Clear Filter"] CssClass="e-btn4" @onclick="@Clear_Click" IsPrimary="false" />
+                <label style="color:red;font-size:12px">@Valid</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="box-card-shadow">
+        <SfGrid DataSource="@voucherList"
+                ID="GridExpense"
+                GridLines="GridLine.Both"
+                @ref="VMast"
+                Height="570" Width="100%"
+                AllowPaging="true"
+                AllowFiltering="true"
+                AllowResizing="true"
+                AllowReordering="true"
+                ShowColumnChooser="true"
+                RowHeight="23">
+
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="false"></GridFilterSettings>
+            <GridPageSettings PageSize="50"></GridPageSettings>
+            <GridSelectionSettings PersistSelection="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+            @*<GridTemplates>
+                    <DetailTemplate>
+                        @{
+                            DtVoucherMaster Vou = context as DtVoucherMaster;
+                        }
+                        <SfGrid Width="740px" DataSource="@vDocList" TValue="VoucherDocuments" Query="@(new Query().Where("VID", "equal", Vou.ID))" AllowPaging="false">
+                            <GridColumns>
+                                <GridColumn Width="9px" TextAlign="TextAlign.Center" Index="1">
+                                    <Template Context="contxt">
+                                        @{
+                                            string DId = (contxt as VoucherDocuments).ID.ToString();
+                                            string docfile = (contxt as VoucherDocuments).FileName.ToString();
+                                            <a @onclick="@(() => { ShowDoc(Convert.ToInt32(DId),docfile); })">
+                                                <img src="Images/icons8-image-90.png" style="height: 20px; width: 20px; cursor: pointer;" />
+                                            </a>
+                                            <a @onclick="@(() => { DelDoc(Convert.ToInt32(DId),docfile); })">
+                                                <img src="Images/delete-big.png" style="height: 20px; width: 20px; cursor: pointer;" />
+                                            </a>
+                                        }
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Field=@nameof(VoucherDocuments.ID) HeaderText="ID" Visible="false" Width="50"> </GridColumn>
+
+                                <GridColumn TextAlign="TextAlign.Left" HeaderText="Name" Width="80">
+                                    <Template Context="contxt">
+                                        @{
+                                            string DId = (contxt as VoucherDocuments).ID.ToString();
+                                            string FileName = (contxt as VoucherDocuments).FileName.ToString();
+                                            <a title="View" style="cursor:pointer;" @onclick="@(() => { ShowDoc(Convert.ToInt32(DId),FileName); })">
+                                                <span>@FileName</span>
+                                            </a>
+
+                                        }
+                                    </Template>
+                                </GridColumn>
+                            </GridColumns>
+                        </SfGrid>
+                    </DetailTemplate>
+                </GridTemplates>*@
+            <GridColumns>
+                @* <GridCommandColumns>
+                        <GridCommandColumn ButtonOption="@(new CommandButtonOptions() { CssClass="oi oi-pencil grid-edit btn-width"})" Title="Edit"></GridCommandColumn>
+                        <GridCommandColumn ButtonOption="@(new CommandButtonOptions() { CssClass="oi oi-trash grid-delete btn-width" })" Title="Delete"></GridCommandColumn>
+                    </GridCommandColumns>*@
+                <GridColumn Width="50px" TextAlign="TextAlign.Center" Index="1">
+                    <Template>
+                        @{
+                            string ExpId = (context as DtVoucherMaster).ID.ToString();
+                            @*string ExpVNo = (context as DtVoucherMaster).VNo.ToString();
+                                <a @onclick="@(() => { Upload_Click(Convert.ToInt32(ExpId),ExpVNo); })"><img src="Images/icons8-upload-64.png" style="height: 20px; width: 20px; cursor: pointer;" /></a>*@
+                            <a @onclick="@(() => { Edit_ClickExpense(Convert.ToInt32(ExpId)); })"><img src="Images/Pencil.png" style="height: 20px; width: 20px; cursor: pointer;" /></a>
+                            //</div>
+
+                            //<a @onclick="@(() => { Edit_ClickExpense(Convert.ToInt32(ExpId)); })"><img src="Images/Pencil.png" style="height: 20px; width: 20px; cursor: pointer;" /></a>
+                            //<a @onclick="@(() => { PrePrint_Click(ExpId); })"><img src="Images/OFPrePrint.png" style="height: 20px; width: 20px; cursor: pointer;" /></a>
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Type="ColumnType.Number" HeaderText=@Localizer["S.No"] Width="50" Index="2">
+                    <Template>
+                        @{
+                            var val = GetRowCountExp(context as DtVoucherMaster);
+
+                            @val.Result
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.ID) IsPrimaryKey="true" Visible="false" AllowFiltering="false"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.VNo) HeaderText=@Localizer["Receipt No."] Index="3" Width="90px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.Vdate) HeaderText=@Localizer["Date"] Format="dd/MM/yyyy" Index="4" Width="80px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.AccountId) HeaderText=@Localizer["AccountID"] Visible="false" Index="5" Width="200px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.AccountName) HeaderText=@Localizer["Student Name"] Index="5" Width="200px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.Description) HeaderText=@Localizer["Description"] Index="6" Width="200px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.Amount) Format="0.00" HeaderText=@Localizer["Amount"] HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Index="7" Width="120px"></GridColumn>
+                @*<GridColumn Field=@nameof(DtVoucherMaster.VATAmt)  Format="0.00" HeaderText="VAT" Index="9" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="110px"></GridColumn>*@
+                @*@if (CompanyCode == "Merryland")
+                    {*@
+                <GridColumn Width="70px" HeaderText="Preview" TextAlign="TextAlign.Center" HeaderTextAlign="TextAlign.Left">
+                    <Template Context="FeeContext">
+                        @{ var VoucherID = (FeeContext as DtVoucherMaster).ID;
+                            <a @onclick="@(() => { PrePrint_Click(VoucherID); })"><img src="Images/View.png" style="height:20px;width:20px; cursor:pointer;" /></a>
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Width="70px" HeaderText="Mail" TextAlign="TextAlign.Center" HeaderTextAlign="TextAlign.Left">
+                    <Template Context="FeeContext">
+                        @{ var obj = (FeeContext as DtVoucherMaster);
+                            <a @onclick="@(() => { OpenMailWindow(obj.AccountId,obj.ID); })"><img src="Images/send-Old.png" style="height:20px;width:20px; cursor:pointer;" /></a>
+                        }
+                    </Template>
+                </GridColumn>
+                @*}*@
+            </GridColumns>
+        </SfGrid>
+    </div>
+    <SfDialog Width="700px" IsModal="true" @bind-Visible="PopupUpload" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+            </Header>
+            <Content>
+                <div>
+                    <p style="color:red">
+                        <SfUploader ID=UploadFiles @ref="UploaderObj" MaxFileSize="2000000" Multiple="false" AutoUpload="true" ShowFileList="true">
+                            <UploaderEvents Success="OnSuccess" OnRemove="onRemove" FileSelected="OnFileSelected"></UploaderEvents>
+                            <UploaderAsyncSettings SaveUrl="api/Upload/Save" RemoveUrl="api/Upload/Remove"></UploaderAsyncSettings>
+                        </SfUploader>
+                    </p>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="Close" IsPrimary="true" @onclick="@(() => PopupUpload = false)" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+
+
+    <SfDialog Width="400px" IsModal="true" @bind-Visible="PopupVisible" ShowCloseIcon="true">
+        <DialogTemplates>
+            <Header>
+                Email
+            </Header>
+            <Content>
+                <div class="form-group">
+                    <div class="form-row">
+                        <label class="label">Father Email ID</label>
+                        @*<dx:ASPxTextBox runat="server" ID="txtNewParentCode" ClientInstanceName="txtNewParentCode" CssClass="form_control"></dx:ASPxTextBox>*@
+                        <SfTextBox @bind-Value="DTParent.Email" CssClass="textbox" Enabled="false">
+                        </SfTextBox>
+                    </div>
+                    <div class="form-row">
+                        <label class="label">Mother Email ID</label>
+                        @*<dx:ASPxTextBox runat="server" ID="txtNewParentCode" ClientInstanceName="txtNewParentCode" CssClass="form_control"></dx:ASPxTextBox>*@
+                        <SfTextBox @bind-Value="DTParent.MotherEmail" CssClass="textbox" Enabled="false">
+                        </SfTextBox>
+                    </div>
+
+                    <div class="form-row" style="padding-top: 1%;">
+                        <dx:ASPxLabel runat="server" ID="lblPermissionMessage" Text="" ForeColor="Red"></dx:ASPxLabel>
+                    </div>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="Send" IsPrimary="true" @onclick="@SendMail" />
+            <DialogButton Content="Cancel" IsPrimary="true" @onclick="@popClose_Click" />
+        </DialogButtons>
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
+}
+else
+{
+    <div class="container-fluid p-0" style="padding-right:0px">
+        <div class="form-row">
+            <div class="col-md-12">
+                <BSAlert Color=" BlazorStrap.Color.Danger" @bind-IsOpen="@Open">
+                    Permission Denied
+                </BSAlert>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+
+    int user, BranchID, vType;
+    string docFile = "", Category, CompanyCode;
+    bool AllowOpen = true, Open;
+    public SfGrid<DtVoucherMaster> VMast { get; set; }
+    SfTextBox search;
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public List<DtVoucherMaster> voucherList = new List<DtVoucherMaster>();
+    public IEnumerable<VoucherDocuments> vDocList = new List<VoucherDocuments>();
+    SfUploader UploaderObj;
+    string filename = "";
+    string filepath = "", Valid;
+    string filePubpath = "";
+    bool PopupUpload { get; set; }
+    bool PopupSaveError { get; set; }
+    bool DocVisible { get; set; }
+    string VNo;
+    long VId;
+    bool PopupVisible { get; set; }
+    public VoucherDocuments[] vouDocs;
+    ObservableCollection<VoucherDocuments> objDocs = new ObservableCollection<VoucherDocuments>();
+    public IList<VtypeTran> VoucherTypes = new List<VtypeTran>();
+
+    IEnumerable<string> Default = new List<string>() {
+    "Default",
+    "Detailed",
+    "Customized",
+
+  };
+    VtypeTran obVtype = new VtypeTran();
+    //string StrVtypeList = "";
+    SfComboBox<string, VtypeTran> vtypeCombo { get; set; }
+    public Query LocalDataQueryVtype { get; set; } = new Query().Take(10);
+
+    //Added By Nibisha
+    //UserRights objUserRight = new UserRights();
+    dtStudentRegister objSC = new dtStudentRegister();
+    public Accounts DTAccount = new Accounts();
+    public int? objParentID;
+    public SchoolParentMaster DTParent = new SchoolParentMaster();
+
+    public List<SchoolAcademicYear> CmbYear = new List<SchoolAcademicYear>();
+    public string CmbAccYear = "";
+    SchoolAcademicYear objAccYear = new SchoolAcademicYear();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        try
+        {
+            StartDate = DateTime.Now;
+            EndDate = DateTime.Now;
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            user = await sessionStorage.GetItemAsync<int>("UserID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            CompanyCode = await sessionStorage.GetItemAsync<string>("Company");
+            //user = 2511;
+            //BranchID = 31;
+            //CmbYear = (await StudentMasterService.GetAcademicYear(BranchID)).ToList();
+            //objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
+            CmbAccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+        }
+        catch (Exception e)
+        {
+            Console.Write(e);
+        }
+
+        if (user == 0)
+        {
+            await sessionStorage.ClearAsync();
+            NavigationManager.NavigateTo("Login");
+        }
+        else
+        {
+            try
+            {
+                if (Category == "Administrator")
+                {
+                    AllowOpen = true;
+                    Open = false;
+
+                    StartDate = DateTime.Now.AddYears(-1);
+                    EndDate = DateTime.Now.Date;
+                    //VoucherTypes = await genServ.getEntryMode("Receipt", true);
+                    VoucherTypes = await genServ.getEntryMode("Receipt Student", true);
+                    //StrVtypeList = "Payment";
+                    //vType = await genServ.getVtype("Receipt");
+                    vType = await genServ.getVtype("Receipt Student");
+                    await sessionStorage.SetItemAsync("Vtype", vType);
+
+                    // voucherList = await _VoucherMasterManager.ListAllAcc(vType, user, BranchID,CmbAccYear,StartDate.ToString("MM/dd/yyyy"),StartDate.ToString("MM/dd/yyyy"));
+                    vDocList = await finServ.GetAll(vType);
+                    filepath = await genServ.getBranchSettingsRecpt("PortalVoucherDocumentPath");
+                    filePubpath = await genServ.getBranchSettingsRecpt("PortalVoucherDocumentPubPath");
+                }
+                else
+                {
+                    try
+                    {
+                        //objUserRight = await _UserRights.GetUserRights(user, "Student Receipt", "Students", BranchID);
+
+                        //if (objUserRight.AccessDenied == true)
+                        //{
+                        //    AllowOpen = false;
+                        //    Open = true;
+                        //}
+                        //else if (objUserRight.AllowOpen == true)
+                        //{
+                        AllowOpen = true;
+                        Open = false;
+
+                        StartDate = DateTime.Now.AddYears(-1);
+                        EndDate = DateTime.Now.Date;
+                        VoucherTypes = await genServ.getEntryMode("Receipt Student", true);
+                        //StrVtypeList = "Payment";
+                        vType = await genServ.getVtype("Receipt Student");
+                        voucherList = await _VoucherMasterManager.ListAllAcc(vType, user, BranchID, CmbAccYear, StartDate.ToString("MM/dd/yyyy"), EndDate.ToString("MM/dd/yyyy"));
+                        vDocList = await finServ.GetAll(vType);
+                        filepath = await genServ.getBranchSettingsRecpt("PortalVoucherDocumentPath");
+                        filePubpath = await genServ.getBranchSettingsRecpt("PortalVoucherDocumentPubPath");
+                        //}
+                    }
+                    catch (Exception ex)
+                    {
+                        AllowOpen = false;
+                        Open = true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write(e);
+            }
+
+        }
+    }
+
+    private async Task VtypeComboChangeHandler(ChangeEventArgs<string, VtypeTran> args)
+    {
+        vType = Convert.ToInt32(args.ItemData.ID);
+        //await vtypeSearch_Click();
+        await InvokeAsync(StateHasChanged);
+    }
+    public async Task vtypeSearch_Click()
+    {
+        //vType =  Convert.ToInt32(args.ItemData.ID);
+        try
+        {
+            voucherList = await _VoucherMasterManager.ListAllAcc(vType, user, BranchID, CmbAccYear, StartDate.ToString("MM-dd-yyyy"), EndDate.ToString("MM-dd-yyyy"));
+            vDocList = await finServ.GetAll(vType);
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+
+    }
+
+    public async Task Search_Click()
+    {
+        voucherList = await _VoucherMasterManager.ListAllAcc(vType, user, BranchID, CmbAccYear, StartDate.ToString("MM/dd/yyyy"), EndDate.ToString("MM/dd/yyyy"));
+        if (StartDate != null && EndDate != null)
+        {
+            try
+            {
+                voucherList = await _VoucherMasterManager.ListAllAcc(vType, user, BranchID, CmbAccYear, StartDate.ToString("MM/dd/yyyy"), EndDate.ToString("MM/dd/yyyy"));
+            }
+            catch (Exception ex)
+            { throw ex; }
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    public async Task Clear_Click()
+    {
+        await VMast.ClearFilteringAsync();
+        await VMast.Search("");
+        voucherList = await _VoucherMasterManager.ListAllAcc(vType, user, BranchID, CmbAccYear, StartDate.ToString("MM/dd/yyyy"), EndDate.ToString("MM/dd/yyyy"));
+
+    }
+
+    public void OnInput(InputEventArgs args)
+    {
+        this.VMast.Search(args.Value);
+    }
+    public void OnSearch(Syncfusion.Blazor.Inputs.ChangedEventArgs args)
+    {
+        if (args.Value != null)
+        {
+            VMast.SearchAsync(args.Value);
+            this.StateHasChanged();
+        }
+    }
+    public void onCreateSearch()
+    {
+        this.search.AddIcon("append", "e-upload-picture");
+    }
+
+
+    private void AddNew()
+    {
+        NavigationManager.NavigateTo("ReceiptVoucher");
+    }
+    public void Edit_ClickExpense(long Id)
+    {
+        NavigationManager.NavigateTo("ReceiptVoucher/" + Id);
+    }
+    public void ShowDoc(int Id, string DocPath)
+    {
+        DocVisible = true;
+        docFile = filePubpath + DocPath;
+
+    }
+    public async void DelDoc(int Id, string DocPath)
+    {
+        try
+        {
+            await _IVoucherDocuments.DeleteDoc(Id);
+            vDocList = await finServ.GetAll(vType);
+            try
+            {
+                var filename = Path.Combine(filepath, DocPath);
+                filename = $@"{filename}";
+                if (System.IO.File.Exists(filename))
+                {
+                    System.IO.File.Delete(filename);
+                }
+            }
+            catch (Exception ex)
+            {
+                PopupSaveError = true;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            PopupSaveError = true;
+        }
+    }
+    public void Upload_Click(long _Id, string _VNo)
+    {
+        VId = _Id;
+        VNo = _VNo;
+        PopupUpload = true;
+        //NavigationManager.NavigateTo("PaymentVoucher/" + Id+"/Edit");
+    }
+    private void OnChange(UploadChangeEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+
+            var path = @"" + filepath + "" + file.FileInfo.Name;
+            FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            file.Stream.WriteTo(filestream);
+            filestream.Close();
+            file.Stream.Close();
+        }
+    }
+    public async void OnSuccess(SuccessEventArgs args)
+    {
+
+        var customHeader = args.Response.Headers.Split(new Char[] { '\n' })[1]; // To split the response header values
+        var key = customHeader.Split(new Char[] { ':' })[0]; // To get the key pair of provided custom data in header
+        var value = customHeader.Split(new Char[] { ':' })[1].Trim(); // To get the value for the key pair of provided custom data in header
+        try
+        {
+
+            IEnumerable<VoucherDocuments> ob = objDocs.Where(x => x.FileName == args.File.Name).ToList();
+            vouDocs = ob.ToList().ToArray();
+            HttpResponseMessage response = await _IVoucherDocuments.SaveDocs(vouDocs);
+            if (response.IsSuccessStatusCode)
+            {
+                vDocList = await finServ.GetAll(vType);
+            }
+            else
+            {
+                PopupSaveError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            PopupSaveError = true;
+        }
+    }
+    private void onRemove(RemovingEventArgs args)
+    {
+        foreach (var removeFile in args.FilesData)
+        {
+            if (File.Exists(Path.Combine(@"" + filepath + "", removeFile.Name)))
+            {
+                File.Delete(Path.Combine(@"" + filepath + "", removeFile.Name));
+            }
+        }
+    }
+    public void OnFileSelected(SelectedEventArgs args)
+    {
+        Random ran = new Random();
+        foreach (var file in args.FilesData)
+        {
+            var j = "";
+            j = vType.ToString() + "-" + VNo;
+            string[] split = file.Id.Split('_');
+            var i = split.Last();
+            var oname = file.Name;
+            file.Name = "00-" + j + "-" + ran.Next() + "-" + i;
+            filename = "";
+            if (filename == "" || filename == null)
+            {
+                filename = file.Name;
+            }
+
+            VoucherDocuments obj = new VoucherDocuments();
+            obj.VID = Convert.ToInt32(VId);
+            obj.FileName = filename;
+            obj.Path = oname;
+            objDocs.Add(obj);
+
+        }
+        //vouDocs= objDocs.ToList().ToArray();
+        args.IsModified = true;
+        args.ModifiedFilesData = args.FilesData;
+    }
+
+    public async Task<int> GetRowCountExp(DtVoucherMaster val)
+    {
+        int RowCounter = voucherList.IndexOf(val);
+        return RowCounter + 1;
+    }
+
+    private ElementReference codeBlock;
+    public async Task PrePrint_Click(long VoucherID)
+    {
+
+        var Data = await _boldReport.GetFeeRecieptByID(VoucherID, 0, CmbAccYear);
+        var Data2 = await _boldReport.GetFeeRecieptByID(VoucherID, 1, CmbAccYear);
+        var VTypes = await _boldReport.GetFeeVtype(VoucherID);
+
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        if (vType == 1117)
+        {
+            foreach (var ds in VTypes)
+            {
+                foreach (var d in Data)
+                {
+                    if (ds.TranType == "Cash")
+                        d.TranType = d.TranType + ds.TranType + ", ";
+                    else if (ds.TranType == "Cheque")
+                        d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "/ " + ds.BankName + "), ";
+                    else if (ds.TranType == "TT")
+                        d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "), ";
+                }
+                foreach (var d in Data2)
+                {
+                    if (ds.TranType == "Cash")
+                        d.TranType = d.TranType + ds.TranType + ", ";
+                    else if (ds.TranType == "Cheque")
+                        d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "/ " + ds.BankName + "), ";
+                    else if (ds.TranType == "TT")
+                        d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "), ";
+                }
+            }
+            dt.DataSet1 = new List<ExpandoObject>();
+            dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data)));
+            dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data2)));
+            var Result = _boldReport.GetReport("Exam Fee Receipt", dt);
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Result.FileStream.CopyTo(ms);
+            await jsRuntime.InvokeVoidAsync(
+                      "jsOpenIntoNewTab",
+                      "Fee Receipt.pdf",
+                      Convert.ToBase64String(ms.ToArray()));
+        }
+        else
+        {
+            if (Data.Count > 0 && VTypes.Count > 0)
+            {
+                Data[0].TranType = VTypes[0].TranType;
+                Data[0].debit = VTypes[0].debit;
+                Data[0].ChequeNo = VTypes[0].ChequeNo;
+                Data[0].ChequeDate = VTypes[0].ChequeDate;
+                Data[0].BankName = VTypes[0].BankName;
+                if (VTypes.Count > 1)
+                {
+                    if (Data.Count == 1)
+                    {
+                        Data.Add(new ReceiptPrint());
+                        Data[0].AccountName = Data[0].AccountName;
+                        Data[0].VEID = Data[0].VEID;
+                        Data[0].ONO = Data[0].ONO;
+                    }
+                    Data[1].TranType = VTypes[1].TranType;
+                    Data[1].debit = VTypes[1].debit;
+                    Data[1].ChequeNo = VTypes[1].ChequeNo;
+                    Data[1].ChequeDate = VTypes[1].ChequeDate;
+                    Data[1].BankName = VTypes[1].BankName;
+                }
+            }
+
+            dt.DataSet1 = new List<ExpandoObject>();
+            dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+            //var Result = _boldReport.GetReport("Fee Receipt", dt, null);
+            var Result = _boldReport.GetReport("Fee Receipt Register", dt);
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Result.FileStream.CopyTo(ms);
+            await jsRuntime.InvokeVoidAsync(
+                      "jsOpenIntoNewTab",
+                      "Fee Receipt.pdf",
+                      Convert.ToBase64String(ms.ToArray()));
+        }
+
+
+
+    }
+
+    public async Task OnPreview(long VoucherID)
+    {
+        string Url = "ReportViewer?ReportName=Fee Receipt&VID=" + VoucherID.ToString();
+        await jsRuntime.InvokeAsync<object>("open", Url, "_blank");
+    }
+
+    public async Task SendMail()
+    {
+        try
+        {
+            System.Net.Mail.MailMessage mail = new System.Net.Mail.MailMessage();
+            System.Net.Mail.SmtpClient SmtpClient = new System.Net.Mail.SmtpClient();
+            object HOST = "mail.merryland.org";
+
+            mail.IsBodyHtml = true;
+            mail.BodyEncoding = System.Text.Encoding.UTF8;
+            SmtpClient.UseDefaultCredentials = true;
+            SmtpClient.Port = 2525;
+            SmtpClient.Host = HOST.ToString();
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
+               | SecurityProtocolType.Tls11
+               | SecurityProtocolType.Tls12;
+
+            mail.From = new System.Net.Mail.MailAddress("receipts@merryland.org", "Merryland International School");
+            //mail.From = new System.Net.Mail.MailAddress("afshadhirasoft@gmail.com");
+            //mail.To.Add("afshadhirasoft@gmail.com");
+            //mail.To.Add("c.nibisha@gmail.com");
+            //mail.To.Add("" + DTParent.Email + "");
+            //mail.To.Add("" + DTParent.MotherEmail + "");
+
+            if (DTParent.Email != null || DTParent.Email != "")
+                mail.To.Add("" + DTParent.Email + "");
+            else if (DTParent.MotherEmail != null || DTParent.MotherEmail != "")
+                mail.To.Add("" + DTParent.MotherEmail + "");
+            mail.CC.Add("receipts@merryland.org");
+            mail.Subject = "(no-reply) School fee receipt attached";
+            mail.Body = "<h2 style='color: #6300c7;font-size:15px;'>Dear parent,</h2>" +
+                        "<br>" +
+                        "<h2 style='color: #6300c7;text-align:left;font-size:15px;'>Please find attached your child's school fee receipt.</h2>" +
+                        "<br>" +
+                        "<h2 style='color: #6300c7;text-align:left;font-size:15px;'>Please do not reply, this email box is not monitored. To contact the accounts department, please email finance@merryland.org</h2>" +
+                        "<br><br>" +
+                        "<h2 style='color: #6300c7;text-align:left;font-size:15px;'>Thank you </h2>" +
+                        "<br>" +
+                        "<h2 style='color: #6300c7;text-align:left;font-size:15px;'>Merryland.</h2>";
+            if (vType == 1117)
+            {
+                FileStreamResult fileStream = await _boldReport.GetDocument("Exam Fee Receipt", SelectedVoucher, CmbAccYear);
+                mail.Attachments.Add(new Attachment(fileStream.FileStream, "Fee Receipt.pdf"));
+            }
+            else
+            {
+                FileStreamResult fileStream = await _boldReport.GetDocument("Fee Receipt Register", SelectedVoucher, CmbAccYear);
+                mail.Attachments.Add(new Attachment(fileStream.FileStream, "Fee Receipt.pdf"));
+            }
+            using (var client = new System.Net.Mail.SmtpClient(HOST.ToString(), 2525))
+            {
+                //System.Net.NetworkCredential netCredential = new System.Net.NetworkCredential("Hp2004@Hw.Ac.Uk", "5#EAJ$5b");//live don't use
+                //System.Net.NetworkCredential netCredential = new System.Net.NetworkCredential("afshadhirasoft@gmail.com", "Hcs1237#");
+                System.Net.NetworkCredential netCredential = new System.Net.NetworkCredential("receipts@merryland.org", "receipts.123");
+                client.Credentials = netCredential;
+                client.EnableSsl = true;
+                client.Send(mail);
+            }
+            PopupVisible = false;
+            Valid = "Mail Sent";
+        }
+        catch (Exception ex)
+        {
+            Valid = ex.Message;
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+
+    long SelectedVoucher;
+    private async Task OpenMailWindow(long AccountID, long VoucherID)
+    {
+        try
+        {
+            SelectedVoucher = VoucherID;
+            DTAccount = await StudentMasterService.GetDTAccount(Convert.ToInt32(AccountID));
+            objParentID = DTAccount.Parent;
+            DTParent = await StudentMasterService.GetDTParent(Convert.ToInt32(objParentID));
+            this.PopupVisible = true;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    public async Task popClose_Click()
+    {
+
+        PopupVisible = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+}

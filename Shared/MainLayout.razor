@@ -1,0 +1,462 @@
+﻿@inherits LayoutComponentBase
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.DropDowns
+@using Newtonsoft.Json;
+@using Microsoft.Extensions.Localization;
+@using OrisonFeeAnalysis.Resources;
+@using OrisonFeeAnalysis.Entities.Student
+@using OrisonFeeAnalysis.Entities.General
+@inject NavigationManager uriHelper
+@inject OrisonFeeAnalysis.Services.URLService urlServ
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IStringLocalizer<SfResources> Localizer
+@inject OrisonFeeAnalysis.Contract.IStudentMaster StudentMasterService
+
+
+<head>
+    <link href="css/MainLayout.css" rel="stylesheet" />
+    <style>
+        #wrapper .main-content {
+            overflow-y: visible;
+            background-color: #f2f2f280;
+        }
+
+        .w3-wrapper {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 15px;
+            position: relative;
+            padding: 11px 7px 15px 7px;
+            display: block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            height: 54px;
+            width: 38px;
+        }
+    </style>
+</head>
+
+<div id="wrapper">
+    <!--header-section  declaration -->
+    <div style="border-bottom: solid 1px #00AEFF;">
+        <SfToolbar Height="65px">
+            <ToolbarEvents Clicked="@Toggle"></ToolbarEvents>
+            <ToolbarItems>
+                <ToolbarItem PrefixIcon="fa fa-bars" TooltipText="Menu">
+                    <Template>
+                        <div class="e-folder">
+                            <img src="images/IcMenu.png" style="width: 25px; height: 25px;" alt="Orison" class="avatar-xxl mb-1">
+                        </div>
+                    </Template>
+                </ToolbarItem>
+                <ToolbarItem Align="@ItemAlign.Left">
+                    <Template>
+                        <div class="e-folder">
+                            <img src="Images/BackgroundOrisonLogo.png" style="width: 38px; height: 35px;" alt="Orison" class="avatar-xxl mb-1">
+                        </div>
+                    </Template>
+                </ToolbarItem>
+                <ToolbarItem Align="@ItemAlign.Left">
+                    <Template>
+                        <div class="e-folder">
+                            <label style=" color: #4758A8; font-family: inherit; font-size: 14px; font-weight: 500;">Orison FeeAnalysis Portal</label>
+                            @* @<img src="Images/Orison_Logo.png" style="width:120px;height:42px;" alt="Orison" class="avatar-xxl mb-1">*@
+                        </div>
+                    </Template>
+                </ToolbarItem>
+                @*<ToolbarItem Align="@ItemAlign.Center">
+                    <Template>
+                        <div class="e-folder">
+                            <img src="@imgSchoolLogo" style="width: 200px; height: 58px;" alt="Orison" class="avatar-xxl mb-1">
+                        </div>
+                    </Template>
+                </ToolbarItem>*@
+
+                <ToolbarItem Align="@ItemAlign.Right">
+                    <Template>
+                        <div>
+                            <a title="AcademicYear">
+                                <span style=" vertical-align: super;color: #263871;" @onclick="@(() => ConfirmDlgVisible = true)"><font size="2"> AcademicYear(@CmbAccYear)</font></span>
+                            </a>
+                        </div>
+
+                        <SfDialog @bind-Visible="@ConfirmDlgVisible" Width="400px" ShowCloseIcon="true">
+                            <DialogTemplates>
+                                <Header>
+                                    Change AcademicYear
+                                </Header>
+                                <Content>
+                                    <div class="e-row">
+                                        <div style=" width: 315px; margin: 0px auto; height: 65px; padding-top: 10px;">
+                                            <div style="display: inline-block;">
+                                                <label class="form-label mb-0 mt-2">AcademicYear:</label>
+                                            </div>
+                                            <div style="float: right;">
+
+                                                <SfDropDownList TValue="string" TItem="SchoolAcademicYear" @bind-Value="CmbAccYear" PopupHeight="230px" DataSource="@CmbYear">
+                                                    <DropDownListFieldSettings Text="AcademicYear" Value="AcademicYear"></DropDownListFieldSettings>
+                                                </SfDropDownList>
+
+                                                @*<SfComboBox DataSource="@AcademicYearList" TValue="string" TItem="clsExamConfigure"
+                                                    EnableVirtualization=" true"
+                                                    CssClass="textbox"
+                                                    Width="200px"
+                                                    @bind-Value="AccYear"
+                                                    AllowCustom="false" Autofill="true" AllowFiltering="true">
+                                            <ComboBoxEvents TValue="string" TItem="clsExamConfigure"></ComboBoxEvents>
+
+                                            <ComboBoxFieldSettings Text="AcademicYear" Value="AcademicYear"></ComboBoxFieldSettings>
+                                        </SfComboBox>*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        Do You Want Change AcademicYear ?
+                                    </div>
+                                    <DialogButtons>
+                                        <div style="margin-left: 185px;">
+                                            <SfButton Content="Yes" CssClass="e-btn" @onclick="yesClick" />
+                                            <SfButton Content="No" CssClass="e-btn" OnClick="@HideDialog" />
+                                        </div>
+
+                                    </DialogButtons>
+                                </Content>
+                            </DialogTemplates>
+                            <DialogPositionData X="right" Y="63" />
+                        </SfDialog>
+
+                    </Template>
+                </ToolbarItem>
+
+                <ToolbarItem Align="@ItemAlign.Right">
+                    <Template>
+                        <div class="e-folder">
+                            <CultureSwitcher />
+                        </div>
+                    </Template>
+                </ToolbarItem>
+                <ToolbarItem Align="@ItemAlign.Right">
+                    <Template>
+                        <div class="e-folder">
+                            <a @onclick="@Home_Click" title="Home">
+                                <img src="images/iconshome.png" style="width:27px;height:27px;" alt="Home" class="avatar-xxl mb-1">
+                            </a>
+                        </div>
+                    </Template>
+                </ToolbarItem>
+                <ToolbarItem Align="@ItemAlign.Right">
+                    <Template>
+                        <div>
+                            <div class="dropdown">
+                                <ul class="navbar-nav navbar-align">
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" data-bs-toggle="dropdown">
+                                            <i class="align-middle" data-feather="settings"></i>
+                                        </a>
+                                        <div class="dropdown">
+                                            <a class="nav-link d-none d-sm-inline-block" data-bs-toggle="dropdown">
+                                                <div class="form-row" style="min-width:130px;">
+                                                    <div class="col-md-7" style="padding-top: 3px; text-align: right;">
+                                                        <span style=" vertical-align: super;color: #404E67;">  welcome @UserName</span>
+                                                    </div>
+                                                    @*<div class="col-md-5" style="text-align:right;">
+                                                <img src="images/avatar.jpg" class="img-round" alt="Orison User" />
+                                            </div>*@
+                                                </div>
+                                            </a>
+                                            <div class="dropdown-content" style="text-align:left;">
+                                                <a class="dropdown-item"><i class="oi oi-person"></i> Profile</a>
+                                                <a class="dropdown-item" @onclick="LogoutClick"><i class="oi oi-account-logout"></i> Log out</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </Template>
+                </ToolbarItem>
+            </ToolbarItems>
+        </SfToolbar>
+    </div>
+    <!-- end of header-section -->
+    <!-- sidebar element declaration -->
+    <SfSidebar Animate="false" EnablePersistence="true" HtmlAttributes="@HtmlAttribute" Width="290px" Target=".main-content" @ref="Sidebar" MediaQuery="(min-width:600px)" @bind-IsOpen="SidebarToggle">
+        <ChildContent>
+            <div class="main-menu">
+                <div class="pt-3" style="overflow-x:hidden;">
+                    <SfTreeView EnablePersistence="@SfTreeView" CssClass="main-treeview" @ref="TreeView" ExpandOn="@Expand" TValue="TreeData">
+                        <TreeViewEvents TValue="TreeData" NodeClicked="OnSelect"></TreeViewEvents>
+                        <TreeViewFieldsSettings Id="nodeId" Text="nodeText" IconCss="iconCss" DataSource="treedata" HasChildren="hasChild" ParentID="pid">
+                        </TreeViewFieldsSettings>
+                    </SfTreeView>
+                </div>
+            </div>
+        </ChildContent>
+    </SfSidebar>
+    <!-- end of sidebar element -->
+    <!-- main-content declaration -->
+    <div class="main-content" id="main-text">
+        <div class="sidebar-content">
+            @Body
+        </div>
+    </div>
+</div>
+
+@code {
+    bool PopupError { get; set; }
+    public bool SfTreeView = false;
+    SfTreeView<TreeData> TreeView;
+    SfSidebar Sidebar;
+    public string CmbAccYear = "";
+    public List<SchoolAcademicYear> CmbYear = new List<SchoolAcademicYear>();
+    SchoolAcademicYear objAccYear = new SchoolAcademicYear();
+    public DtUpdate dtupdate = new DtUpdate();
+
+    string UserName = "", ErrorSaving, HomeUrl = "", LogoutUrl = "", CompanyLogo = "Images/OrisonLogo.png", ErrorContent;
+    private string ToastPosition = "Right";
+    int AccountID, UserID, BranchID;
+    bool login;
+    public ExpandAction Expand = ExpandAction.Click;
+    public bool SidebarToggle = false;
+    Dictionary<string, object> HtmlAttribute = new Dictionary<string, object>() { { "class", "sidebar-treeview" } };
+
+    public void Toggle(ClickEventArgs args)
+    {
+        if (args.Item.TooltipText == "Menu")
+        {
+            SidebarToggle = !SidebarToggle;
+        }
+    }
+    public async Task Home_Click()
+    {
+        HomeUrl = (await urlServ.GetURL("HomeURL")).ToString();
+        uriHelper.NavigateTo(HomeUrl);
+    }
+    public async Task LogoutClick()
+    {
+        LogoutUrl = (await urlServ.GetURL("LogoutURL")).ToString();
+        await localStorage.ClearAsync();
+
+        uriHelper.NavigateTo(LogoutUrl);
+
+    }
+    public class TreeData
+    {
+        public string nodeId { get; set; }
+        public string nodeText { get; set; }
+        public string iconCss { get; set; }
+        public bool hasChild { get; set; }
+        public string pid { get; set; }
+    }
+    public class Company
+    {
+        public string SchoolLogo { get; set; }
+    }
+    private List<TreeData> treedata = new List<TreeData>();
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+        UserName = await sessionStorage.GetItemAsync<string>("Username");
+        try
+        {
+            CmbYear = (await StudentMasterService.GetAcademicYear(BranchID)).ToList();
+            //objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
+            //CmbAccYear = objAccYear.AcademicYear.ToString();
+            //await sessionStorage.SetItemAsync("AcademicYear", CmbAccYear.ToString());
+            CmbAccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+        //UserID = await localStorage.GetItemAsync<int>("UserID");
+        //UserName = await localStorage.GetItemAsync<string>("Name");
+        //AccountID = await localStorage.GetItemAsync<int>("AccountID");
+        //BranchID = await localStorage.GetItemAsync<int>("BranchID");
+
+        treedata.Add(new TreeData { nodeId = "01", nodeText = "Dashboard", iconCss = "fa fa-bar-chart" });
+        treedata.Add(new TreeData { nodeId = "02", nodeText = "One Day Collection Summary", iconCss = "fa fa-file-text-o" });
+        treedata.Add(new TreeData { nodeId = "03", nodeText = "One Day Collection Details", iconCss = "fa fa-list-alt" });
+        treedata.Add(new TreeData { nodeId = "04", nodeText = "Collection Summary Till Date", iconCss = "fa fa-calendar" });
+        treedata.Add(new TreeData { nodeId = "05", nodeText = "User-wise Collection Summary", iconCss = "fa fa-users" });
+        treedata.Add(new TreeData { nodeId = "06", nodeText = "User-wise Collection Details", iconCss = "fa fa-users" });
+        treedata.Add(new TreeData { nodeId = "07", nodeText = "Collection Details", iconCss = "fa fa-files-o" });
+        treedata.Add(new TreeData { nodeId = "08", nodeText = "Class-wise Fee Paid Details", iconCss = "fa fa-th" });
+        treedata.Add(new TreeData { nodeId = "09", nodeText = "Paid And Not-Paid Summary", iconCss = "fa fa-money" });
+        treedata.Add(new TreeData { nodeId = "10", nodeText = "Paid And Not-Paid Details", iconCss = "fa fa-indent" });
+        treedata.Add(new TreeData { nodeId = "11", nodeText = "Cheque Not Submitted List", iconCss = "fa fa-list-ol" });
+        //treedata.Add(new TreeData { nodeId = "11", nodeText = "Gender-wise", iconCss = "fa fa-venus-mars" });
+        //treedata.Add(new TreeData { nodeId = "12", nodeText = "Cheque", iconCss = "fa fa-university" });
+        treedata.Add(new TreeData { nodeId = "12", nodeText = "Vacancy Summary", iconCss = "fa fa-list-alt" });
+        treedata.Add(new TreeData { nodeId = "13", nodeText = "Transaction", iconCss = "fa fa-th-large", hasChild = true });
+        treedata.Add(new TreeData { nodeId = "13-01", nodeText = "Exam Fee Receipt", iconCss = "fa fa-file-o", pid = "13" });
+        treedata.Add(new TreeData { nodeId = "13-02", nodeText = "Tuition Fee Receipt", iconCss = "fa fa-file-o", pid = "13" });
+        treedata.Add(new TreeData { nodeId = "13-03", nodeText = "Student Receipt", iconCss = "fa fa-file-o", pid = "13" });
+        treedata.Add(new TreeData { nodeId = "13-04", nodeText = "Receipt Register", iconCss = "fa fa-file-o", pid = "13" });
+
+        treedata.Add(new TreeData { nodeId = "14", nodeText = @Localizer["CAIE Subject Register"], iconCss = "fa fa-book" });
+        treedata.Add(new TreeData { nodeId = "15", nodeText = @Localizer["Acknowledgment Reciept"], iconCss = "fa fa-handshake-o" });
+        treedata.Add(new TreeData { nodeId = "16", nodeText = @Localizer["Student Master"], iconCss = "fa fa-graduation-cap" });
+
+
+
+
+        SfTreeView = true;
+        await InvokeAsync(StateHasChanged);
+    }
+    public async Task OnSelect(NodeClickEventArgs args)
+    {
+        if (args.NodeData.Text == "Dashboard")
+        {
+            uriHelper.NavigateTo("Dashboard");
+        }
+        if (args.NodeData.Text == "One Day Collection Summary")
+        {
+            uriHelper.NavigateTo("OneDayCollectionSummary");
+        }
+        else if (args.NodeData.Text == "One Day Collection Details")
+        {
+            uriHelper.NavigateTo("OneDayCollectionDetails");
+        }
+        else if (args.NodeData.Text == "Collection Summary Till Date")
+        {
+            uriHelper.NavigateTo("CollectionSummaryTillDate");
+        }
+        else if (args.NodeData.Text == "Collection Details")
+        {
+            uriHelper.NavigateTo("CollectionDetails");
+        }
+        else if (args.NodeData.Text == "Class-wise Fee Paid Details")
+        {
+            uriHelper.NavigateTo("ClassWiseFeePaidDetails");
+        }
+        else if (args.NodeData.Text == "Paid And Not-Paid Details")
+        {
+            uriHelper.NavigateTo("PaidandNotPaidDetails");
+        }
+        else if (args.NodeData.Text == "Paid And Not-Paid Summary")
+        {
+            uriHelper.NavigateTo("PaidandNotPaidSummary");
+        }
+        else if (args.NodeData.Text == "Gender-wise")
+        {
+            uriHelper.NavigateTo("GenderWise");
+        }
+        else if (args.NodeData.Text == "Cheque")
+        {
+            uriHelper.NavigateTo("Cheque");
+        }
+        else if (args.NodeData.Text == "Receipt Register")
+        {
+            uriHelper.NavigateTo("MerryLandReceiptRegister");
+        }
+        else if (args.NodeData.Text == "Exam Fee Receipt")
+        {
+            await sessionStorage.SetItemAsync("Vtype", "Receipt StudentExam");
+            uriHelper.NavigateTo(uriHelper.BaseUri + "ReceiptRegister/RSE");
+        }
+        else if (args.NodeData.Text == "Tuition Fee Receipt")
+        {
+            await sessionStorage.SetItemAsync("Vtype", "Student Fee");
+            uriHelper.NavigateTo(uriHelper.BaseUri + "ReceiptRegister/SF");
+
+        }
+        else if (args.NodeData.Text == "Student Receipt")
+        {
+            await sessionStorage.SetItemAsync("Vtype", "Receipt Student");
+            uriHelper.NavigateTo(uriHelper.BaseUri + "ReceiptRegister/RS");
+
+        }
+
+        else if (args.NodeData.Text == @Localizer["CAIE Subject Register"])
+        {
+            uriHelper.NavigateTo("OptionalSubjectRegister");
+        }
+
+        else if (args.NodeData.Text == "User-wise Collection Summary")
+        {
+            uriHelper.NavigateTo("UserwiseCollectionSummary");
+        }
+        else if (args.NodeData.Text == "User-wise Collection Details")
+        {
+            uriHelper.NavigateTo("UserwiseCollectionDetails");
+        }
+        else if (args.NodeData.Text == "Vacancy Summary")
+        {
+            uriHelper.NavigateTo("VacancySummary");
+        }
+        else if (args.NodeData.Text == "Cheque Not Submitted List")
+        {
+            uriHelper.NavigateTo("ChequeNotSubmittedList");
+        }
+        else if (args.NodeData.Text == "Acknowledgment Reciept")
+        {
+            uriHelper.NavigateTo("AcknowledgmentReciept");
+        }
+        else if (args.NodeData.Text == "Student Master")
+        {
+            uriHelper.NavigateTo("MerryLandStudents");
+        }
+
+
+        else
+        {
+            uriHelper.NavigateTo("Dashboard");
+        }
+        StateHasChanged();
+    }
+    public async void ValueChangeHandler(ChangeEventArgs<string, SchoolAcademicYear> args)
+    {
+        if(args.Value.ToString() != null || args.Value.ToString() != "")
+        {
+            await sessionStorage.SetItemAsync("AcademicYear", args.Value.ToString());
+        }
+    }
+    public async Task yesClick()
+    {
+        dtupdate.DateFrom = DateTime.Now;
+        dtupdate.DateTo = DateTime.Now;
+        this.ConfirmDlgVisible = false;
+        await sessionStorage.SetItemAsync("AcademicYear", CmbAccYear);
+        await sessionStorage.GetItemAsync<string>("AcademicYear");
+        await  LocalStorageGet();
+        string AccademicYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+        dtupdate.academicYear = AccademicYear;
+        HttpResponseMessage result = new HttpResponseMessage();
+        result = await StudentMasterService.Update(dtupdate);
+        uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool ConfirmDlgVisible { get; set; } = false;
+    private void ConfirmBtn()
+    {
+        this.ConfirmDlgVisible = true;
+    }
+    private void HideDialog(Object e)
+    {
+        this.ConfirmDlgVisible = false;
+    }
+
+    protected async Task LocalStorageGet()
+    {
+        await sessionStorage.GetItemAsync<string>("AcademicYear");
+        await sessionStorage.GetItemAsync<int>("UserID");
+        await sessionStorage.GetItemAsync<int>("AccountID");
+        await sessionStorage.GetItemAsync<string>("Username");
+        await sessionStorage.GetItemAsync<string>("Name");
+        await sessionStorage.GetItemAsync<string>("Password");
+        await sessionStorage.GetItemAsync<string>("Category");
+        await sessionStorage.GetItemAsync<int>("ProfileID");
+        await sessionStorage.GetItemAsync<int>("BranchID");
+    }
+}

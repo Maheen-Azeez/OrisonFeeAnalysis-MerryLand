@@ -1,0 +1,108 @@
+﻿@using  System.Globalization
+@using Syncfusion.Blazor.Buttons
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+
+<a style="cursor:pointer;" @onclick="Toggle"><img src="@Path" style="height: 27px; width: 27px; cursor: pointer;" /></a>
+
+@code {
+
+    private string Path => Lang ? "Images/Arabic.png" : "Images/English.png";
+
+    private bool Lang = true;
+
+    private string Ar { get; set; }
+
+    //private CultureInfo[] supportedCultures = new[]
+    //{
+    //    new CultureInfo("en-US"),
+    //    //new CultureInfo("de"),
+    //    //new CultureInfo("fr"),
+    //    new CultureInfo("ar")
+    //    //new CultureInfo("zh")
+    //};
+
+    private CultureInfo[] supportedCultures = new[]
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("ar-AE")
+    };
+
+    //protected override void OnInitialized()
+    //{
+    //    Culture = CultureInfo.CurrentCulture;
+    //}
+
+
+    protected async Task OnInitialized()
+    {
+        if (CultureInfo.CurrentCulture.ToString() == "ar-AE")
+        {
+            await localStorage.SetItemAsync("Language", "En ");
+        }
+        Culture = CultureInfo.CurrentCulture;
+        Ar = await localStorage.GetItemAsync<string>("Language");
+    }
+
+    private CultureInfo Culture
+    {
+        get => CultureInfo.CurrentCulture;
+        set
+        {
+            if (CultureInfo.CurrentCulture != value)
+            {
+                var uri = new Uri(NavigationManager.Uri)
+                    .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+                var cultureEscaped = Uri.EscapeDataString(value.Name);
+                var uriEscaped = Uri.EscapeDataString(uri);
+
+                NavigationManager.NavigateTo(
+                    $"Culture/SetCulture?culture={cultureEscaped}&redirectUri={uriEscaped}",
+                    forceLoad: true);
+            }
+        }
+    }
+
+
+    private async Task Toggle()
+    {
+        Lang = !Lang;
+        if (CultureInfo.CurrentCulture.ToString() == "en-US")
+        {
+            Culture = new CultureInfo("ar-AE");
+            // Ar = "En";
+            //  await localStorage.SetItemAsync("Language", "En ");
+            await localStorage.SetItemAsync("Lang", false);
+            // Lang = false;
+        }
+        else
+        {
+            Culture = new CultureInfo("en-US");
+            // Ar = "Ar";
+            // await localStorage.SetItemAsync("Language", "Ar");
+            await localStorage.SetItemAsync("Lang", true);
+            //  Lang = true;
+        }
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (CultureInfo.CurrentCulture.ToString() == "ar-AE")
+            //if (CultureInfo.CurrentCulture.ToString() == "ar")
+            {
+                //await localStorage.SetItemAsync("Language", "En ");
+                await localStorage.SetItemAsync("Lang", false);
+            }
+            else
+            {
+                await localStorage.SetItemAsync("Lang", true);
+            }
+            //  Ar = await localStorage.GetItemAsync<string>("Language");
+            Lang = await localStorage.GetItemAsync<bool>("Lang");
+            StateHasChanged();
+        }
+    }
+}

@@ -1,0 +1,495 @@
+﻿@page "/PaidandNotPaidDetails"
+
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Spinner;
+@using OrisonFeeAnalysis.Entities.Main
+@using Newtonsoft.Json
+
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Services.BoldReportService _BoldReportService
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+
+
+
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+<div>
+    <div class="box-card-shadow">
+        <div class="row">
+            <div class="col-md-12">
+                <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+                @*<SfButton IconCss="Icon pdf" Content="Pdf" CssClass="e-outline" @onclick="@ExportPdf"></SfButton>*@
+                @*<SfComboBox @bind-Value="@Dropval" TValue="string" TItem="string" DataSource="@Academicyear" Width="120px">
+                    </SfComboBox>*@
+                <SfComboBox Placeholder="Class" @bind-Value="@Class" TValue="string" TItem="string" DataSource="@Clist" Width="110px">
+                </SfComboBox>
+                <SfComboBox Placeholder="Division" @bind-Value="@Division" TValue="string" TItem="string" DataSource="@Dlist" Width="110px">
+                </SfComboBox>
+                <SfComboBox Placeholder="Fee Type" @bind-Value="@FeeType" TValue="string" TItem="string" DataSource="@FeeTypeList" Width="200px">
+                </SfComboBox>
+                <SfComboBox Placeholder="Fee Status" @bind-Value="@FeeStatus" TValue="string" TItem="string" DataSource="@StatusList" Width="120px">
+                </SfComboBox>
+
+                <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="widthset"></SfButton>
+                <SfButton IconCss="Icon preprint"  CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
+                <SfButton IconCss="Icon preprint" Content="Classwise" CssClass="btn" @onclick="@DownLoadReportDocs"></SfButton>
+                <SfButton IconCss="Icon preprint" Content="Parentwise" CssClass="btn" OnClick="@DownLoadDocsParentwise"></SfButton>
+            </div>
+        </div>
+    </div>
+
+    @if (AllowOpen == true)
+    {
+        <div>
+            <div class="box-card-shadow">
+                <SfGrid ID="Grid" DataSource="@GridDataDetails"
+                        GridLines="GridLine.Both"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        AllowFiltering="true"
+                        AllowPaging="true"
+                        RowHeight="24"
+                        Width="100%"
+                        @ref="Grid">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                    <GridEvents QueryCellInfo="QueryCellInfoHandler" TValue="dtPaidandNotPaid"></GridEvents>
+                    <GridPageSettings PageSize="50" PageSizes="true"></GridPageSettings>
+
+                    <GridColumns>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.AccountCode) HeaderText="Account Code" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="140"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.AccountName) HeaderText="Account Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.EffectiveDate) HeaderText="Effective Date" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="140" Format="dd/MM/yyyy"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="90"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="105"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.FatherMobile) HeaderText="Father Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.MotherMobile) HeaderText="Mother Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+                        @if (FeeType == "Exam Fee" && GridDataDetails.Count() != 0)
+                        {
+                            <GridColumn Field=@nameof(dtPaidandNotPaid.PaidDate) Format="dd/MM/yyyy" HeaderText="Paid Date" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+                            <GridColumn Field=@nameof(dtPaidandNotPaid.subject) HeaderText="Subject" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+
+                        }
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.ParentName) Visible="false" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Blocked) Visible="false"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Reregistered) Visible="false"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Fees) HeaderText="Fees" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.FatherEmail) HeaderText="Father Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="170"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.MotherEmail) HeaderText="Mother Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="170"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.AdmissionStatus) HeaderText="Admission Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Fee) HeaderText="Fee" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Paid) HeaderText="Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Balance) HeaderText="Balance" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="120" Format="0.00">                            </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+
+        </div>
+    }
+    @if (AllowOpenNotPaid == true)
+    {
+        <div>
+            <div class="box-card-shadow">
+                <SfGrid ID="Grid" DataSource="@GridDataDetails"
+                        GridLines="GridLine.Both"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        AllowFiltering="true"
+                        AllowPaging="true"
+                        RowHeight="24"
+                        Width="100%"
+                        @ref="Grid">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                    <GridPageSettings PageSize="50" PageSizes="true"></GridPageSettings>
+
+                    <GridColumns>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.AccountCode) HeaderText="Account Code" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="140"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.AccountName) HeaderText="Account Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="90"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="105"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.ParentName) HeaderText="Parent" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Permobile) HeaderText="Contact" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+
+            </div>
+        </div>
+
+    }
+
+
+    @if (Loading == true)
+    {
+        <div class="spin-row w-100" style="padding-top:300px">
+            <SfSpinner Visible="true"></SfSpinner>
+        </div>
+    }
+</div>
+
+
+@code {
+    public string Dropval, Class = "", Division = "", FeeType = "", FeeStatus = "", Category;
+    int BranchID, UserID, AccountID;
+
+    public List<string> Academicyear = new List<string>();
+    public IEnumerable<string> DivList = new List<string>();
+    public IEnumerable<string> ClassList = new List<string>();
+    //public IEnumerable<string> FeeTypeList = new List<string>();
+    public List<string> Dlist = new List<string>();
+    public List<string> Clist = new List<string>();
+
+    IEnumerable<string> FeeTypeList = new List<string>() {
+      "Book Fee",
+      "MOE Book Fee",
+      "Reregistration Fee",
+      "Tuition Fee for Term 1",
+      "Tuition Fee for Term 2",
+      "Tuition Fee for Term 3",
+      "Exam Fee"
+
+    };
+
+    public IEnumerable<string> StatusList = new List<string>
+{
+        "Paid",
+        "NotPaid"
+    };
+
+
+    SfGrid<dtPaidandNotPaid> Grid { get; set; }
+    public IEnumerable<dtPaidandNotPaid> GridDataDetails = new List<dtPaidandNotPaid>();
+    public IEnumerable<dtPaidandNotPaid> GridDataDetailsNotPaid = new List<dtPaidandNotPaid>();
+
+
+    public bool AllowOpen = false, Loading = true;
+    public bool AllowOpenNotPaid = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+
+
+        try
+        {
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            Academicyear = await _accountsmain.GetAcademicyear();
+            ClassList = await _accountsmain.GetClassandDivision("GetClass");
+            DivList = await _accountsmain.GetClassandDivision("GetDivision");
+            //FeeTypeList = await _accountsmain.GetClassandDivision("GetFeeType");
+            //FeeTypeList = FeeTypeList.Append("Exam Fee");
+
+            Dlist = DivList.ToList();
+            Clist = ClassList.ToList();
+            Clist.Sort();
+            Dlist.Sort();
+
+            //Dropval = Academicyear[0];
+            Dropval = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+            if (Category == "Administrator")
+            {
+                Loading = false;
+                AllowOpen = true;
+
+            }
+            else
+            {
+
+                AllowOpen = false;
+                Loading = false;
+
+            }
+        }
+        catch (Exception)
+        {
+            await ClearLocalStorage();
+
+            throw;
+        }
+    }
+
+    public async void Search_Click()
+    {
+        AllowOpenNotPaid = false;
+        AllowOpen = false;
+        Loading = true;
+        Dropval = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+        if (FeeType == "Exam Fee" && FeeStatus == "NotPaid")
+        {
+            GridDataDetails = await _accountsmain.GetPaidandNotPaid(Dropval, BranchID, "ExamFeesNotPaid", Class, Division, FeeType, FeeStatus);
+            Loading = false;
+            AllowOpenNotPaid = true;
+        }
+        else
+        {
+            GridDataDetails = await _accountsmain.GetPaidandNotPaid(Dropval, BranchID, "GetPaidDetails", Class, Division, FeeType, FeeStatus);
+            try
+            {
+                foreach (var i in GridDataDetails)
+                {
+                    if (i.subject != null)
+                    {
+                        //i.subject = i.subject.Substring(i.subject.IndexOf('-') + 1);
+                        i.subject = i.subject.Remove(i.subject.Length - 1);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+            Loading = false;
+            AllowOpen = true;
+        }
+
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task ExportExcel()
+    {
+        await this.Grid.ExportToExcelAsync();
+    }
+
+    public async Task ExportPdf()
+    {
+        await this.Grid.ExportToPdfAsync();
+    }
+
+
+
+    //private ElementReference codeBlock;
+    public async Task DownLoadDocs()
+    {
+        if (FeeType != "Exam Fee")
+        {
+            if (FeeStatus != "NotPaid")
+            {
+                List<JSReportParameter> parameters = new List<JSReportParameter>()
+            {
+                new JSReportParameter()
+                {
+                    Name = "PaidStatus",
+                    Values = new List<string>(){ "Paid" }
+                }
+                };
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("FEE PAID AND NOT PAID DETAILS", dt, parameters);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "PAID DETAILS.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+            else
+            {
+                List<JSReportParameter> parameters = new List<JSReportParameter>()
+            {
+                new JSReportParameter()
+                {
+                    Name = "PaidStatus",
+                    Values = new List<string>(){ "NotPaid" }
+                }
+                };
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("FEE PAID AND NOT PAID DETAILS", dt, parameters);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "NOT PAID DETAILS.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+
+        }
+        else
+        {
+            if (FeeStatus != "NotPaid")
+            {
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("Exam Fees Paid List", dt, null);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "Exam Fees Paid List.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+            else
+            {
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("Exam Fees Not Paid List", dt, null);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "Exam Fees Not Paid List.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+        }
+
+
+    }
+
+    public async Task DownLoadReportDocs()
+    {
+        if (FeeType != "Exam Fee")
+        {
+            if (FeeStatus != "NotPaid")
+            {
+                List<JSReportParameter> parameters = new List<JSReportParameter>()
+            {
+                new JSReportParameter()
+                {
+                    Name = "PaidStatus",
+                    Values = new List<string>(){ "Paid" }
+                }
+                };
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("FeeNotPaid Class Wise", dt, parameters);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "Fee Paid Class Wise.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+            else
+            {
+                List<JSReportParameter> parameters = new List<JSReportParameter>()
+            {
+                new JSReportParameter()
+                {
+                    Name = "PaidStatus",
+                    Values = new List<string>(){ "NotPaid" }
+                }
+                };
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("FeeNotPaid Class Wise", dt, parameters);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "Fee NotPaid Class Wise.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+        }
+        else
+        {
+            if (FeeStatus != "NotPaid")
+            {
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("Exam Fees Paid Class Wise List", dt, null);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "Exam Fees Paid Class Wise List.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+            else
+            {
+                var Data = await Grid.GetFilteredRecordsAsync();
+                DataSource dt = new DataSource();
+                dt.DataSet1 = new List<ExpandoObject>();
+                dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+                var Result = _BoldReport.GetReport("Exam Fees Not Paid Class Wise List", dt, null);
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                Result.FileStream.CopyTo(ms);
+                await jsRuntime.InvokeVoidAsync(
+                          "jsSaveAsFile",
+                          "Exam Fees Not Paid Class Wise List.pdf",
+                          Convert.ToBase64String(ms.ToArray()));
+            }
+        }
+
+
+    }
+
+    string LogoutUrl;
+    public async Task ClearLocalStorage()
+    {
+        LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
+
+        await sessionStorage.ClearAsync();
+        //Must check localstorage userid in each razor page
+
+        NavigationManager.NavigateTo(LogoutUrl);
+
+    }
+
+    public async Task DownLoadDocsParentwise()
+    {
+
+        if (FeeStatus == "NotPaid")
+        {
+
+            var Data = await Grid.GetFilteredRecordsAsync();
+            DataSource dt = new DataSource();
+            dt.DataSet1 = new List<ExpandoObject>();
+            dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+            var Result = _BoldReport.GetReport("FEE PAID AND NOT PAID DETAILS PARENT WISE", dt, null);
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Result.FileStream.CopyTo(ms);
+            await jsRuntime.InvokeVoidAsync(
+                      "jsSaveAsFile",
+                      "FEE NOTPAID DETAILS(PARENT_WISE).pdf",
+                      Convert.ToBase64String(ms.ToArray()));
+        }
+
+    }
+
+    public void QueryCellInfoHandler(QueryCellInfoEventArgs<dtPaidandNotPaid> args)
+    {
+        if (args.Data.Blocked == true)
+        {
+            //args.Cell.AddStyle(new string[] { "font-weight: bold;", "font-style: italic;" });
+            //args.Cell.SetAttribute("style", "color:red");
+            args.Cell.AddStyle(new string[] { "font-weight: bold;", "color: red;" });
+
+        }
+        else if (args.Data.Reregistered == true)
+        {
+            args.Cell.AddStyle(new string[] { "font-weight: bold;", "color: green;" });
+        }
+
+    }
+}

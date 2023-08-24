@@ -1,0 +1,200 @@
+﻿
+
+@page "/New"
+@using Syncfusion.Blazor.PivotView
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.Calendars;
+@using Syncfusion.Blazor.Spinner;
+@using Syncfusion.Blazor.Data
+
+@using System.Data
+@using Microsoft.AspNetCore.Http
+@using System.Net.Http
+@using OrisonFeeAnalysis.Entites;
+@using Syncfusion.Blazor.Grids
+@layout LoginLayout
+
+@namespace OrisonFeeAnalysis.Pages
+@inject NavigationManager _NavManager
+@inject OrisonFeeAnalysis.Logic.Contract.General.IUserLoginManager _IUserLoginManager
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+@inject NavigationManager NavigationManager
+@using OrisonFeeAnalysis.Logics.Concrete.General
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+
+<div>
+    <div class="row">
+        <div class="col-sm-12" style="padding-bottom:7px;">
+            <div class="row" style=" border-bottom: solid 1px #000; padding-bottom: 7px; padding-top: 4px;">
+                <div class="col-md-9">
+
+                    <SfDatePicker @bind-Value="@SDate" Format="dd/MM/yyyy" title="From Date" Width="120px" Placeholder="From Date"></SfDatePicker>
+                    <SfDatePicker @bind-Value="@EDate" Format="dd/MM/yyyy" title="To Date" Width="120px" Placeholder="To Date"></SfDatePicker>
+
+                    @if (Isload == false)
+                    {
+                        <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="widthset"></SfButton>
+                    }
+                    else
+                    {
+                        <SfSpinner Size="20" Type="Syncfusion.Blazor.Spinner.SpinnerType.Bootstrap5" Visible="true"></SfSpinner>
+                    }
+                </div>
+                <div class="col-md-3" style="text-align:end">
+                    <label style="color:#014164;font-size:large;font-weight:bold;">RE-REGISTRATION</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<div class="control-section">
+        <div class="content-wrapper">
+            <SfPivotView TValue="ProductDetails" Height="340" EnableValueSorting="false" AllowExcelExport="true" AllowPdfExport="true" ShowTooltip="false">
+            <PivotViewDataSourceSettings DataSource="@dataSource" ExpandAll=false EnableSorting=false>
+                <PivotViewColumns>
+
+                <PivotViewColumn Name="RE-REGISTRATION FEE" ></PivotViewColumn>-->
+    @*<PivotViewColumn Name="Cash"></PivotViewColumn>
+        <PivotViewColumn Name="Description" ></PivotViewColumn>
+        <PivotViewColumn Name="Cheque"></PivotViewColumn>
+        <PivotViewColumn Name="Transfer"></PivotViewColumn>*@
+    <!--</PivotViewColumns>
+    <PivotViewRows>
+        <PivotViewRow Name="Total" Caption="Total"></PivotViewRow>
+        <PivotViewRow Name="Description" Caption="Description"></PivotViewRow>-->
+    @*<PivotViewRow Name="Cheque"></PivotViewRow>*@
+    @*<PivotViewRow Name="Transfer"></PivotViewRow>*@
+    <!--</PivotViewRows>
+    <PivotViewValues>-->
+    @*<PivotViewValue Name="Description" Caption="Description"></PivotViewValue>*@
+    <!--<PivotViewValue Name="Cash" Caption="Cash"></PivotViewValue>
+
+                <PivotViewValue Name="Cheque" Caption="Cheque"></PivotViewValue>
+                <PivotViewValue Name="Transfer" Caption="Transfer"></PivotViewValue>
+            </PivotViewValues>
+            <PivotViewFormatSettings>
+                <PivotViewFormatSetting Name="Amount" Format="C0" UseGrouping=false></PivotViewFormatSetting>
+            </PivotViewFormatSettings>
+        </PivotViewDataSourceSettings>
+        <PivotViewGridSettings ColumnWidth="120" ></PivotViewGridSettings>
+    </SfPivotView>-->
+    @*<SfPivotView TValue="ProductDetails" Height="1000"  AllowExcelExport="true" AllowPdfExport="true" ShowTooltip="false">
+            <PivotViewDataSourceSettings DataSource="@dataSource" ExpandAll=true EnableSorting=true>
+                <PivotViewColumns>
+                    <PivotViewColumn Name="SubjectCode"></PivotViewColumn>
+                </PivotViewColumns>
+                <PivotViewRows>
+                    <PivotViewRow Name="StudentName" Caption="Student Name"></PivotViewRow>
+                </PivotViewRows>
+                <PivotViewValues>
+                    <PivotViewValue Name="Mark" Caption="SubjectCode"></PivotViewValue>
+
+                </PivotViewValues>
+            </PivotViewDataSourceSettings>
+            <PivotViewGridSettings ColumnWidth="120" Height="1000" AllowReordering="true"></PivotViewGridSettings>
+        </SfPivotView>*@
+    <!--</div>
+    </div>
+    <style>
+        .e-pivotview {
+            min-height: 200px;
+        }
+    </style>-->
+    <div class="col-md-12 col-sm-12">
+        <div class="row" style="padding-top:0px;">
+            <div class="table-responsive" style="position: relative; min-height:600px; min-width: 300px ">
+                @*@if (Stmt == null)
+                    {
+                        <p><em>No data...</em></p>
+                    }
+                    else
+                    {*@
+                <SfGrid DataSource="@Orders" AllowPaging="true">
+                    <GridPageSettings PageSize="8"></GridPageSettings>
+                    <GridAggregates>
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                                <GridAggregateColumn Field=@nameof(Order.Cash) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <p>Sum: @aggregate.Sum</p>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                                <GridAggregateColumn Field=@nameof(Order.Cash) Type="AggregateType.Average">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <p>Average: @aggregate.Average</p>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+                    </GridAggregates>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(Order.Description) HeaderText="Order ID" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+                        <GridColumn Field=@nameof(Order.Cash) HeaderText="Customer Name" Width="150"></GridColumn>
+                        <GridColumn Field=@nameof(Order.cheque) HeaderText=" Order Date" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Right" Width="130"></GridColumn>
+                        <GridColumn Field=@nameof(Order.Transfer) HeaderText="Freight" Format="C2" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+                @*}*@
+            </div>
+        </div>
+    </div>
+
+</div>
+@code{
+    string SDate;
+    string EDate;
+    public bool Isload = false;
+    public List<UserLogin> Stmt { get; set; }
+    public List<Order> dataSource { get; set; }
+    public SfGrid<Order> Grid;
+    public List<Order> Orders { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Orders = Enumerable.Range(1, 75).Select(x => new Order()
+        {
+            //OrderID = 1000 + x,
+            Description = (new string[] { "ALFKI", "ANANTR", "ANTON", "BLONP", "BOLID" })[new Random().Next(5)],
+            Cash = 2.1 * x,
+            OrderDate = DateTime.Now.AddDays(-x),
+            cheque = 2.1 * x,
+            Transfer = 2.1 * x
+        }).ToList();
+    }
+
+    public class Order
+
+    {
+
+        public double? Cash { get; set; }
+        public string Description { get; set; }
+        public DateTime? OrderDate { get; set; }
+        public double? cheque { get; set; }
+        //public int? OrderID { get; set; }
+        public double? Transfer { get; set; }
+    }
+    public void Search_Click()
+    {
+
+    }
+}
+    

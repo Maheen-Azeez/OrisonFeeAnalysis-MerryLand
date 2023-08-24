@@ -1,0 +1,618 @@
+﻿@page "/ClassWiseFeePaidDetails"
+
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Spinner;
+@using OrisonFeeAnalysis.Entities.Main
+
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+
+
+@using Newtonsoft.Json
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+
+
+<div class="box-card-shadow">
+
+    <div class="row">
+        <div class="col-md-12">
+            <SfButton IconCss="Icon excel"  CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+            <SfButton IconCss="Icon pdf"  CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+            <SfComboBox @bind-Value="@classWise.FeeTypeText" @ref="FeeTypeDropDown" TValue="string" TItem="dtClassWise" Placeholder="Select FeeType" DataSource="@FeeType" Width="180px">
+                <ComboBoxFieldSettings Text="FeeTypeText"></ComboBoxFieldSettings>
+            </SfComboBox>
+            <SfDatePicker @bind-Value="@SDate" Format="dd/MM/yyyy" title="From Date" Width="150px" Placeholder="From Date"></SfDatePicker>
+            <SfDatePicker @bind-Value="@EDate" Format="dd/MM/yyyy" title="To Date" Width="150px" Placeholder="To Date"></SfDatePicker>
+            <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="e-btn4"></SfButton>
+            <SfButton IconCss="Icon preprint" CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
+            <SfButton IconCss="Icon preprint" Content="Exam" CssClass="btn" @onclick="@DownLoadExamFeeDocs"></SfButton>
+        </div>
+
+    </div>
+</div>
+<div>
+    @if (AllowOpen == true)
+    {
+        @if (ReRegistrationFee == true)
+        {
+            <div class="box-card-shadow">
+
+                <SfGrid ID="SGrid" DataSource="@GridData"
+                        GridLines="GridLine.Both"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        RowHeight="24"
+                        Width="100%"
+                        @ref="SGrid">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+
+                    @*<GridEvents RowDataBound="RowBound" TValue="dtAccountsMain"></GridEvents>*@
+                    <GridAggregates>
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                                <GridAggregateColumn Format="0" Field=@nameof(dtAccountsMain.Count) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:center;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.Cash) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div style="padding-top:5px;">
+                                                <div style="font-size:13px; position: absolute; left: 7px;">TOTAL AMOUNT</div> <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.Cheque) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.Transfer) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.Total) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+                    </GridAggregates>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(dtAccountsMain.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Count) HeaderText="Nos" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Cheque) HeaderText="Cheque" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Cash) HeaderText="Cash" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Transfer) HeaderText="Transfer" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Total) HeaderText="Total" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00">
+
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+
+        }
+        @if (TuitionFee == true)
+        {
+            <div class="box-card-shadow">
+
+                <SfGrid ID="SGrid" DataSource="@GridDataTuitionFee"
+                        GridLines="GridLine.Both"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        RowHeight="24"
+                        Width="100%"
+                        @ref="SGrid">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+
+                    @*<GridEvents RowDataBound="RowBound" TValue="dtAccountsMain"></GridEvents>*@
+                    <GridAggregates>
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                                <GridAggregateColumn Format="0" Field=@nameof(dtAccountsMain.T1) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:center;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T1Cash) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div style="padding-top:5px;">
+                                                <div style="font-size:13px; position: absolute; left: 7px;">TOTAL AMOUNT</div> <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T1Cheque) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T1Card) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T1TT) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+
+                                <GridAggregateColumn Format="0" Field=@nameof(dtAccountsMain.T2) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T2Cash) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div style="padding-top:5px;">
+                                                <div style="font-size:13px; position: absolute; left: 7px;">TOTAL AMOUNT</div> <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T2Cheque) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T2Card) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T2TT) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0" Field=@nameof(dtAccountsMain.T3) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T3Cash) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div style="padding-top:5px;">
+                                                <div style="font-size:13px; position: absolute; left: 7px;">TOTAL AMOUNT</div> <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T3Cheque) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T3Card) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.T3TT) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+
+
+
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.Total) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+                    </GridAggregates>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(dtAccountsMain.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtAccountsMain.T1) HeaderText="Term1 Nos" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T1Cash) HeaderText="Term1 Cash" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T1Cheque) HeaderText="Term1 Cheque" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T1Card) HeaderText="Term1 Card" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T1TT) HeaderText="Term1 TT" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtAccountsMain.T2) HeaderText="Term2 Nos" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T2Cash) HeaderText="Term2 Cash" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T2Cheque) HeaderText="Term2 Cheque" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T2Card) HeaderText="Term2 Card" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T2TT) HeaderText="Term2 TT" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtAccountsMain.T3) HeaderText="Term3 Nos" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T3Cash) HeaderText="Term3 Cash" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T3Cheque) HeaderText="Term3 Cheque" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T3Card) HeaderText="Term3 Card" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.T3TT) HeaderText="Term3 TT" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        
+                        <GridColumn Field=@nameof(dtAccountsMain.FullCount) HeaderText="FullYear Nos" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.FullCash) HeaderText="FullYear Cash" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.FullCheque) HeaderText="FullYear Cheque" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.FullTT) HeaderText="FullYear TT" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+
+                        <GridColumn Field=@nameof(dtAccountsMain.Total) HeaderText="Total" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+
+
+                    </GridColumns>
+                </SfGrid>
+            </div>
+
+        }
+        @if (ExamFee == true)
+        {
+            <div class="box-card-shadow">
+
+                <SfGrid ID="EGrid" DataSource="@GridDataExamFee"
+                        GridLines="GridLine.Both"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        AllowFiltering="true"
+                        RowHeight="24"
+                        Width="100%"
+                        Height="500"
+                        @ref="EGrid">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+
+
+                    <GridColumns>
+                        <GridColumn Field=@nameof(dtAccountsMain.AccountCode) HeaderText="StdNo" TextAlign="TextAlign.Left" Width="70"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.AccountName) HeaderText="StudentName" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200" Format="0"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="50"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="50"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Options) HeaderText="Exam" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.SubjectName) HeaderText="Subject" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field=@nameof(dtAccountsMain.Amount) HeaderText="Amount" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00">
+
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+
+        }
+    }
+
+    @if (Loading == true)
+    {
+        <div class="spin-row w-100" style="padding-top:300px">
+            <SfSpinner Visible="true"></SfSpinner>
+        </div>
+    }
+</div>
+
+
+
+
+@code {
+    DateTime SDate = DateTime.Now;
+    DateTime EDate = DateTime.Now;
+    string StartDate, EndDate, Category;
+    string AccYear = "";
+    public bool TuitionFee = false;
+    public bool ReRegistrationFee = false;
+    public bool ExamFee = false;
+    SfGrid<dtAccountsMain> SGrid { get; set; }
+    SfGrid<dtAccountsMain> EGrid { get; set; }
+    public SfComboBox<string, dtClassWise> FeeTypeDropDown;
+    public SfComboBox<string, dtClassWise> CategoryDropDown;
+    int BranchID, UserID, AccountID;
+    bool AllowOpen = false, Loading = false;
+
+    public class dtClassWise
+    {
+        public string FeeTypeText { get; set; }
+    }
+
+    public dtClassWise classWise = new dtClassWise();
+    public dtAccountsMain Main = new dtAccountsMain();
+    public IEnumerable<dtAccountsMain> GridData = new List<dtAccountsMain>();
+    public IEnumerable<dtAccountsMain> GridDataExamFee = new List<dtAccountsMain>();
+    public IEnumerable<dtAccountsMain> GridDataTuitionFee = new List<dtAccountsMain>();
+
+    public List<dtClassWise> FeeType = new List<dtClassWise>()
+{
+        new dtClassWise{FeeTypeText = "Book Fee"},
+        new dtClassWise{FeeTypeText = "Reregistration Fee"},
+        new dtClassWise{FeeTypeText = "Tuition Fee"},
+        new dtClassWise{FeeTypeText = "Exam Fee"}
+    };
+
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        try
+        {
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+            if (Category == "Administrator")
+            {
+                AllowOpen = true;
+            }
+            else
+            {
+                AllowOpen = false;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await ClearLocalStorage();
+
+            throw ex;
+        }
+
+    }
+
+    public async Task Search_Click()
+    {
+        AllowOpen = false;
+        Loading = true;
+        AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+        if (FeeTypeDropDown.Value == "Reregistration Fee")
+        {
+            TuitionFee = false;
+            ExamFee = false;
+            ReRegistrationFee = true;
+            GridData = await _accountsmain.GetGridClasswise(AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "GetGridClasswiseReReg");
+            foreach (dtAccountsMain Amount in GridData)
+            {
+                Amount.Total = Amount.Cash + Amount.Cheque + Amount.Transfer;
+            }
+        }
+        if (FeeTypeDropDown.Value == "Exam Fee")
+        {
+            TuitionFee = false;
+            ReRegistrationFee = false;
+            ExamFee = true;
+
+            GridDataExamFee = await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), classWise.FeeTypeText, "ExamFeesClassWisePaid");
+        }
+
+        if (FeeTypeDropDown.Value == "Tuition Fee")
+        {
+            ExamFee = false;
+            ReRegistrationFee = false;
+            TuitionFee = true;
+            GridDataTuitionFee = await _accountsmain.GetGridClasswise(AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "GetGridClasswiseTuition");
+            foreach (dtAccountsMain Amount in GridDataTuitionFee)
+            {
+                Amount.Total = Amount.T1Cash + Amount.T1Cheque + Amount.T1Card + Amount.T1TT +
+                               Amount.T2Cash + Amount.T2Cheque + Amount.T2Card + Amount.T2TT +
+                               Amount.T3Cash + Amount.T3Cheque + Amount.T3Card + Amount.T3TT +
+                               Amount.FullCash + Amount.FullCheque + Amount.FullCard + Amount.FullTT;
+            }
+        }
+        Loading = false;
+        AllowOpen = true;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task ExportExcel()
+    {
+        if (FeeTypeDropDown.Value == "Tuition Fee" || FeeTypeDropDown.Value == "Reregistration Fee")
+        {
+            await this.SGrid.ExportToExcelAsync();
+        }
+        else
+        {
+            await this.EGrid.ExportToExcelAsync();
+
+        }
+
+    }
+
+    public async Task ExportPdf()
+    {
+        if (FeeTypeDropDown.Value == "Tuition Fee" || FeeTypeDropDown.Value == "Reregistration Fee")
+        {
+            await this.SGrid.ExportToPdfAsync();
+        }
+        else
+        {
+            await this.EGrid.ExportToPdfAsync();
+        }
+
+
+    }
+
+    private ElementReference codeBlock;
+    public async Task DownLoadDocs()
+    {
+
+        List<JSReportParameter> parameters = new List<JSReportParameter>()
+{
+            new JSReportParameter()
+            {
+                Name = "SDate",
+                Values = new List<string>(){ SDate.ToString() }
+            },
+            new JSReportParameter()
+            {
+                Name = "EDate",
+                Values = new List<string>(){ EDate.ToString() }
+            }
+        };
+        var Data = await SGrid.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet2 = new List<ExpandoObject>();
+
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        dt.DataSet2 = await _BoldReport.GetAnalysisData("ClasswisePaidNotPaidCount", AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), BranchID, "", "");
+
+        if (FeeTypeDropDown.Value == "Reregistration Fee")
+        {
+            parameters.Add(new JSReportParameter() { Name = "Accyear", Values = new List<string>() { AccYear.ToString() } });
+            var Result = _BoldReport.GetReport("Re-Registration Fee", dt, parameters);
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Result.FileStream.CopyTo(ms);
+            await jsRuntime.InvokeVoidAsync(
+                      "jsSaveAsFile",
+                      "Re-Registration Fee.pdf",
+                      Convert.ToBase64String(ms.ToArray()));
+        }
+
+        if (FeeTypeDropDown.Value == "Tuition Fee")
+        {
+
+            var Result = _BoldReport.GetReport("Classwise Tutionfee", dt, parameters);
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Result.FileStream.CopyTo(ms);
+            await jsRuntime.InvokeVoidAsync(
+                      "jsSaveAsFile",
+                      "Classwise Tutionfee.pdf",
+                      Convert.ToBase64String(ms.ToArray()));
+        }
+
+
+    }
+    public async Task DownLoadExamFeeDocs()
+    {
+
+        var Data = await EGrid.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        var Result = _BoldReport.GetReport("Class-wise Fee Paid", dt, null);
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Result.FileStream.CopyTo(ms);
+        await jsRuntime.InvokeVoidAsync(
+                  "jsSaveAsFile",
+                  "Class-wise Fee Paid.pdf",
+                  Convert.ToBase64String(ms.ToArray()));
+    }
+
+    string LogoutUrl;
+    public async Task ClearLocalStorage()
+    {
+        LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
+
+        await sessionStorage.ClearAsync();
+        //Must check localstorage userid in each razor page
+
+        NavigationManager.NavigateTo(LogoutUrl);
+
+    }
+
+}

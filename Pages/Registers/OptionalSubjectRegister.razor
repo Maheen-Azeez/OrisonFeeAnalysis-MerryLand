@@ -1,0 +1,295 @@
+﻿@page "/OptionalSubjectRegister"
+@*@page "/StdGrid/{AccountID:int}/{SCode}"*@
+
+@using Syncfusion.Blazor.Inputs;
+@using OrisonFeeAnalysis.Entities.Student;
+@*@using OrisonSchoolWeb.Resources*@
+@using OrisonFeeAnalysis.Resources;
+@using Microsoft.Extensions.Localization
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Buttons
+@using OrisonFeeAnalysis.Contract;
+@using Syncfusion.Blazor.DropDowns;
+
+@*@using OrisonSchoolWeb.Data.BoldReport*@
+@using Newtonsoft.Json
+@using System.Dynamic
+@inject HttpClient Http
+@inject NavigationManager _NavManager
+@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject IStringLocalizer<SfResources> Localizer
+@*@inject OrisonFeeAnalysis.Contracts.IStudentManager StudentService*@
+@inject IJSRuntime JsRuntime;
+@inject OrisonFeeAnalysis.Contract.IOptionalManager _IOptionalManagers
+@inject OrisonFeeAnalysis.Contract.IBoldReportManager _BoldReport
+
+@using Microsoft.AspNetCore.Components;
+@using System.Collections.ObjectModel;
+
+@inject HttpClient Http
+@inject NavigationManager uriHelper
+@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@*@inject IStringLocalizer<SfResources> Localizer*@
+@*@inject OrisonFeeAnalysis.Contract.IStudentManager StudentService*@
+@inject OrisonFeeAnalysis.Contract.IStudentMaster StudentMasterService
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+@inject IJSRuntime IJS
+@inject IJSRuntime JsRuntime;
+@*@inject IStringLocalizer<SfResources> Localizer*@
+
+
+
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+
+<div class="box-card-shadow">
+    <div class="row">
+        <div class="col-md-3">
+            <SfTextBox @ref="search" Input="OnInput" Placeholder="Global Search" ShowClearButton="true" CssClass="e-btn2" ValueChange="OnSearch" Created="@onCreateSearch"></SfTextBox>
+
+        </div>
+        <div class="col-md-3">
+            <SfComboBox Placeholder=@Localizer["Exam Type"] @bind-Value="@Reexam" TValue="string" TItem="string" DataSource="@reexams">
+            </SfComboBox>
+        </div>
+
+        <div class="col-md-3">
+            <SfButton Content="Show" OnClick="@Show_Click" Width="150px"></SfButton>
+            <SfButton @onclick="BtnPrint" IconCss="Icon preprint" CssClass="e-btn" Content=@Localizer["Print"] />
+            <SfButton @onclick="ExcelExport" IconCss="Icon excel" CssClass="e-btn" Content=@Localizer["Excel"] />
+
+        </div>
+        <div class="col-md-3">
+            <div class="header-div-style">
+                <label class="header-label">@Localizer["CAIE SUBJECT REGISTER"]</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="box-card-shadow">
+        <SfGrid DataSource="@OptionalManagerListsss" ID="OptionalManagerLists" @ref="OptionalManagerLists"
+                GridLines="GridLine.Both"
+                AllowFiltering="true"
+                AllowPaging="true"
+                AllowExcelExport="true"
+                AllowPdfExport="true"
+                Width="100%"
+                ShowColumnChooser="true"
+                AllowResizing="true"
+                AllowSorting="true"
+                EnableAltRow="true"
+                RowHeight="25">
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+
+            <GridPageSettings PageSize="50"></GridPageSettings>
+            <GridEditSettings AllowDeleting="true" />
+            <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+
+            <GridColumns>
+
+                <GridColumn HeaderText="S.No" Width="50" Context="context1">
+                    <Template>
+                        @{ var con = (context1 as CceElectiveSubjectChild);
+                            var Index = GetRowCounter(con.StudentCode);
+                        }
+                        <span>@(Index.Result)</span>
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.Etid) HeaderText="@Localizer["Id"]" Width="30" Visible="false"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.StudentCode) HeaderText="@Localizer["ESIS No"]" Width="90" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.StudentName) HeaderText="@Localizer["Name"]" Width="250"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.Class) HeaderText="@Localizer["Class"]" Width="70"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.Division) HeaderText="@Localizer["Division"]" Width="80"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.Options) HeaderText="@Localizer["Exam"]" Width="80"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.SubjectCount) HeaderText="@Localizer["Count"]" Width="70"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.Amount) HeaderText="@Localizer["Total Amount"]" Width="120" Format="#.00"></GridColumn>
+                <GridColumn Field=@nameof(CceElectiveSubjectChild.SubjectName) HeaderText="@Localizer["Optional Subjects"]" Width="500">
+                </GridColumn>
+                <GridColumn Width="40px" HeaderText="@Localizer["Edit"]">
+                    <Template Context="MasterContext">
+                        @{ var StudentCode = (MasterContext as CceElectiveSubjectChild).StudentCode;
+                            var AccountID = (MasterContext as CceElectiveSubjectChild).AccountID;
+                            <a @onclick="@(() => { Edit_Click(AccountID,StudentCode); })"><img src="Images/edit1.png" style="height:20px;width:20px; cursor:pointer;" /></a>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
+</div>
+
+
+@code {
+    public int AccountID { get; set; }
+    public string Category, CompanyCode;
+    string StudentCode;
+    int BranchID, user;
+    int Count { get; set; } = 0;
+    public string Reexam = "May-June Series";
+
+
+
+    IEnumerable<string> reexams = new List<string>() {
+      "May-June Series",
+      "October-November Series"
+
+
+    };
+
+    string sumagg;
+    bool PopupLoading { get; set; }
+    bool PopupVisible { get; set; }
+    bool PopupDeVisible { get; set; }
+    bool PopupError { get; set; }
+    bool PopupSaveError { get; set; }
+    bool PopupFeeError { get; set; }
+    bool PopupFeeCheck { get; set; }
+    bool PopupImport { get; set; }
+    bool PopupSendError { get; set; }
+    bool PopupImportError { get; set; }
+    int vtype;
+    int Etid = 3;
+    int ETID, Id;
+    long vID;
+    decimal tot;
+    public bool IsAdmin = false;
+    public List<SchoolAcademicYear> CmbYear = new List<SchoolAcademicYear>();
+    public string CmbAccYear = "";
+    public string CmbAcccls = "";
+    SchoolAcademicYear objAccYear = new SchoolAcademicYear();
+    public CceElectiveSubjectChild get = new CceElectiveSubjectChild();
+    public SchoolStudentTran DTStudentTrans = new SchoolStudentTran();
+
+    public List<CceElectiveSubjectChild> OptionalManagerListsss = new List<CceElectiveSubjectChild>();
+    public SfGrid<CceElectiveSubjectChild> OptionalManagerLists { get; set; }
+    ObservableCollection<dtPostingVoucher> objpostvoucherTemp = new ObservableCollection<dtPostingVoucher>();
+
+    public string ChangeValue { get; set; } = "Default";
+
+    protected override async Task OnInitializedAsync()
+    {
+        BranchID = await SessionStorage.GetItemAsync<int>("BranchID");
+        CmbYear = (await StudentMasterService.GetAcademicYear(BranchID)).ToList();
+        objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
+        CmbAccYear = objAccYear.AcademicYear.ToString();
+        await InvokeAsync(StateHasChanged);
+        AccountID = await SessionStorage.GetItemAsync<int>("AccountID");
+        user = await SessionStorage.GetItemAsync<int>("UserID");
+        Category = await SessionStorage.GetItemAsync<string>("Category");
+        CompanyCode = await SessionStorage.GetItemAsync<string>("Company");
+
+
+        OptionalManagerListsss = await _IOptionalManagers.GetAll(BranchID, CmbAccYear, Category, user);
+    }
+
+    public async Task BtnPrint()
+    {
+        var Data = await OptionalManagerLists.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        if (Reexam == "May-June Series")
+        {
+            var Result = _BoldReport.GetReport("OptionalRegisterReport-May-Jun", dt);
+
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Result.FileStream.CopyTo(ms);
+            await JsRuntime.InvokeVoidAsync(
+                      "jsSaveAsFile",
+                      "OptionalRegisterReport.pdf",
+                      Convert.ToBase64String(ms.ToArray()));
+        }
+        else
+        {
+            var Result = _BoldReport.GetReport("OptionalRegisterReport-Oct-Nov", dt);
+
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Result.FileStream.CopyTo(ms);
+            await JsRuntime.InvokeVoidAsync(
+                      "jsSaveAsFile",
+                      "OptionalRegisterReport.pdf",
+                      Convert.ToBase64String(ms.ToArray()));
+        }
+
+    }
+    public async Task Show_Click()
+
+    {
+
+
+        if (Reexam == "May-June Series")
+        {
+            OptionalManagerListsss = await _IOptionalManagers.GetAll(BranchID, CmbAccYear, Category, user);
+        }
+        else
+        {
+            OptionalManagerListsss = await _IOptionalManagers.Getreexam(BranchID, CmbAccYear, Category, user);
+
+
+        }
+
+
+
+
+    }
+    public async Task popClose_Click()
+    {
+        PopupVisible = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+    public async Task<double> GetRowCounter(string? val)
+    {
+        var index = await OptionalManagerLists.GetRowIndexByPrimaryKeyAsync(val);
+        var currentPage = OptionalManagerLists.PageSettings.CurrentPage;
+        if (OptionalManagerLists.AllowPaging && currentPage > 1)
+        {
+            index = (((currentPage - 1) * OptionalManagerLists.PageSettings.PageSize) + index);
+        }
+        return index + 1;
+    }
+    public void ExcelExport()
+    {
+        ExcelExportProperties ExcelProperties = new ExcelExportProperties();
+        ExcelProperties.IncludeTemplateColumn = true;
+        ExcelProperties.FileName = "OptinalRegister.xlsx";
+        this.OptionalManagerLists.ExportToExcelAsync(ExcelProperties);
+
+    }
+
+    public async Task Edit_Click(int AccountID, string StudentCode)
+    {
+        _NavManager.NavigateTo(_NavManager.BaseUri + "OptionalSubject/" + AccountID + "/" + StudentCode);
+    }
+
+    SfTextBox search;
+    public void OnSearch(Syncfusion.Blazor.Inputs.ChangedEventArgs args)
+    {
+        if (args.Value != null)
+        {
+            if (ChangeValue == "Default")
+            {
+
+                OptionalManagerLists.SearchAsync(args.Value);
+                this.StateHasChanged();
+            }
+        }
+    }
+    public void onCreateSearch()
+    {
+        this.search.AddIcon("append", "e-upload-picture");
+    }
+    public void OnInput(InputEventArgs args)
+    {
+        this.OptionalManagerLists.SearchAsync(args.Value);
+        this.StateHasChanged();
+    }
+}

@@ -1,0 +1,252 @@
+﻿
+@page "/New"
+
+@using System.Data
+@using OrisonFeeAnalysis.Entities.Main
+
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Calendars;
+@using Syncfusion.Blazor.Spinner;
+@using Syncfusion.Blazor.Data
+
+
+
+@layout MainLayout
+
+@namespace OrisonFeeAnalysis.Pages
+@inject NavigationManager _NavManager
+@*@inject OrisonFeeAnalysis.Logic.Contract.General.IUserLoginManager _IUserLoginManager
+    @inject OrisonFeeAnalysis.Logic.Contract.General.IUserLoginManager _IUserLoginManager*@
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+
+
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+@inject NavigationManager NavigationManager
+@using OrisonFeeAnalysis.Logics.Concrete.General
+
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+
+
+
+<div>
+    @if (AllowOpen == true)
+    {
+        <div class="col-md-12 col-sm-12">
+            <div class="row" style="padding-top:0px;">
+                <div class="table-responsive" style="position: relative; min-height:600px; min-width: 300px ">
+
+                    <SfGrid DataSource="@Employees"
+                            GridLines="GridLine.Both"
+                            AllowExcelExport="true"
+                            AllowPdfExport="true"
+                            RowHeight="24"
+                            Width="100%"
+                            @ref="SGrid">
+                        <GridEvents RowSelected="RowSelecthandler" TValue="dtAccountsMain"></GridEvents>
+                        <GridColumns>
+
+                            <GridColumn Field=@nameof(dtAccountsMain.Feetype) HeaderText="TOTAL NO. OF STUDENTS" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                            <GridColumn Field=@nameof(dtAccountsMain.Cash) HeaderText="FIRST TRIMESTER" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                            <GridColumn Field=@nameof(dtAccountsMain.Cheque) HeaderText="FIRST TRIMESTER" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+                            <GridColumn Field=@nameof(dtAccountsMain.TT) HeaderText="FIRST TRIMESTER" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+
+                        </GridColumns>
+
+                    </SfGrid>
+                    <div class="row" style=" padding-left: 10px; padding-right: 10px; border: 1px solid #dee2e6; background-color: #f8f9fa;">
+                        <div class="col-md-6">
+                            <label style=" color: #000; font-size: 12px; font-weight: bold;">Total Number Of Students = @Students</label>
+                        </div>
+                        <div class="col-md-6" style="text-align:center">
+                            @*<label style=" color: #000; font-size: 12px; font-weight: bold;">@GetDayTotal()</label>*@
+                        </div>
+                    </div>
+                    <div class="row" style=" padding-left: 10px; padding-right: 10px; border: 1px solid #dee2e6; background-color: #f8f9fa;">
+                        <div class="col-md-6">
+                            <label style=" color: #000; font-size: 12px; font-weight: bold;">Total Number Of Students-Exception = @Exception </label>
+                        </div>
+                        <div class="col-md-6" style="text-align:center">
+                            @*<label style=" color: #000; font-size: 12px; font-weight: bold;">@StudentCount</label>*@
+                        </div>
+                    </div>
+                    <div class="row" style=" padding-left: 10px; padding-right: 10px; border: 1px solid #dee2e6; background-color: #f8f9fa;">
+                        <div class="col-md-6">
+                            <div style="font-size: 14px; left: 7px; font-weight: bold;">Total Number Of Students-New Admission = @NewAdmission </div>
+                        </div>
+                        <div class="col-md-6" style="text-align:center">
+                            @*<label style=" color: #000; font-size: 12px; font-weight: bold;">@StudentCount</label>*@
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+</div>
+
+
+
+@code{
+
+    DateTime SDate, EDate;
+    string AccYear = "2022-2023", Description;
+    public bool Isload = false;
+    public string SelectedCustomer { get; set; }
+    public int? RowIndex { get; set; } = 1003;
+    int StudentCount = 0;
+    //decimal cashSum, ChequeSum, TTSum;
+    decimal GrandTotal;
+    string StartDate, EndDate;
+    int UserID, AccountID, BranchID;
+    bool AllowOpen = false;
+
+
+    public SfGrid<dtAccountsMain> SGrid { get; set; }
+
+
+    private IList<dtAccountsMain> Employees { get; set; }
+    dtAccountsMain Employee = new dtAccountsMain();
+
+    int Students, Exception, NewAdmission;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        UserID = await sessionStorage.GetItemAsync<int>("UserID");
+        AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+        BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+
+        if (UserID == null || BranchID != 31)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else if (UserID != null && BranchID == 31)
+        {
+            AllowOpen = true;
+            Students = (await _accountsmain.GetGridCount(BranchID, AccYear, StartDate, EndDate, "All", "StudentCount"));
+            Exception = (await _accountsmain.GetGridCount(BranchID, AccYear, StartDate, EndDate, "All", "ExemptionStudentCount"));
+            NewAdmission = (await _accountsmain.GetGridCount(BranchID, AccYear, StartDate, EndDate, "All", "NewStudentCount"));
+        }
+
+
+
+
+    }
+
+
+    //public async void Search_Click()
+    //{
+    //    StartDate = SDate.ToShortDateString();
+    //    EndDate = EDate.ToShortDateString();
+    //    dtAccountsMain accountsMain = new dtAccountsMain();
+
+    //    if (Description == "Default")
+    //    {
+    //        Employees = (await _accountsmain.GetGridData(BranchId, AccYear, StartDate, EndDate, "All", "SummaryTillDate")).ToList();
+    //        //StudentCount = (await _accountsmain.GetGridCount(BranchId, AccYear, StartDate, EndDate, "All", "GetGridDataCount"));
+    //    }
+    //    else if (Description == "Book Fee")
+    //    {
+    //        Employees = (await _accountsmain.GetGridData(BranchId, AccYear, StartDate, EndDate, "Book Fee", "GetGridDataDetails")).ToList();
+    //        StudentCount = (await _accountsmain.GetGridCount(BranchId, AccYear, StartDate, EndDate, "Book Fee", "GetGridDataCount"));
+    //    }
+    //    else if (Description == "Reregistration Fee")
+    //    {
+    //        Employees = (await _accountsmain.GetGridData(BranchId, AccYear, StartDate, EndDate, "Reregistration Fee", "GetGridDataDetails")).ToList();
+    //        StudentCount = (await _accountsmain.GetGridCount(BranchId, AccYear, StartDate, EndDate, "Reregistration Fee", "GetGridDataCount"));
+    //    }
+    //    else if (Description == "Tuition Fee")
+    //    {
+    //        Employees = (await _accountsmain.GetGridData(BranchId, AccYear, StartDate, EndDate, "Tuition Fee", "GetGridDataDetails")).ToList();
+    //        StudentCount = (await _accountsmain.GetGridCount(BranchId, AccYear, StartDate, EndDate, "Tuition Fee", "GetGridDataCount"));
+    //    }
+    //    GetDayTotal();
+
+    //    await InvokeAsync(StateHasChanged);
+    //}
+
+
+    public void RowSelecthandler(RowSelectEventArgs<dtAccountsMain> Args)
+    {
+        SelectedCustomer = Args.Data.CustomerName;
+        RowIndex = Args.Data.EmployeeID;
+    }
+
+
+    public async void GetGridData()
+    {
+        //Employees = (await _accountsmain.GetGridData()).ToList();
+
+    }
+
+
+
+    //public decimal GetDayTotal()
+    //{
+    //    //Here, you can calculate custom aggregate operations and return the result.
+
+    //    cashSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cash)).AsQueryable()));
+    //    ChequeSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cheque)).AsQueryable()));
+    //    TTSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.TT)).AsQueryable()));
+
+    //    return GrandTotal = Math.Round((cashSum + ChequeSum + TTSum), 2);
+
+
+
+    //}
+
+
+    //private async Task SelectedValueChanged(string val)
+    //{
+
+    //    //this.VisibleProperty = true;
+    //    Employees = new List<dtAccountsMain>();
+
+
+
+
+    //    if (val == "Default")
+    //    {
+
+
+    //        //Employees = (await _accountsmain.GetGridData("Default")).ToList();
+    //        //Value = 0;
+    //        //IsShow = true;
+
+
+    //    }
+    //    else if (val == "Detailed")
+    //    {
+    //        //Employees = (await employeeService.GetEmployeesAllBranch("Statuswise")).ToList();
+    //        //Value = 1;
+    //        //IsShow = true;
+
+    //    }
+
+
+    //    await InvokeAsync(StateHasChanged);
+    //    await Task.Delay(2000);
+    //    //this.VisibleProperty = false;
+
+    //}
+
+
+
+
+}
+
+

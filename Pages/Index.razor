@@ -1,0 +1,115 @@
+﻿@page "/"
+@page "/Index/{ID}/{BranchID}"
+
+@using System.Data
+@using Microsoft.AspNetCore.Http
+@using System.Net.Http
+@using OrisonFeeAnalysis.Entites;
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Spinner
+@layout LoginLayout
+@using OrisonFeeAnalysis.Entities.Student
+@namespace OrisonFeeAnalysis.Pages
+@inject NavigationManager _NavManager
+@inject OrisonFeeAnalysis.Logic.Contract.General.IUserLoginManager _IUserLoginManager
+@using Microsoft.AspNetCore.WebUtilities
+@using OrisonFeeAnalysis.Entities.General
+@inject OrisonFeeAnalysis.Contract.IStudentMaster StudentMasterService
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager
+@using OrisonFeeAnalysis.Logics.Concrete.General
+
+
+
+
+<head>
+    <link href="css/Loader.css" rel="stylesheet" />
+</head>
+<body>
+    <div style="padding-top:700px;">
+        <div class="loader"></div>
+        <svg width="2500" height="2500" viewBox="126.444 2.281 589 589"><image href="images/BackgroundOrisonLogo.png" height="590px" width="770px" /></svg>
+    </div>
+</body>
+
+@code{
+
+    // For other Schools
+    [Parameter]
+    public string ID { get; set; }
+    [Parameter]
+    public string BranchID { get; set; }
+    // For Nobert
+    //string ID, BranchID;
+    public string CmbAccYear = "";
+    public List<SchoolAcademicYear> CmbYear = new List<SchoolAcademicYear>();
+    SchoolAcademicYear objAccYear = new SchoolAcademicYear();
+    int UserID, AccountID, ProfileID, _BranchID;
+    string Username, Name, Password, Category, AcademicYear;
+    IEnumerable<UserLogin> _UserLogin = new List<UserLogin>();
+    public DtUpdate dtupdate = new DtUpdate();
+
+    protected override async Task OnInitializedAsync()
+    {
+        dtupdate.DateFrom = DateTime.Now;
+        dtupdate.DateTo = DateTime.Now;
+        var uri = _NavManager.ToAbsoluteUri(_NavManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        if (queryStrings.TryGetValue("UserID", out var _Id))
+        {
+            ID = _Id;
+        }
+        if (queryStrings.TryGetValue("BranchID", out var _BranchID))
+        {
+            BranchID = _BranchID;
+        }
+
+        await sessionStorage.ClearAsync();
+        _UserLogin = (await _IUserLoginManager.GetUserData(int.Parse(ID), int.Parse(BranchID))).ToList();
+
+        await sessionStorage.SetItemAsync("AcademicYear", CmbAccYear.ToString());
+        if (_UserLogin.Count() > 0)
+        {
+            await LocalStorage();
+        }
+
+        await LocalStorageGet();
+        //_NavManager.NavigateTo("BookRegister");
+        CmbYear = (await StudentMasterService.GetAcademicYear(Convert.ToInt32(BranchID))).ToList();
+        objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
+        CmbAccYear = objAccYear.AcademicYear.ToString();
+        await sessionStorage.SetItemAsync("AcademicYear", CmbAccYear);
+        dtupdate.academicYear = CmbAccYear;
+        HttpResponseMessage result = new HttpResponseMessage();
+        result = await StudentMasterService.Update(dtupdate);
+        _NavManager.NavigateTo("Dashboard");
+
+    }
+
+    protected async Task LocalStorage()
+    {
+        await sessionStorage.SetItemAsync("UserID", _UserLogin.First().UserID);
+        await sessionStorage.SetItemAsync("AccountID", _UserLogin.First().AccountID);
+        await sessionStorage.SetItemAsync("Username", _UserLogin.First().UserName);
+        await sessionStorage.SetItemAsync("Name", _UserLogin.First().Name);
+        await sessionStorage.SetItemAsync("Password", _UserLogin.First().Password);
+        await sessionStorage.SetItemAsync("Category", _UserLogin.First().Category);
+        await sessionStorage.SetItemAsync("ProfileID", _UserLogin.First().ProfileID);
+        await sessionStorage.SetItemAsync("BranchID", _UserLogin.First().BranchID); // for Athena
+                                                                                    //await localStorage.SetItemAsync("Library_BranchID", 31);
+        await sessionStorage.SetItemAsync("AcademicYear", AcademicYear);
+
+    }
+    protected async Task LocalStorageGet()
+    {
+        UserID = await sessionStorage.GetItemAsync<int>("UserID");
+        AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+        Username = await sessionStorage.GetItemAsync<string>("Username");
+        Name = await sessionStorage.GetItemAsync<string>("Name");
+        Password = await sessionStorage.GetItemAsync<string>("Password");
+        Category = await sessionStorage.GetItemAsync<string>("Category");
+        ProfileID = await sessionStorage.GetItemAsync<int>("ProfileID");
+        _BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+    }
+}

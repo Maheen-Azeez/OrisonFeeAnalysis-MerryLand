@@ -1,0 +1,834 @@
+﻿@page "/VacancySummary"
+
+@using System.Data
+@using OrisonFeeAnalysis.Entities.Main
+
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Calendars;
+@using Syncfusion.Blazor.Spinner;
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Inputs
+@using System.Threading.Tasks
+
+@layout MainLayout
+@inject IJSRuntime jsRuntime
+
+@namespace OrisonFeeAnalysis.Pages
+@inject NavigationManager _NavManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+@inject NavigationManager NavigationManager
+@using Newtonsoft.Json
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+
+<div>
+
+    <div class="box-card-shadow">
+            <div class="row">
+                <div class="col-md-12">
+                    <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+                    <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+                    <SfButton IconCss="Icon search" @onclick="@LoadData" title="Search" CssClass="e-btn4"></SfButton>
+
+                </div>
+
+            </div>
+    </div>
+
+    @if (AllowOpen == true)
+    {
+        <div>
+            <div class="box-card-shadow">
+
+                        <SfGrid ID="SGrid" DataSource="@Employees"
+                                GridLines="GridLine.Both"
+                                AllowSorting="true"
+                                AllowFiltering="true"
+                                AllowExcelExport="true"
+                                AllowPdfExport="true"
+                                AllowResizing="true"
+                                RowHeight="24"
+                                FrozenColumns="5"
+                                Width="100%"
+                                @ref="SGrid">
+                            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                            <GridAggregates>
+                                <GridAggregate>
+                                    <GridAggregateColumns>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.Capacity) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div style="padding-top:5px;">
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+                                                    </div>
+
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.BoysDivision) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div style="padding-top:5px;">
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+                                                    </div>
+
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.GirlDivision) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div style="padding-top:5px;">
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+                                                    </div>
+
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.TotalDivision) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div style="padding-top:5px;">
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+                                                    </div>
+
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+
+
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.BoysSeat) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.GirlSeat) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.TotalSeat) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.MaleSeatFilled) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.FemaleSeatFilled) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.TotalSeatFilled) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.NewBoysPaid) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.NewGirlsPaid) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.NewTotalPaid) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.OldBoysPaid) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.OldGirlsPaid) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.OldFeePaid) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.MaleVacancy) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.FemaleVacancy) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.MaleExemption) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.FemaleExemption) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.TotalExemption) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.TotalVacancy) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.MaleReserved) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.FemaleReserved) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+                                        <GridAggregateColumn Field=@nameof(dtAccountsMain.Reserved) Type="AggregateType.Sum">
+                                            <FooterTemplate>
+                                                @{
+                                                    var aggregate = (context as AggregateTemplateContext);
+                                                    <div>
+
+                                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                                    </div>
+                                                }
+                                            </FooterTemplate>
+                                        </GridAggregateColumn>
+
+                                    </GridAggregateColumns>
+                                </GridAggregate>
+                            </GridAggregates>
+                            <GridColumns>
+                                <GridColumn IsFrozen="true" Field=@nameof(dtAccountsMain.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                <GridColumn IsFrozen="true" Field=@nameof(dtAccountsMain.Capacity) HeaderText="Capacity" TextAlign="TextAlign.Left" Width="110"></GridColumn>
+                                <GridColumn IsFrozen="true" Field=@nameof(dtAccountsMain.BoysDivision) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                <GridColumn IsFrozen="true" Field=@nameof(dtAccountsMain.GirlDivision) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                <GridColumn IsFrozen="true" Field=@nameof(dtAccountsMain.TotalDivision) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                @*<GridColumn Width="510" HeaderText="Division" TextAlign="TextAlign.Center">
+                                        <GridColumns>
+                                            <GridColumn IsFrozen="true" Field=@nameof(dtAccountsMain.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                            <GridColumn IsFrozen="true"Field=@nameof(dtAccountsMain.Capacity) HeaderText="Capacity" TextAlign="TextAlign.Left" Width="110"></GridColumn>
+                                            <GridColumn IsFrozen="true"Field=@nameof(dtAccountsMain.BoysDivision) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                            <GridColumn IsFrozen="true"Field=@nameof(dtAccountsMain.GirlDivision) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                            <GridColumn IsFrozen="true"Field=@nameof(dtAccountsMain.TotalDivision) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        </GridColumns>
+                                    </GridColumn>*@
+                                <GridColumn HeaderText="No.of Seats" TextAlign="TextAlign.Center">
+                                    <GridColumns>
+
+                                        <GridColumn Field=@nameof(dtAccountsMain.BoysSeat) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.GirlSeat) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.TotalSeat) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                    </GridColumns>
+                                </GridColumn>
+                                <GridColumn HeaderText="New Admission Fee Paid" TextAlign="TextAlign.Center">
+                                    <GridColumns>
+
+                                        <GridColumn Field=@nameof(dtAccountsMain.NewBoysPaid) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.NewGirlsPaid) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.NewTotalPaid) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                    </GridColumns>
+                                </GridColumn>
+                                <GridColumn HeaderText="Old Admission Fee Paid" TextAlign="TextAlign.Center">
+                                    <GridColumns>
+
+                                        <GridColumn Field=@nameof(dtAccountsMain.OldBoysPaid) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.OldGirlsPaid) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.OldFeePaid) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                    </GridColumns>
+                                </GridColumn>
+                                <GridColumn HeaderText="Exemption" TextAlign="TextAlign.Center">
+                                    <GridColumns>
+
+                                        <GridColumn Field=@nameof(dtAccountsMain.MaleExemption) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.FemaleExemption) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.TotalExemption) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                    </GridColumns>
+                                </GridColumn>
+                                <GridColumn HeaderText="Seats Filled" TextAlign="TextAlign.Center">
+                                    <GridColumns>
+
+                                        <GridColumn Field=@nameof(dtAccountsMain.MaleSeatFilled) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.FemaleSeatFilled) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.TotalSeatFilled) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                    </GridColumns>
+                                </GridColumn>
+                                <GridColumn HeaderText="Reserved" TextAlign="TextAlign.Center">
+                                    <GridColumns>
+
+                                        <GridColumn Field=@nameof(dtAccountsMain.MaleReserved) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.FemaleReserved) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.Reserved) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                    </GridColumns>
+                                </GridColumn>
+                                <GridColumn HeaderText="Vacancy" TextAlign="TextAlign.Center">
+                                    <GridColumns>
+
+                                        <GridColumn Field=@nameof(dtAccountsMain.MaleVacancy) HeaderText="Male" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.FemaleVacancy) HeaderText="Female" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                        <GridColumn Field=@nameof(dtAccountsMain.TotalVacancy) HeaderText="Total" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                                    </GridColumns>
+                                </GridColumn>
+
+
+
+
+
+                            </GridColumns>
+
+                        </SfGrid>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Division</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label >@DTotal</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>New Admission Fee Paid</label>
+                            </div>
+                            <div class="col-md-6" >
+                                <label>@NewTotalFee</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Old Admission Fee Paid</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>@OldTotalFee</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>No: of Seats</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>@NoOfSeats</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Exemption</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>@TotalExce</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Seats Filled</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>@SeatsFilled</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Reserved</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>@Reserved</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Vacancy</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>@Vacancy</label>
+                            </div>
+                        </div>
+
+
+
+            </div>
+
+        </div>
+    }
+    @if (Loading == true)
+    {
+        <div class="spin-row w-100" style="padding-top:300px">
+            <SfSpinner Visible="true"></SfSpinner>
+        </div>
+    }
+
+</div>
+
+
+@code{
+
+    DateTime SDate, EDate;
+    string Description = "Default", AccYear = "", cmbUsername, Category;
+    public bool Isload = false;
+    public string SelectedCustomer { get; set; }
+    public int? RowIndex { get; set; } = 1003;
+    int StudentCount = 0;
+    decimal cashSum, ChequeSum, TTSum;
+    decimal GrandTotal;
+    string StartDate, EndDate;
+    int UserID, AccountID, BranchID;
+    bool AllowOpen = false, Loading = true;
+    public Query Query = new Query();
+    public int DMale = 0, DFemal = 0, DTotal = 0, NewFeeMale = 0, NewFeeFemale = 0, NewTotalFee = 0, OldFeeMale = 0, OldFeeFemale = 0, OldTotalFee = 0, MaleExce = 0, FemaleExce = 0, TotalExce = 0, NoOfSeats = 0;
+
+    int Capacity = 0, Division = 0, NewAdmFeePaid = 0, OldAdmFeePaid = 0, Exception = 0, SeatsFilled = 0, Vacancy = 0, TSeatsFilled = 0, Reserved = 0, MRes = 0, FRes = 0, TRes = 0;
+
+
+
+
+    SfTextBox GlobalSearch;
+    public SfGrid<dtAccountsMain> SGrid { get; set; }
+
+    public dtAccountsMain dtAccounts = new dtAccountsMain();
+    public IList<dtAccountsMain> Employees { get; set; }
+    public IList<dtAccountsMain> UserList { get; set; }
+    int Bseat;
+    int Gseat;
+    int Tseat;
+    public int TvacancyMale = 0, Tvacancyfemale = 0;
+    IEnumerable<string> DropdownData = new List<string>() {
+      "Default",
+      "Book Fee",
+      "Transportation Fee",
+      "Reregistration Fee",
+      "Tuition Fee",
+      "Full Year Fee"
+
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        Description = "Default";
+        cmbUsername = null;
+        SDate = DateTime.Now;
+        EDate = DateTime.Now;
+        try
+        {
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+            if (Category == "Administrator")
+            {
+                await LoadData();
+                Loading = false;
+                AllowOpen = true;
+
+            }
+            else
+            {
+                AllowOpen = false;
+                Loading = false;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await ClearLocalStorage();
+
+            throw ex;
+        }
+
+    }
+
+
+    public async Task LoadData()
+    {
+        DTotal = 0; NewTotalFee = 0; OldTotalFee = 0; TotalExce = 0; Capacity = 0; NoOfSeats = 0; TSeatsFilled = 0; Reserved = 0; SeatsFilled = 0; Vacancy = 0;
+        AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+        Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "VaccancySummary", cmbUsername)).ToList();
+        foreach (dtAccountsMain Result in Employees)
+        {
+
+
+            DTotal += Result.TotalDivision;
+            NewTotalFee += Result.NewTotalPaid;
+            OldTotalFee += Result.OldFeePaid;
+            TotalExce += Result.TotalExemption;
+            Capacity += Result.Capacity;
+            NoOfSeats += Result.TotalSeat;
+
+
+            // Seat Filled
+            Result.MaleSeatFilled = Result.NewBoysPaid + Result.OldBoysPaid + Result.MaleExemption;
+            Result.FemaleSeatFilled = Result.NewGirlsPaid + Result.OldGirlsPaid + Result.FemaleExemption;
+            Result.TotalSeatFilled += Result.NewTotalPaid + Result.OldFeePaid + Result.TotalExemption;
+
+
+            //Reserved
+
+
+
+
+            TSeatsFilled += Result.TotalSeatFilled;
+            //Vacancy
+            Result.MaleVacancy = Result.BoysSeat - Result.MaleSeatFilled - Result.MaleReserved;
+            Result.FemaleVacancy = Result.GirlSeat - Result.FemaleSeatFilled - Result.FemaleReserved;
+
+
+            if (Result.MaleVacancy < 0)
+            {
+                Result.MaleVacancy = 0;
+            }
+            if (Result.FemaleVacancy < 0)
+            {
+                Result.FemaleVacancy = 0;
+            }
+            //Result.TotalVacancy += Result.MaleVacancy + Result.FemaleVacancy;
+            Result.TotalVacancy = Result.TotalSeat - Result.TotalSeatFilled - Result.Reserved;
+        }
+
+        Reserved = Convert.ToInt32(Queryable.Sum(Employees.Select(x => (x.Reserved)).AsQueryable()));
+        SeatsFilled = NewTotalFee + OldTotalFee + TotalExce + Reserved;
+        Vacancy = NoOfSeats - SeatsFilled - Reserved;
+        TvacancyMale = Employees.Sum(item => item.MaleVacancy);
+        Tvacancyfemale = Employees.Sum(item => item.FemaleVacancy);
+    }
+    public async Task ExportPdf()
+    {
+
+        //await this.SGrid.ExportToPdfAsync();
+        List<JSReportParameter> parameters = new List<JSReportParameter>()
+        {
+            new JSReportParameter()
+            {
+                Name = "TvacancyMale",
+                Values = new List<string>(){ TvacancyMale.ToString() }
+            },
+            new JSReportParameter()
+            {
+                Name = "Tvacancyfemale",
+                Values = new List<string>(){ Tvacancyfemale.ToString() }
+            },
+            new JSReportParameter()
+            {
+                Name = "Accyear",
+                Values = new List<string>(){ AccYear.ToString() }
+            }
+        };
+        var Data = await SGrid.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        var Result = _BoldReport.GetReport("Vacancy Summary", dt, parameters);
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Result.FileStream.CopyTo(ms);
+        await jsRuntime.InvokeVoidAsync(
+                  "jsSaveAsFile",
+                  "Vacancy Summary.pdf",
+                  Convert.ToBase64String(ms.ToArray()));
+
+
+
+    }
+
+
+    public async void Search_Click()
+    {
+        StartDate = (SDate).ToString("dd/MM/yyyy");
+        EndDate = (EDate).ToString("dd/MM/yyyy");
+        dtAccountsMain accountsMain = new dtAccountsMain();
+        AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+
+        if (Description == "Default")
+        {
+            Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "GetUserWiseSummary", cmbUsername)).ToList();
+            StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "GetGridDataCount"));
+        }
+        else if (Description == "Book Fee")
+        {
+            Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Book Fee", "GetUserWiseSummary", cmbUsername)).ToList();
+            StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Book Fee", "GetGridDataCount"));
+        }
+        else if (Description == "Reregistration Fee")
+        {
+            Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Reregistration Fee", "GetUserWiseSummary", cmbUsername)).ToList();
+            StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Reregistration Fee", "GetGridDataCount"));
+        }
+        else if (Description == "Transportation Fee")
+        {
+            Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Transportation Fee", "GetUserWiseSummary", cmbUsername)).ToList();
+            StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Transportation Fee", "GetGridDataCount"));
+        }
+        else if (Description == "Tuition Fee")
+        {
+            Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Tuition Fee", "GetUserWiseSummary", cmbUsername)).ToList();
+            StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Tuition Fee", "GetGridDataCount"));
+        }
+        else if (Description == "Full Year Fee")
+        {
+            Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "FullYear Fee", "GetGridData", cmbUsername)).ToList();
+            StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "FullYear Fee", "GetGridDataCount"));
+        }
+
+        GetDayTotal();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    public decimal GetDayTotal()
+    {
+        // Here, you can calculate custom aggregate operations and return the result.
+
+        cashSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cash)).AsQueryable()));
+        ChequeSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cheque)).AsQueryable()));
+        TTSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.TT)).AsQueryable()));
+
+        return GrandTotal = Math.Round((cashSum + ChequeSum + TTSum), 2);
+
+    }
+
+
+    public async Task ExportExcel()
+    {
+
+        await this.SGrid.ExportToExcelAsync();
+
+    }
+
+
+    public void OnSearch(InputEventArgs Args)
+    {
+
+        if (Args.Value != null)
+        {
+            SGrid.Search(Args.Value);
+            this.StateHasChanged();
+        }
+
+    }
+
+    public void OnInput(InputEventArgs Args)
+    {
+
+        if (Args.Value != null)
+        {
+            SGrid.Search(Args.Value);
+
+        }
+
+    }
+
+
+
+    SfComboBox<string, dtAccountsMain> cmbList;
+
+    public async Task OnComboSearch(Syncfusion.Blazor.DropDowns.FilteringEventArgs args)
+    {
+        if (args.Text != null && args.Text != "")
+        {
+        }
+        args.PreventDefaultAction = true;
+
+        var pre = new WhereFilter();
+        var predicate = new List<WhereFilter>
+            ();
+
+        predicate.Add(new WhereFilter() { Condition = "or", Field = "UserName", value = args.Text, Operator = "contains", IgnoreAccent = true, IgnoreCase = true });
+
+        pre = WhereFilter.Or(predicate);
+
+
+        Query = args.Text == "" ? new Query().Take(25) : new Query().Where(pre).Take(25);
+
+
+        await this.cmbList.Filter(UserList, Query);
+
+    }
+
+
+    string LogoutUrl;
+    public async Task ClearLocalStorage()
+    {
+        LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
+
+        await sessionStorage.ClearAsync();
+        //Must check localstorage userid in each razor page
+
+        NavigationManager.NavigateTo(LogoutUrl);
+
+    }
+
+}
+

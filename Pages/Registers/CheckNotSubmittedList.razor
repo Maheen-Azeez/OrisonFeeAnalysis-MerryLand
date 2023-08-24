@@ -1,0 +1,164 @@
+﻿@page "/ChequeNotSubmittedList"
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+@using OrisonFeeAnalysis.Entities.Main
+@using Syncfusion.Blazor.Spinner;
+
+
+
+@inject NavigationManager NavigationManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+
+@inject IJSRuntime jsRuntime
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+<div class="box-card-shadow">
+    <div class="row">
+        <div class="col-md-12">
+            <SfButton IconCss="Icon excel"  CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+            <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+            @*<SfComboBox @bind-Value="@Dropval" TValue="string" TItem="string" DataSource="@Academicyear" Width="180px">
+                </SfComboBox>*@
+            <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="e-btn4"></SfButton>
+            @*<SfButton IconCss="Icon print" Content="Print" CssClass="e-outline" @onclick="@DownLoadDocs"></SfButton>*@
+        </div>
+    </div>
+</div>
+
+<div>
+
+    <div class="box-card-shadow">
+
+        <SfGrid ID="Grid" DataSource="@CheckUnSubmittedList"
+                GridLines="GridLine.Both"
+                AllowExcelExport="true"
+                AllowPdfExport="true"
+                AllowFiltering="true"
+                AllowResizing="true"
+                AllowSorting="true"
+                RowHeight="24"
+                Height="500"
+                Width="100%"
+                @ref="Grid"
+                AllowPaging="true">
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+            <GridPageSettings PageSize="50" PageSizes="true"></GridPageSettings>
+
+            <GridColumns>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.AccountCode) HeaderText="Code" TextAlign="TextAlign.Left" Width="90"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.AccountName) HeaderText="Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Description) HeaderText="Description" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.FatherMobile) HeaderText="Father Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.MotherMobile) HeaderText="Mother Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.FatherEmail) HeaderText="Father Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.MotherEmail) HeaderText="Mother Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.AdmissionStatus) HeaderText="Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+
+
+
+            </GridColumns>
+            <SfSpinner @bind-Visible="@AllowOpen"></SfSpinner>
+
+        </SfGrid>
+    </div>
+</div>
+
+
+@code {
+
+
+    string Dropval, Category;
+    int BranchID, UserID, AccountID;
+    public bool AllowOpen = false, Loading = false;
+
+    public List<string> Academicyear = new List<string>();
+    SfGrid<dtPaidandNotPaid> Grid;
+    public IEnumerable<dtPaidandNotPaid> CheckUnSubmittedList = new List<dtPaidandNotPaid>();
+
+    protected async override Task OnInitializedAsync()
+    {
+
+
+        try
+        {
+            AllowOpen = true;
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+
+            Dropval = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+            if (UserID != 0)
+            {
+               
+                CheckUnSubmittedList = await _accountsmain.CheckUnSubmittedList(Dropval);
+            }           
+            AllowOpen = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+
+
+    }
+
+    public async void Search_Click()
+    {
+        AllowOpen = true;
+        //Loading = true;
+        Dropval = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+        CheckUnSubmittedList = await _accountsmain.CheckUnSubmittedList(Dropval);
+        //Loading = false;
+        AllowOpen = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task ExportExcel()
+    {
+        await this.Grid.ExportToExcelAsync();
+    }
+
+    public async Task ExportPdf()
+    {
+        await this.Grid.ExportToPdfAsync();
+    }
+
+    string LogoutUrl;
+    public async Task ClearLocalStorage()
+    {
+        LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
+
+        await sessionStorage.ClearAsync();
+        //Must check localstorage userid in each razor page
+
+        NavigationManager.NavigateTo(LogoutUrl);
+
+    }
+
+    //private ElementReference codeBlock;
+    //public async Task DownLoadDocs()
+    //{
+    //    var obj = new
+    //    {
+    //        ReportName = "Paid Not paid Summary",
+    //        Accyear = Dropval,
+    //        DateFrom = DateTime.Now,
+    //        DateTo = DateTime.Now,
+    //        branchID = BranchID.ToString(),
+    //        Description = "All",
+    //        UserName = ""
+    //    };
+    //    await jsRuntime.InvokeVoidAsync("BoldReports.Export", codeBlock, obj);
+    //}
+}

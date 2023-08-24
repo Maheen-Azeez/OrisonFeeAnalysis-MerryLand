@@ -1,0 +1,263 @@
+﻿@page "/Dashboard"
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Layouts
+@using Syncfusion.Blazor.Spinner
+@using OrisonFeeAnalysis.Entities.Main
+@using OrisonFeeAnalyis.Entities.General
+@using OrisonFeeAnalysis.Data.Login
+
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+
+@using Syncfusion.Blazor.Grids
+@using OrisonFeeAnalysis.Services
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+
+
+@using Newtonsoft.Json
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+
+<div>
+    <div class="box-card-shadow">
+        <div class="row">
+            <div class="col-md-12">
+                <SfButton IconCss="Icon excel"  CssClass="e-btn4" @onclick="@ExportExcel">
+
+                </SfButton>
+
+                <SfButton IconCss="Icon pdf"  CssClass="e-btn4" @onclick="@ExportPdf">
+
+                </SfButton>
+
+                <SfDatePicker @bind-Value="dtdashBoard.DateFrom" Format="dd/MM/yyyy" Width="150px">
+                </SfDatePicker>
+
+                <SfDatePicker Format="dd/MM/yyyy" @bind-Value="dtdashBoard.DateTo" Width="150px">
+                </SfDatePicker>
+
+                <SfButton IconCss="Icon search" @onclick="@GetData" title="Search" CssClass="e-btn4">
+
+                </SfButton>
+
+
+                <SfNumericTextBox TValue="int" @bind-Value="@TotalNos" ShowSpinButton="false" Enabled="false" Width="75px">
+
+                </SfNumericTextBox>
+
+                <SfNumericTextBox TValue="decimal" @bind-Value="@TotalAmount" ShowClearButton="true" ShowSpinButton="false" Enabled="false" Format="0.00" Width="100px">
+
+                </SfNumericTextBox>
+
+                <SfButton IconCss="Icon preprint"  CssClass="e-btn4" @onclick="@DownLoadDocs">
+
+                </SfButton>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <div>
+        <div class="box-card-shadow">
+
+            <SfGrid ID="SGrid" GridLines="GridLine.Both" DataSource="@GridData"
+                    AllowResizing="true"
+                    AllowSorting="true"
+                    EnableAltRow="true"
+                    AllowFiltering="true"
+                    AllowExcelExport="true"
+                    AllowPdfExport="true"
+                    Height="550"
+                    RowHeight="24"
+                    @ref="SGrid">
+                <GridSelectionSettings CheckboxOnly="true" PersistSelection="true"></GridSelectionSettings>
+                <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                <GridEditSettings AllowAdding="true" AllowDeleting="true" AllowEditing="true"></GridEditSettings>
+                <GridColumns>
+                    <GridColumn Field=@nameof(dtDashBoard.Description) HeaderText="Fees Description" IsPrimaryKey="true" TextAlign="TextAlign.Left" Width="300"></GridColumn>
+                    <GridColumn Field=@nameof(dtDashBoard.Count) HeaderText="Nos" AllowAdding="false" AllowEditing="false" Width="100"></GridColumn>
+                    <GridColumn Field=@nameof(dtDashBoard.Amount) HeaderText="Amount" Format="0.00" AllowAdding="false" AllowEditing="false" Width="150" TextAlign="TextAlign.Left"></GridColumn>
+                    <GridColumn Field=@nameof(dtDashBoard.ToDate) HeaderText="Date" Format="dd/MM/yyyy" Width="150" TextAlign="TextAlign.Left"></GridColumn>
+                </GridColumns>
+                <SfSpinner @bind-Visible="@AllowOpen"></SfSpinner>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@code {
+
+    SfDashboardLayout dashboardObject;
+    double[] CellSpacing = new double[] { 5, 5 };
+    DateTime SDate = DateTime.Now, EDate = DateTime.Now;
+    double Ratio = 100 / 85;
+    public int TotalNos = 0;
+    public Decimal TotalAmount = 0;
+    public SfGrid<dtDashBoard> SGrid { get; set; }
+    public dtDashBoard dtdashBoard = new dtDashBoard();
+
+    public IList<dtDashBoard> GridData = new List<dtDashBoard>();
+
+    UserRights objUserRight = new UserRights();
+
+
+    private IList<dtAccountsMain> CountList { get; set; }
+    DateTime Date;
+    int UserID, AccountID, BranchID;
+    string Category;
+    bool AllowOpen = false, Loading = true;
+
+
+    string AccYear = "";
+    private ElementReference codeBlock;
+    public async Task DownLoadDocs()
+    {
+
+
+
+        List<JSReportParameter> parameters = new List<JSReportParameter>()
+    {
+            new JSReportParameter()
+            {
+                Name = "SDate",
+                Values = new List<string>(){ dtdashBoard.DateFrom.ToString("dd-MMM-yyyy") }
+            },
+            new JSReportParameter()
+            {
+                Name = "EDate",
+                Values = new List<string>() { dtdashBoard.DateTo.ToString("dd-MMM-yyyy") }
+            }
+        };
+        var Data = await SGrid.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        var Result = _BoldReport.GetReport("DashBoard", dt, parameters);
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Result.FileStream.CopyTo(ms);
+        await jsRuntime.InvokeVoidAsync(
+                  "jsSaveAsFile",
+                  "DashBoard.pdf",
+                  Convert.ToBase64String(ms.ToArray()));
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllowOpen = true;
+
+        dtdashBoard.DateFrom = DateTime.Now;
+        dtdashBoard.DateTo = DateTime.Now;
+
+        try
+        {
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+
+
+            //if (Category == "Administrator")
+            //{
+            //    //Loading = true;
+
+
+            //    await GetData();
+            //    //Loading = false;
+
+
+            //}
+            //else
+            //{
+            //    AllowOpen = false;
+            //}
+            AllowOpen = false;
+
+        }
+        catch (Exception ex)
+        {
+            await ClearLocalStorage();
+
+            throw ex;
+        }
+
+
+
+    }
+
+    public async Task GetData()
+    {
+        AllowOpen = true;
+
+        //Loading = true;
+        TotalAmount = 0;
+        TotalNos = 0;
+        Date = dtdashBoard.DateTo;
+        if (dtdashBoard.DateFrom != null && dtdashBoard.DateTo != null)
+        {
+            GridData = await _accountsmain.GetDashBoardData(dtdashBoard);
+
+            SDate = dtdashBoard.DateFrom;
+            EDate = dtdashBoard.DateTo;
+            CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "DashBoardCount")).ToList();
+
+            TotalNos = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
+            TotalAmount = Convert.ToDecimal(Queryable.Sum(GridData.Select(x => (x.Amount)).AsQueryable()));
+            Math.Round(TotalAmount);
+        }
+        AllowOpen = false;
+
+        await InvokeAsync(StateHasChanged);
+        //Loading = false;
+
+
+    }
+
+    public async Task ExportExcel()
+    {
+
+        await this.SGrid.ExportToExcelAsync();
+
+    }
+
+    public async Task ExportPdf()
+    {
+
+        await this.SGrid.ExportToPdfAsync();
+
+
+    }
+
+    string LogoutUrl;
+    public async Task ClearLocalStorage()
+    {
+        LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
+
+        await sessionStorage.ClearAsync();
+        //Must check localstorage userid in each razor page
+
+        NavigationManager.NavigateTo(LogoutUrl);
+
+    }
+}
