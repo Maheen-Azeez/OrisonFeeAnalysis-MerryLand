@@ -1,0 +1,110 @@
+﻿@page "/ReregPaidTerm1NotPaid"
+
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Spinner;
+@using OrisonFeeAnalysis.Entities.Main
+@using Newtonsoft.Json
+
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Services.BoldReportService _BoldReportService
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+
+
+
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+<div>
+    <div class="box-card-shadow">
+        <div class="row">
+            <div class="col-md-12">
+                <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+                <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="box-card-shadow">
+    <SfGrid ID="Grid" DataSource="@GridDataDetails"
+            GridLines="GridLine.Both"
+            AllowExcelExport="true"
+            AllowPdfExport="true"
+            AllowFiltering="true"
+            AllowPaging="true"
+            RowHeight="24"
+            Width="100%"
+            Height="100vh"
+            @ref="Grid">
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+        <GridPageSettings PageSize="50"></GridPageSettings>
+        <GridEvents QueryCellInfo="QueryCellInfoHandler" TValue="dtPaidandNotPaid"></GridEvents>
+        <GridColumns>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.AccountCode) HeaderText="Account Code" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="140"></GridColumn>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.AccountName) HeaderText="Account Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="90"></GridColumn>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="105"></GridColumn>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.ParentName) HeaderText="Parent" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.FatherMobile) HeaderText="Contact" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.Blocked) Visible="false"></GridColumn>
+            <GridColumn Field=@nameof(dtPaidandNotPaid.Reregistered) Visible="false"></GridColumn>
+        </GridColumns>
+        <SfSpinner @bind-Visible="@AllowOpen"></SfSpinner>
+
+    </SfGrid>
+
+</div>
+
+@code {
+    public IEnumerable<dtPaidandNotPaid> GridDataDetails = new List<dtPaidandNotPaid>();
+    SfGrid<dtPaidandNotPaid> Grid { get; set; }
+    public int UserID { get; set; }
+    public int BranchID { get; set; }
+    public string Academicyear { get; set; }
+    bool AllowOpen = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        AllowOpen = true;
+        UserID = await sessionStorage.GetItemAsync<int>("UserID");
+        BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+        Academicyear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+
+        if (UserID != 0)
+        {
+            GridDataDetails = await _accountsmain.GetPaidandNotPaid(Academicyear, BranchID, "ReregPaidTerm1NotPaid", "", "", "", "");
+        }
+        AllowOpen = false;
+        await InvokeAsync(StateHasChanged);
+    }
+    public async Task ExportExcel()
+    {
+        await this.Grid.ExportToExcelAsync();
+    }
+
+    public async Task ExportPdf()
+    {
+        await this.Grid.ExportToPdfAsync();
+    }
+    public void QueryCellInfoHandler(QueryCellInfoEventArgs<dtPaidandNotPaid> args)
+    {
+        if (args.Data.Blocked == true)
+        {
+            args.Cell.AddStyle(new string[] { "font-weight: bold;", "color: red;" });
+        }
+        else if (args.Data.Reregistered == true)
+        {
+            args.Cell.AddStyle(new string[] { "font-weight: bold;", "color: green;" });
+        }
+
+    }
+}
