@@ -44,12 +44,89 @@
                         AllowExcelExport="true"
                         AllowPdfExport="true"
                         AllowFiltering="true"
-                        Height="510"
                         RowHeight="24"
                         Width="100%"
                         @ref="Grid">
                     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                    <GridAggregates>
+                        <GridAggregate>
+                            <GridAggregateColumns>
+                             
+                                <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term1Paid) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="font-size: 13px; position: absolute; left: 7px; font-weight: bold;">TOTAL</div> <div style="align-items:end;">@aggregate.Sum</div>
 
+                                            </div>
+
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term1NotPaid) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term2Paid) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn  Field=@nameof(dtPaidandNotPaid.Term2NotPaid) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn  Field=@nameof(dtPaidandNotPaid.Term3Paid) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn  Field=@nameof(dtPaidandNotPaid.Term3NotPaid) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+
+                                            </div>
+
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                            </GridAggregateColumns>
+                        </GridAggregate>
+                    </GridAggregates>
                     <GridColumns>
                         <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
                         <GridColumn Field=@nameof(dtPaidandNotPaid.Term1Paid) HeaderText="Term1 Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
