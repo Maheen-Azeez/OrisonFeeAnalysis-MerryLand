@@ -4,8 +4,10 @@
 @using Syncfusion.Blazor.Grids
 @using OrisonFeeAnalysis.Entities.Main
 @using Syncfusion.Blazor.Spinner;
-
-
+@using Newtonsoft.Json
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
 
 @inject NavigationManager NavigationManager
 @inject OrisonFeeAnalysis.Services.URLService UrlService
@@ -20,11 +22,15 @@
 <div class="box-card-shadow">
     <div class="row">
         <div class="col-md-12">
-            <SfButton IconCss="Icon excel"  CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
-            <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+            <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+            @*<SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>*@
             @*<SfComboBox @bind-Value="@Dropval" TValue="string" TItem="string" DataSource="@Academicyear" Width="180px">
-                </SfComboBox>*@
-            <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="e-btn4"></SfButton>
+        </SfComboBox>*@
+            @*<SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="e-btn4"></SfButton>*@
+            <SfButton IconCss="Icon preprint" CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
+
+            <SfButton IconCss="Icon preprint" Content="Parentwise" CssClass="btn" OnClick="@DownLoadDocsParentwise"></SfButton>
+
             @*<SfButton IconCss="Icon print" Content="Print" CssClass="e-outline" @onclick="@DownLoadDocs"></SfButton>*@
         </div>
     </div>
@@ -47,7 +53,8 @@
                 @ref="Grid"
                 AllowPaging="true">
             <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
-            <GridPageSettings PageSize="50" PageSizes="true"></GridPageSettings>
+            <GridPageSettings PageSize="100" ></GridPageSettings>
+            <GridEvents QueryCellInfo="QueryCellInfoHandler" TValue="dtPaidandNotPaid"></GridEvents>
 
             <GridColumns>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.AccountCode) HeaderText="Code" TextAlign="TextAlign.Left" Width="90"></GridColumn>
@@ -55,12 +62,14 @@
                 <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="120"></GridColumn>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.Description) HeaderText="Description" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.ParentName) HeaderText="Parent" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.FatherMobile) HeaderText="Father Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.MotherMobile) HeaderText="Mother Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.FatherEmail) HeaderText="Father Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.MotherEmail) HeaderText="Mother Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
                 <GridColumn Field=@nameof(dtPaidandNotPaid.AdmissionStatus) HeaderText="Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Blocked) Visible="false"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Reregistered) Visible="false"></GridColumn>
 
 
             </GridColumns>
@@ -98,9 +107,9 @@
 
             if (UserID != 0)
             {
-               
+
                 CheckUnSubmittedList = await _accountsmain.CheckUnSubmittedList(Dropval);
-            }           
+            }
             AllowOpen = false;
             await InvokeAsync(StateHasChanged);
         }
@@ -131,7 +140,11 @@
 
     public async Task ExportPdf()
     {
-        await this.Grid.ExportToPdfAsync();
+        PdfExportProperties pdfExportProperties = new PdfExportProperties();
+        pdfExportProperties.PageSize = PdfPageSize.A4;
+        pdfExportProperties.PageOrientation = PageOrientation.Landscape;
+
+        await this.Grid.ExportToPdfAsync(pdfExportProperties);
     }
 
     string LogoutUrl;
@@ -161,4 +174,50 @@
     //    };
     //    await jsRuntime.InvokeVoidAsync("BoldReports.Export", codeBlock, obj);
     //}
+    public async Task DownLoadDocsParentwise()
+    {
+
+
+
+        var Data = await Grid.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        var Result = _BoldReport.GetReport("CHEQUE NOT SUBMITTED PARENT WISE", dt, null);
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Result.FileStream.CopyTo(ms);
+        await jsRuntime.InvokeVoidAsync(
+                  "jsSaveAsFile",
+                  "CHEQUE NOT SUBMITTED PARENT WISE.pdf",
+                  Convert.ToBase64String(ms.ToArray()));
+    }
+    public async Task DownLoadDocs()
+    {
+
+
+
+        var Data = await Grid.GetFilteredRecordsAsync();
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        dt.DataSet1 = JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data));
+        var Result = _BoldReport.GetReport("Cheque Not Submitted", dt, null);
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Result.FileStream.CopyTo(ms);
+        await jsRuntime.InvokeVoidAsync(
+                  "jsSaveAsFile",
+                  "Cheque Not Submitted.pdf",
+                  Convert.ToBase64String(ms.ToArray()));
+    }
+    public void QueryCellInfoHandler(QueryCellInfoEventArgs<dtPaidandNotPaid> args)
+    {
+        if (args.Data.Blocked == true)
+        {
+            args.Cell.AddStyle(new string[] { "font-weight: bold;", "color: red;" });
+        }
+        else if (args.Data.Reregistered == true)
+        {
+            args.Cell.AddStyle(new string[] { "font-weight: bold;", "color: green;" });
+        }
+
+    }
 }
