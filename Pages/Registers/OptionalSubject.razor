@@ -189,7 +189,7 @@
 <div class="box-card-shadow">
     <div class="row">
         <div class="col-md-12 col-sm-12">
-            <div class="pl-2" style="background-color:#E8EEFA; height: 28px;">
+            <div class="pl-2" style="background-color:#E8EEFA; height: 23px;">
                 <label style="font-size:medium;color:#0a1971">@Localizer["Details"]</label>
             </div>
             <div class="row" style="padding-top:5px">
@@ -549,7 +549,7 @@
     public string Status = "", CompanyCode;
     public CceElectiveSubjectChild opt = new CceElectiveSubjectChild();
     public List<SchoolAcademicYear> CmbYear = new List<SchoolAcademicYear>();
-    public string CmbAccYear = "";
+    public string CmbAccYear = "", Dropval;
     public IList<SchoolClass> CmbCls = new List<SchoolClass>();
     public string CmbAcccls = "";
     SchoolAcademicYear objAccYear = new SchoolAcademicYear();
@@ -573,7 +573,8 @@
     public CceElectiveSubjectMaster getdate = new CceElectiveSubjectMaster();
 
     public CceElectiveSubjectMaster getExam = new CceElectiveSubjectMaster();
-
+    public IEnumerable<SchoolAcademicYear> Academicyear = new List<SchoolAcademicYear>();
+    string Accyear;
 
 
     public List<CceElectiveSubjectMaster> Amountss = new List<CceElectiveSubjectMaster>();
@@ -602,6 +603,8 @@
     public SchoolStudent DTStudent = new SchoolStudent();
     public IList<Accounts> name = new List<Accounts>();
     public List<dtStudentRegister> namess = new List<dtStudentRegister>();
+    //UserRights objUserRight = new UserRights();
+
 
     List<CceElectiveSubjectMaster> amlist = new List<CceElectiveSubjectMaster>();
     public bool ShowSelectAllCheckBox { get; set; } = true;
@@ -713,16 +716,29 @@
             BranchID = await SessionStorage.GetItemAsync<int>("BranchID");
             user = await SessionStorage.GetItemAsync<int>("UserID");
             RowCount = await SessionStorage.GetItemAsync<int>("RowCount");
-            CmbYear = (await StudentMasterService.GetAcademicYear(BranchID)).ToList();
-            objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
-            CmbAccYear = objAccYear.AcademicYear.ToString();
-            DTFeeMaster.AcademicYear = objAccYear.AcademicYear.ToString();
+            //CmbYear = (await StudentService.GetAcademicYear(BranchID)).ToList();
+            //objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
+            //CmbAccYear = objAccYear.AcademicYear.ToString();
+            //DTFeeMaster.AcademicYear = objAccYear.AcademicYear.ToString();
+            Accyear = await SessionStorage.GetItemAsync<string>("AcademicYear");
+            if (Accyear != null)
+            {
+                Dropval = Accyear;
+                CmbAccYear = Dropval;
+            }
+            else
+            {
+                Academicyear = await StudentMasterService.GetAcademicYear(BranchID);
+                Dropval = Academicyear.Where(x => x.Status == "Current".Trim())
+                                      .Select(x => x.AcademicYear).ToString();
+                CmbAccYear = Dropval;
+            }
             await InvokeAsync(StateHasChanged);
             DTAccount = await StudentMasterService.GetDTAccount(AccountID);
             Class = (await StudentMasterService.GetClass(BranchID)).ToList();
             Division = (await StudentMasterService.GetDivision(BranchID)).ToList();
             DTStudentTrans = await StudentMasterService.GetDTStudentTrans(AccountID, BranchID, CmbAccYear);
-            DTAccount = await StudentMasterService.GetDTAccount(AccountID);
+            //DTAccount = await StudentMasterService.GetDTAccount(AccountID);
             vtype = Convert.ToInt32(await _IPostingManager.GetVtype("Student Fee"));
             cls = DTStudentTrans.Class;
             div = DTStudentTrans.Division;
@@ -758,18 +774,53 @@
             revaluationsum = await _IOptionalManagers.revaluationsum(BranchID, StudentCode);
             feerev = await _IOptionalManagers.Getfeedata(BranchID, CmbAccYear, StudentCode);
             subjectbycomm = await _IOptionalManagers.subtt(BranchID, StudentCode, Idne);
-            if (Category == "Administrator")
+            //if (Category == "Administrator")
 
+            //{
+            //    AllowOpen = true;
+            //    visible = true;
+            //    Open = false;
+            //}
+            //else
+            //{
+            //    AllowOpen = false;
+            //    visible = false;
+            //}
+
+            if (Category == "Administrator")
             {
                 AllowOpen = true;
                 visible = true;
                 Open = false;
             }
-            else
-            {
-                AllowOpen = false;
-                visible = false;
-            }
+            //else
+            //{
+            //    try
+            //    {
+            //        objUserRight = await _UserRights.GetUserRights(user, "OptionalSubject", "Students", BranchID);
+
+            //        if (objUserRight.AccessDenied == true)
+            //        {
+            //            AllowOpen = false;
+            //            Open = true;
+            //            visible = false;
+
+            //        }
+            //        else if (objUserRight.AllowOpen == true)
+            //        {
+            //            AllowOpen = true;
+            //            visible = true;
+            //            Open = false;
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        AllowOpen = false;
+            //        Open = true;
+            //    }
+            //}
+
+
             await load();
 
         }
@@ -1175,5 +1226,3 @@
 
     }
 }
-
-

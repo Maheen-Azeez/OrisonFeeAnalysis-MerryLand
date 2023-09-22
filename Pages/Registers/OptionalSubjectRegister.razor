@@ -43,29 +43,29 @@
 
 
 
-
 <head>
     <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
 </head>
 
 <div class="box-card-shadow">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-3" style="padding-top:15px">
             <SfTextBox @ref="search" Input="OnInput" Placeholder="Global Search" ShowClearButton="true" CssClass="e-btn2" ValueChange="OnSearch" Created="@onCreateSearch"></SfTextBox>
 
         </div>
         <div class="col-md-3">
-            <SfComboBox Placeholder=@Localizer["Exam Type"] @bind-Value="@Reexam" TValue="string" TItem="string" DataSource="@reexams">
+            <label class="label">@Localizer["Exam Type"]</label>
+            <SfComboBox @bind-Value="@Reexam" TValue="string" TItem="string" DataSource="@reexams">
             </SfComboBox>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-3" style="padding-top:15px">
             <SfButton Content="Show" OnClick="@Show_Click" Width="150px"></SfButton>
             <SfButton @onclick="BtnPrint" IconCss="Icon preprint" CssClass="e-btn" Content=@Localizer["Print"] />
             <SfButton @onclick="ExcelExport" IconCss="Icon excel" CssClass="e-btn" Content=@Localizer["Excel"] />
 
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" style="padding-top:15px">
             <div class="header-div-style">
                 <label class="header-label">@Localizer["CAIE SUBJECT REGISTER"]</label>
             </div>
@@ -76,6 +76,7 @@
 
 
 <div class="box-card-shadow">
+    <div class="table-responsive" style="position: relative; min-height:600px; min-width: 300px ">
         <SfGrid DataSource="@OptionalManagerListsss" ID="OptionalManagerLists" @ref="OptionalManagerLists"
                 GridLines="GridLine.Both"
                 AllowFiltering="true"
@@ -124,6 +125,7 @@
                 </GridColumn>
             </GridColumns>
         </SfGrid>
+    </div>
 </div>
 
 
@@ -162,7 +164,7 @@
     decimal tot;
     public bool IsAdmin = false;
     public List<SchoolAcademicYear> CmbYear = new List<SchoolAcademicYear>();
-    public string CmbAccYear = "";
+    public string CmbAccYear = "", Dropval;
     public string CmbAcccls = "";
     SchoolAcademicYear objAccYear = new SchoolAcademicYear();
     public CceElectiveSubjectChild get = new CceElectiveSubjectChild();
@@ -173,13 +175,22 @@
     ObservableCollection<dtPostingVoucher> objpostvoucherTemp = new ObservableCollection<dtPostingVoucher>();
 
     public string ChangeValue { get; set; } = "Default";
-
+    public IEnumerable<SchoolAcademicYear> Academicyear = new List<SchoolAcademicYear>();
+    string Accyear;
     protected override async Task OnInitializedAsync()
     {
         BranchID = await SessionStorage.GetItemAsync<int>("BranchID");
-        CmbYear = (await StudentMasterService.GetAcademicYear(BranchID)).ToList();
-        objAccYear = CmbYear.Where(b => b.Status.Trim() == "Current").FirstOrDefault();
-        CmbAccYear = objAccYear.AcademicYear.ToString();
+        Accyear = await SessionStorage.GetItemAsync<string>("AcademicYear");
+        if (Accyear != null)
+        {
+            Dropval = Accyear;
+        }
+        else
+        {
+            Academicyear = await StudentMasterService.GetAcademicYear(BranchID);
+            Dropval = Academicyear.Where(x => x.Status == "Current".Trim())
+                                  .Select(x => x.AcademicYear).ToString();
+        }
         await InvokeAsync(StateHasChanged);
         AccountID = await SessionStorage.GetItemAsync<int>("AccountID");
         user = await SessionStorage.GetItemAsync<int>("UserID");
@@ -187,7 +198,7 @@
         CompanyCode = await SessionStorage.GetItemAsync<string>("Company");
 
 
-        OptionalManagerListsss = await _IOptionalManagers.GetAll(BranchID, CmbAccYear, Category, user);
+        OptionalManagerListsss = await _IOptionalManagers.GetAll(BranchID, Dropval, Category, user);
     }
 
     public async Task BtnPrint()
@@ -227,11 +238,11 @@
 
         if (Reexam == "May-June Series")
         {
-            OptionalManagerListsss = await _IOptionalManagers.GetAll(BranchID, CmbAccYear, Category, user);
+            OptionalManagerListsss = await _IOptionalManagers.GetAll(BranchID, Dropval, Category, user);
         }
         else
         {
-            OptionalManagerListsss = await _IOptionalManagers.Getreexam(BranchID, CmbAccYear, Category, user);
+            OptionalManagerListsss = await _IOptionalManagers.Getreexam(BranchID, Dropval, Category, user);
 
 
         }
@@ -293,3 +304,4 @@
         this.StateHasChanged();
     }
 }
+
