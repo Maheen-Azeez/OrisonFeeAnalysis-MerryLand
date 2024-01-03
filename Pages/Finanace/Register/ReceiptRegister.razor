@@ -219,7 +219,7 @@
     bool PopupUpload { get; set; }
     bool PopupSaveError { get; set; }
     bool DocVisible { get; set; }
-    string VNo, GetVtype;
+    string VNo, GetVtype, modAccYear;
     long VId;
     string academicYear = "";
     public VoucherDocuments[] vouDocs;
@@ -237,6 +237,10 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        academicYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+        int hyphenIndex = academicYear.IndexOf('-');
+        modAccYear = hyphenIndex != -1 ? academicYear.Substring(0, hyphenIndex) : academicYear;
+
         if (RType != null)
         {
             if (RType == "RSE")
@@ -244,11 +248,10 @@
             else if (RType == "SF")
                 await sessionStorage.SetItemAsync("Vtype", "Student Fee");
             else if (RType == "RS")
-                await sessionStorage.SetItemAsync("Vtype", "Receipt Student");
+                await sessionStorage.SetItemAsync("Vtype", "Receipt Student" + modAccYear);
             BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
             user = await sessionStorage.GetItemAsync<int>("UserID");
             GetVtype = await sessionStorage.GetItemAsync<string>("Vtype");
-            academicYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
 
             if (user == 0)
             {
@@ -258,18 +261,26 @@
             else
             {
                 // StartDate = DateTime.Now.AddYears(-1);
-                StartDate = DateTime.Now.Date;
-                EndDate = DateTime.Now.Date;
-                VoucherTypes = await genServ.getEntryMode("Receipt Student", true);
-                //StrVtypeList = "Payment";
-                //GetVtype = "Receipt Student";
-                vType = await genServ.getVtype(GetVtype);
-                voucherList = await _VoucherMasterManager.ListAll(vType, user, BranchID);
-                voucherList = voucherList.Where(s => s.Vdate.Date >= StartDate.Value.Date && s.Vdate.Date <= EndDate.Value.Date).ToList();
-                //VMast.Refresh();
-                vDocList = await finServ.GetAll(vType);
-                filepath = await genServ.getBranchSettings("PortalVoucherDocumentPath");
-                filePubpath = await genServ.getBranchSettings("PortalVoucherDocumentPubPath");
+                try
+                {
+                    StartDate = DateTime.Now.Date;
+                    EndDate = DateTime.Now.Date;
+                    VoucherTypes = await genServ.getEntryMode("Receipt Student", true);
+                    //StrVtypeList = "Payment";
+                    //GetVtype = "Receipt Student";
+                    vType = await genServ.getVtype(GetVtype);
+                    voucherList = await _VoucherMasterManager.ListAll(vType, user, BranchID);
+                    voucherList = voucherList.Where(s => s.Vdate.Date >= StartDate.Value.Date && s.Vdate.Date <= EndDate.Value.Date).ToList();
+                    //VMast.Refresh();
+                    vDocList = await finServ.GetAll(vType);
+                    filepath = await genServ.getBranchSettings("PortalVoucherDocumentPath");
+                    filePubpath = await genServ.getBranchSettings("PortalVoucherDocumentPubPath");
+                }
+                catch (Exception e)
+                {
+
+                    throw e;
+                }
 
             }
         }
@@ -498,7 +509,7 @@
                 }
             }
         }
-        else if (GetVtype == "Receipt Student")
+        else if (GetVtype == "Receipt Student" + modAccYear)
         {
             foreach (var ds in VType)
             {
@@ -548,9 +559,17 @@
         }
         dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data1)));
         dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data2)));
-        if (GetVtype == "Receipt Student")
+        List<JSReportParameter> parameters = new List<JSReportParameter>()
         {
-            var Result = _BoldReport.GetReport("Student Fee Receipt", dt, null);
+            new JSReportParameter()
+            {
+                Name = "AcademicYear",
+                Values = new List<string>(){ academicYear.ToString() }
+            }
+        };
+        if (GetVtype == "Receipt Student" + modAccYear)
+        {
+            var Result = _BoldReport.GetReport("Student Fee Receipt", dt, parameters);
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
             Result.FileStream.CopyTo(ms);
             await Runtime.InvokeVoidAsync(
@@ -574,89 +593,108 @@
         var _bulk = ((List<DtVoucherMaster>)await VMast.GetFilteredRecordsAsync()).ToList().Select(a => a.ID);
         DataSource dt = new DataSource();
         dt.DataSet1 = new List<ExpandoObject>();
-        foreach (var id in _bulk)
+        try
         {
-            var Data1 = await _BoldReport.GetFeeRecieptByID(id, 0, academicYear);
-            var VType = await _BoldReport.GetFeeVtype(id);
-            var Data2 = await _BoldReport.GetFeeRecieptByID(id, 1, academicYear);
-            if (GetVtype == "Receipt StudentExam")
+            foreach (var id in _bulk)
             {
-                foreach (var ds in VType)
-                {
-                    foreach (var d in Data1)
-                    {
-                        if (ds.TranType == "Cash")
-                            d.TranType = d.TranType + ds.TranType + ", ";
-                        else if (ds.TranType == "Cheque")
-                            d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "/ " + ds.BankName + "), ";
-                        else if (ds.TranType == "TT")
-                            d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "), ";
-                    }
-                    foreach (var d in Data2)
-                    {
-                        if (ds.TranType == "Cash")
-                            d.TranType = d.TranType + ds.TranType + ", ";
-                        else if (ds.TranType == "Cheque")
-                            d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "/ " + ds.BankName + "), ";
-                        else if (ds.TranType == "TT")
-                            d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "), ";
-                    }
-                }
-            }
-            else if (GetVtype == "Receipt Student")
-            {
-                foreach (var ds in VType)
-                {
-                    int index = VType.IndexOf(ds);
-                    if ((Data1.Count() - 1) < index)
-                    {
-                        Data1.Add(new ReceiptPrint());
-                        Data1[index].AccountName = Data1[0].AccountName;
-                        Data1[index].VEID = Data1[0].VEID;
-                        Data1[index].ONO = Data1[0].ONO;
-                        Data1[index].Class = Data1[0].Class;
-                        Data1[index].Description = Data1[0].Description;
-                        Data1[index].Amount = Data1[0].Amount;
-                        Data1[index].Father = Data1[0].Father;
-                        Data1[index].TRNNo = Data1[0].TRNNo;
-                        Data1[index].Date = Data1[0].Date;
-                        Data1[index].Accountcode = Data1[0].Accountcode;
-                        Data1[index].Division = Data1[0].Division;
-                    }
-                    if ((Data2.Count() - 1) < index)
-                    {
-                        Data2.Add(new ReceiptPrint());
-                        Data2[index].AccountName = Data2[0].AccountName;
-                        Data2[index].VEID = Data2[0].VEID;
-                        Data2[index].ONO = Data2[0].ONO;
-                        Data2[index].Class = Data2[0].Class;
-                        Data2[index].Description = Data2[0].Description;
-                        Data2[index].Amount = Data2[0].Amount;
-                        Data2[index].Father = Data2[0].Father;
-                        Data2[index].TRNNo = Data2[0].TRNNo;
-                        Data2[index].Date = Data2[0].Date;
-                        Data2[index].Accountcode = Data2[0].Accountcode;
-                        Data2[index].Division = Data2[0].Division;
-                    }
-                    Data1[index].TranType = ds.TranType;
-                    Data1[index].debit = ds.debit;
-                    Data1[index].ChequeNo = ds.ChequeNo;
-                    Data1[index].ChequeDate = ds.ChequeDate;
-                    Data1[index].BankName = ds.BankName;
+                var Data1 = await _BoldReport.GetFeeRecieptByID(id, 0, academicYear);
+                var VType = await _BoldReport.GetFeeVtype(id);
+                var Data2 = await _BoldReport.GetFeeRecieptByID(id, 1, academicYear);
 
-                    Data2[index].TranType = ds.TranType;
-                    Data2[index].debit = ds.debit;
-                    Data2[index].ChequeNo = ds.ChequeNo;
-                    Data2[index].ChequeDate = ds.ChequeDate;
-                    Data2[index].BankName = ds.BankName;
+                if (GetVtype == "Receipt StudentExam")
+                {
+                    foreach (var ds in VType)
+                    {
+                        foreach (var d in Data1)
+                        {
+                            if (ds.TranType == "Cash")
+                                d.TranType = d.TranType + ds.TranType + ", ";
+                            else if (ds.TranType == "Cheque")
+                                d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "/ " + ds.BankName + "), ";
+                            else if (ds.TranType == "TT")
+                                d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "), ";
+                        }
+                        foreach (var d in Data2)
+                        {
+                            if (ds.TranType == "Cash")
+                                d.TranType = d.TranType + ds.TranType + ", ";
+                            else if (ds.TranType == "Cheque")
+                                d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "/ " + ds.BankName + "), ";
+                            else if (ds.TranType == "TT")
+                                d.TranType = d.TranType + ds.TranType + "(" + ds.ChequeNo + "/ " + ds.ChequeDate.Value.ToString("dd-MM-yyyy") + "), ";
+                        }
+                    }
                 }
+
+                else if (GetVtype == "Receipt Student" + modAccYear)
+                {
+                    foreach (var ds in VType)
+                    {
+                        int index = VType.IndexOf(ds);
+                        if ((Data1.Count() - 1) < index)
+                        {
+                            Data1.Add(new ReceiptPrint());
+                            Data1[index].AccountName = Data1[0].AccountName;
+                            Data1[index].VEID = Data1[0].VEID;
+                            Data1[index].ONO = Data1[0].ONO;
+                            Data1[index].Class = Data1[0].Class;
+                            Data1[index].Description = Data1[0].Description;
+                            Data1[index].Amount = Data1[0].Amount;
+                            Data1[index].Father = Data1[0].Father;
+                            Data1[index].TRNNo = Data1[0].TRNNo;
+                            Data1[index].Date = Data1[0].Date;
+                            Data1[index].Accountcode = Data1[0].Accountcode;
+                            Data1[index].Division = Data1[0].Division;
+                        }
+                        if ((Data2.Count() - 1) < index)
+                        {
+                            Data2.Add(new ReceiptPrint());
+                            Data2[index].AccountName = Data2[0].AccountName;
+                            Data2[index].VEID = Data2[0].VEID;
+                            Data2[index].ONO = Data2[0].ONO;
+                            Data2[index].Class = Data2[0].Class;
+                            Data2[index].Description = Data2[0].Description;
+                            Data2[index].Amount = Data2[0].Amount;
+                            Data2[index].Father = Data2[0].Father;
+                            Data2[index].TRNNo = Data2[0].TRNNo;
+                            Data2[index].Date = Data2[0].Date;
+                            Data2[index].Accountcode = Data2[0].Accountcode;
+                            Data2[index].Division = Data2[0].Division;
+                        }
+                        Data1[index].TranType = ds.TranType;
+                        Data1[index].debit = ds.debit;
+                        Data1[index].ChequeNo = ds.ChequeNo;
+                        Data1[index].ChequeDate = ds.ChequeDate;
+                        Data1[index].BankName = ds.BankName;
+
+                        Data2[index].TranType = ds.TranType;
+                        Data2[index].debit = ds.debit;
+                        Data2[index].ChequeNo = ds.ChequeNo;
+                        Data2[index].ChequeDate = ds.ChequeDate;
+                        Data2[index].BankName = ds.BankName;
+                    }
+                }
+                dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data1)));
+                dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data2)));
+
             }
-            dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data1)));
-            dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data2)));
         }
-        if (GetVtype == "Receipt Student")
+        catch (Exception e)
         {
-            var Result = _BoldReport.GetReport("Student Fee Receipt", dt, null);
+
+            throw e;
+        }
+        List<JSReportParameter> parameters = new List<JSReportParameter>()
+        {
+            new JSReportParameter()
+            {
+                Name = "AcademicYear",
+                Values = new List<string>(){ academicYear.ToString() }
+            }
+        };
+        if (GetVtype == "Receipt Student" + modAccYear)
+        {
+            var Result = _BoldReport.GetReport("Student Fee Receipt", dt, parameters);
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
             Result.FileStream.CopyTo(ms);
             await Runtime.InvokeVoidAsync(

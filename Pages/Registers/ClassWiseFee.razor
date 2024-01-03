@@ -29,16 +29,20 @@
 
     <div class="row">
         <div class="col-md-12">
-            <SfButton IconCss="Icon excel"  CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
-            <SfButton IconCss="Icon pdf"  CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+            <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+            <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
             <SfComboBox @bind-Value="@classWise.FeeTypeText" @ref="FeeTypeDropDown" TValue="string" TItem="dtClassWise" Placeholder="Select FeeType" DataSource="@FeeType" Width="180px">
                 <ComboBoxFieldSettings Text="FeeTypeText"></ComboBoxFieldSettings>
             </SfComboBox>
             <SfDatePicker @bind-Value="@SDate" Format="dd/MM/yyyy" title="From Date" Width="150px" Placeholder="From Date"></SfDatePicker>
             <SfDatePicker @bind-Value="@EDate" Format="dd/MM/yyyy" title="To Date" Width="150px" Placeholder="To Date"></SfDatePicker>
+            <SfComboBox @bind-Value="@feeSeries.Series" TValue="string" TItem="FeeSeries" Placeholder="Exam Fee Series" DataSource="@examSeries" Width="150px">
+                <ComboBoxFieldSettings Text="Series" Value="Series"></ComboBoxFieldSettings>
+            </SfComboBox>
             <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="e-btn4"></SfButton>
             <SfButton IconCss="Icon preprint" CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
             <SfButton IconCss="Icon preprint" Content="Exam" CssClass="btn" @onclick="@DownLoadExamFeeDocs"></SfButton>
+            <SfButton IconCss="Icon preprint" Content="Subject Wise" CssClass="btn" @onclick="@DownLoadExamSubjectWise"></SfButton>
         </div>
 
     </div>
@@ -417,8 +421,14 @@
     {
         public string FeeTypeText { get; set; }
     }
+    public class FeeSeries
+    {
+        public int ID { get; set; }
+        public string Series { get; set; }
+    }
 
     public dtClassWise classWise = new dtClassWise();
+    public FeeSeries feeSeries = new FeeSeries();
     public dtAccountsMain Main = new dtAccountsMain();
     public IEnumerable<dtAccountsMain> GridData = new List<dtAccountsMain>();
     public IEnumerable<dtAccountsMain> GridDataExamFee = new List<dtAccountsMain>();
@@ -430,6 +440,12 @@
         new dtClassWise{FeeTypeText = "Reregistration Fee"},
         new dtClassWise{FeeTypeText = "Tuition Fee"},
         new dtClassWise{FeeTypeText = "Exam Fee"}
+    };
+    public List<FeeSeries> examSeries = new List<FeeSeries>()
+{
+        new FeeSeries{Series = "May-June Series",ID = 1},
+        new FeeSeries{Series = "Oct-Nov Series",ID = 2}
+
     };
 
 
@@ -600,6 +616,20 @@
         await jsRuntime.InvokeVoidAsync(
                   "jsSaveAsFile",
                   "Class-wise Fee Paid.pdf",
+                  Convert.ToBase64String(ms.ToArray()));
+    }
+    public async Task DownLoadExamSubjectWise()
+    {
+        DataSource dt = new DataSource();
+        dt.DataSet1 = new List<ExpandoObject>();
+        SDate = feeSeries.Series == "May-June Series" ? Convert.ToDateTime("12/01/" + AccYear.Substring(0, 4)) : Convert.ToDateTime("06/01/" + AccYear.Substring(5, 4));
+        dt.DataSet1 = await _BoldReport.GetAnalysisData("ExamSummarySubjectWise", AccYear, SDate.ToString("MM/dd/yyyy"), SDate.ToString("MM/dd/yyyy"), BranchID, "", "");
+        var Result = _BoldReport.GetReport("ExamFee Summary", dt, null);
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Result.FileStream.CopyTo(ms);
+        await jsRuntime.InvokeVoidAsync(
+                  "jsSaveAsFile",
+                  "ExamFee Summary.pdf",
                   Convert.ToBase64String(ms.ToArray()));
     }
 

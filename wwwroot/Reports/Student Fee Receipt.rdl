@@ -4,7 +4,6 @@
     <ReportSection>
       <Body>
         <Style>
-          <FontFamily>Arial</FontFamily>
           <FontSize>10.00008pt</FontSize>
           <Border>
             <Style>None</Style>
@@ -17,7 +16,6 @@
             <Height>340.7504pt</Height>
             <Width>589.5009pt</Width>
             <Style>
-              <FontFamily>Arial</FontFamily>
               <FontSize>10.00008pt</FontSize>
               <Border>
                 <Style>None</Style>
@@ -31,22 +29,21 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>589.2pt</Width>
+                  <Width>589pt</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>340.8pt</Height>
+                  <Height>341.0002pt</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
                         <Rectangle Name="Rectangle2">
                           <Left>0in</Left>
                           <Top>0in</Top>
-                          <Height>340.8pt</Height>
-                          <Width>589.2pt</Width>
+                          <Height>341.0002pt</Height>
+                          <Width>588.9998pt</Width>
                           <Style>
-                            <FontFamily>Arial</FontFamily>
                             <FontSize>10.00008pt</FontSize>
                             <Border>
                               <Color>LightGrey</Color>
@@ -60,7 +57,6 @@
                               <Height>14.25007pt</Height>
                               <Width>150.7504pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -78,7 +74,6 @@
                                     <TextRun>
                                       <Value>TRN : </Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -87,7 +82,6 @@
                                     <TextRun>
                                       <Value>=Fields!TRNNo.Value</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -95,7 +89,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -107,7 +100,6 @@
                               <Height>14.25007pt</Height>
                               <Width>126.7502pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -125,7 +117,6 @@
                                     <TextRun>
                                       <Value>=Trim(Fields!VEID.Value)</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -133,7 +124,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -145,7 +135,6 @@
                               <Height>14.25007pt</Height>
                               <Width>348.7507pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -163,7 +152,6 @@
                                     <TextRun>
                                       <Value>=Fields!AccountName.Value</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -171,7 +159,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -183,7 +170,6 @@
                               <Height>14.25007pt</Height>
                               <Width>456.7505pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -201,7 +187,6 @@
                                     <TextRun>
                                       <Value>=Fields!Father.Value</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -209,7 +194,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -221,7 +205,6 @@
                               <Height>14.25007pt</Height>
                               <Width>66.75005pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -239,7 +222,6 @@
                                     <TextRun>
                                       <Value>=Fields!Accountcode.Value</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -247,7 +229,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -259,7 +240,6 @@
                               <Height>14.25007pt</Height>
                               <Width>54.75013pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -277,7 +257,6 @@
                                     <TextRun>
                                       <Value>=Fields!Class.Value + " - " + Fields!Division.Value</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -285,7 +264,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -297,7 +275,6 @@
                               <Height>14.25007pt</Height>
                               <Width>84.75008pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <VerticalAlign>Bottom</VerticalAlign>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
@@ -316,7 +293,6 @@
                                     <TextRun>
                                       <Value>=Fields!Date.Value</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Format>dd/MM/yyyy</Format>
@@ -325,7 +301,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                     <TextAlign>Left</TextAlign>
                                   </Style>
@@ -338,7 +313,6 @@
                               <Height>14.25007pt</Height>
                               <Width>90.75018pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -356,7 +330,6 @@
                                     <TextRun>
                                       <Value>=Code.Installment(Fields!Class.Value, Sum(Fields!Amount.Value), Fields!Description.Value)</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -364,7 +337,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -376,7 +348,6 @@
                               <Height>14.25007pt</Height>
                               <Width>90.75018pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
                                 <PaddingRight>2.00013pt</PaddingRight>
@@ -392,17 +363,15 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value>2022-2023</Value>
+                                      <Value>=Parameters!AcademicYear.Value</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
-                                        <FontSize>8.4997pt</FontSize>
+                                        <FontSize>8.49975pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
-                                        <Color>black</Color>
+                                        <Color>Black</Color>
                                       </Style>
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                   </Style>
                                 </Paragraph>
@@ -414,7 +383,6 @@
                               <Height>143.7504pt</Height>
                               <Width>400.743pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <Border>
                                   <Style>None</Style>
@@ -430,7 +398,7 @@
                                     <Width>270pt</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>79.2pt</Width>
+                                    <Width>79pt</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -445,7 +413,6 @@
                                             <Height>21pt</Height>
                                             <Width>51pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -465,14 +432,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -491,7 +456,6 @@
                                             <Height>21pt</Height>
                                             <Width>270pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -511,14 +475,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -535,9 +497,8 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>21pt</Height>
-                                            <Width>79.2pt</Width>
+                                            <Width>78.99975pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -557,14 +518,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -578,17 +537,16 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>20.4pt</Height>
+                                    <Height>20.49998pt</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TextBox94">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>20.4pt</Height>
+                                            <Height>20.49998pt</Height>
                                             <Width>51pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -608,14 +566,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -631,10 +587,9 @@
                                           <Textbox Name="TextBox74">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>20.4pt</Height>
+                                            <Height>20.49998pt</Height>
                                             <Width>270pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -652,7 +607,6 @@
                                                   <TextRun>
                                                     <Value>=Fields!Grouping.Value</Value>
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -660,7 +614,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -675,10 +628,9 @@
                                           <Textbox Name="TextBox75">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>20.4pt</Height>
-                                            <Width>79.2pt</Width>
+                                            <Height>20.49998pt</Height>
+                                            <Width>78.99975pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -697,7 +649,6 @@
                                                   <TextRun>
                                                     <Value>=Sum(Fields!Amount.Value)</Value>
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Format>#,0.00</Format>
@@ -706,7 +657,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Right</TextAlign>
                                                 </Style>
@@ -720,17 +670,16 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>19.8pt</Height>
+                                    <Height>20.00002pt</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TextBox95">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
+                                            <Height>20.00002pt</Height>
                                             <Width>51pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -750,14 +699,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -773,10 +720,9 @@
                                           <Textbox Name="TextBox77">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
+                                            <Height>20.00002pt</Height>
                                             <Width>270pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -795,7 +741,6 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -803,7 +748,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -818,10 +762,9 @@
                                           <Textbox Name="TextBox78">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
-                                            <Width>79.2pt</Width>
+                                            <Height>20.00002pt</Height>
+                                            <Width>78.99975pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -840,7 +783,6 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -848,7 +790,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -861,17 +802,16 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>19.8pt</Height>
+                                    <Height>20.00002pt</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TextBox96">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
+                                            <Height>20.00002pt</Height>
                                             <Width>51pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -891,14 +831,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -914,10 +852,9 @@
                                           <Textbox Name="TextBox80">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
+                                            <Height>20.00002pt</Height>
                                             <Width>270pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -936,7 +873,6 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -944,7 +880,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -959,10 +894,9 @@
                                           <Textbox Name="TextBox81">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
-                                            <Width>79.2pt</Width>
+                                            <Height>20.00002pt</Height>
+                                            <Width>78.99975pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -981,7 +915,6 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -989,7 +922,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -1002,17 +934,16 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>19.8pt</Height>
+                                    <Height>20.00002pt</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TextBox97">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
+                                            <Height>20.00002pt</Height>
                                             <Width>51pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -1032,14 +963,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -1055,10 +984,9 @@
                                           <Textbox Name="TextBox83">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
+                                            <Height>20.00002pt</Height>
                                             <Width>270pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -1077,7 +1005,6 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -1085,7 +1012,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -1100,10 +1026,9 @@
                                           <Textbox Name="TextBox84">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
-                                            <Width>79.2pt</Width>
+                                            <Height>20.00002pt</Height>
+                                            <Width>78.99975pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
                                               <PaddingRight>2.00013pt</PaddingRight>
@@ -1122,7 +1047,6 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -1130,7 +1054,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -1143,17 +1066,16 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>19.8pt</Height>
+                                    <Height>20.00002pt</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TextBox98">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
+                                            <Height>20.00002pt</Height>
                                             <Width>321pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -1173,14 +1095,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Right</TextAlign>
                                                 </Style>
@@ -1197,10 +1117,9 @@
                                           <Textbox Name="TextBox86">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>19.8pt</Height>
-                                            <Width>79.2pt</Width>
+                                            <Height>20.00002pt</Height>
+                                            <Width>78.99975pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -1220,7 +1139,6 @@
                                                   <TextRun>
                                                     <Value>=Sum(Fields!Amount.Value)</Value>
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Format>#,0.00</Format>
@@ -1229,7 +1147,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Right</TextAlign>
                                                 </Style>
@@ -1243,17 +1160,16 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>23.4pt</Height>
+                                    <Height>23.49998pt</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TextBox99">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>23.4pt</Height>
+                                            <Height>23.49998pt</Height>
                                             <Width>51pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -1276,14 +1192,12 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <Color>black</Color>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <TextAlign>Center</TextAlign>
                                                 </Style>
@@ -1299,10 +1213,9 @@
                                           <Textbox Name="TextBox88">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>23.4pt</Height>
-                                            <Width>349.2pt</Width>
+                                            <Height>23.49998pt</Height>
+                                            <Width>348.9998pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2.00013pt</PaddingLeft>
@@ -1325,7 +1238,6 @@
                                                   <TextRun>
                                                     <Value>="AED: " &amp;Code.SpellNumber(Sum(Fields!Amount.Value)) &amp; " Only"</Value>
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>8.4997pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                       <Color>black</Color>
@@ -1333,7 +1245,6 @@
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                 </Style>
                                               </Paragraph>
@@ -1391,7 +1302,6 @@
                               <Height>12.74997pt</Height>
                               <Width>270.0004pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <Border>
                                   <Style>None</Style>
@@ -1415,17 +1325,16 @@
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>14.4pt</Height>
+                                    <Height>14.49998pt</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
                                           <Rectangle Name="Rectangle4">
                                             <Left>0in</Left>
                                             <Top>0in</Top>
-                                            <Height>14.4pt</Height>
+                                            <Height>14.49998pt</Height>
                                             <Width>270pt</Width>
                                             <Style>
-                                              <FontFamily>Arial</FontFamily>
                                               <FontSize>10.00008pt</FontSize>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -1439,7 +1348,6 @@
                                                 <Height>14.25007pt</Height>
                                                 <Width>270.0007pt</Width>
                                                 <Style>
-                                                  <FontFamily>Arial</FontFamily>
                                                   <FontSize>10.00008pt</FontSize>
                                                   <PaddingLeft>2.00013pt</PaddingLeft>
                                                   <PaddingRight>2.00013pt</PaddingRight>
@@ -1457,7 +1365,6 @@
                                                       <TextRun>
                                                         <Value>﻿</Value>
                                                         <Style>
-                                                          <FontFamily>Arial</FontFamily>
                                                           <FontSize>8.49975pt</FontSize>
                                                           <Color>Black</Color>
                                                         </Style>
@@ -1465,7 +1372,6 @@
                                                       <TextRun>
                                                         <Value>=Fields!TranType.Value &amp; " : "</Value>
                                                         <Style>
-                                                          <FontFamily>Arial</FontFamily>
                                                           <FontSize>8.49743pt</FontSize>
                                                           <FontWeight>Bold</FontWeight>
                                                           <Format>#,0.00</Format>
@@ -1475,7 +1381,6 @@
                                                       <TextRun>
                                                         <Value>=Round(Fields!debit.Value,2)</Value>
                                                         <Style>
-                                                          <FontFamily>Arial</FontFamily>
                                                           <FontSize>8.49743pt</FontSize>
                                                           <FontWeight>Bold</FontWeight>
                                                           <Format>#,0.00</Format>
@@ -1485,7 +1390,6 @@
                                                       <TextRun>
                                                         <Value>=iif(isNothing(Fields!ChequeNo.Value), "", "/ " &amp; Fields!ChequeNo.Value &amp; "/ " )</Value>
                                                         <Style>
-                                                          <FontFamily>Arial</FontFamily>
                                                           <FontSize>8.49743pt</FontSize>
                                                           <FontWeight>Bold</FontWeight>
                                                           <Color>black</Color>
@@ -1494,7 +1398,6 @@
                                                       <TextRun>
                                                         <Value>=Fields!ChequeDate.Value</Value>
                                                         <Style>
-                                                          <FontFamily>Arial</FontFamily>
                                                           <FontSize>8.49743pt</FontSize>
                                                           <FontWeight>Bold</FontWeight>
                                                           <Format>dd/MM/yyyy</Format>
@@ -1504,7 +1407,6 @@
                                                       <TextRun>
                                                         <Value>=iif(Isnothing(Fields!BankName.Value),""," / " &amp; Fields!BankName.Value)</Value>
                                                         <Style>
-                                                          <FontFamily>Arial</FontFamily>
                                                           <FontSize>9.24975pt</FontSize>
                                                           <FontWeight>Bold</FontWeight>
                                                           <Color>Black</Color>
@@ -1513,7 +1415,6 @@
                                                       <TextRun>
                                                         <Value>﻿</Value>
                                                         <Style>
-                                                          <FontFamily>Arial</FontFamily>
                                                           <FontSize>8.49975pt</FontSize>
                                                           <FontWeight>Bold</FontWeight>
                                                           <Color>Black</Color>
@@ -1521,7 +1422,6 @@
                                                       </TextRun>
                                                     </TextRuns>
                                                     <Style>
-                                                      <FontFamily>Arial</FontFamily>
                                                       <FontSize>10.00008pt</FontSize>
                                                     </Style>
                                                   </Paragraph>
@@ -1557,7 +1457,6 @@
                               <Height>14.25007pt</Height>
                               <Width>84.74243pt</Width>
                               <Style>
-                                <FontFamily>Arial</FontFamily>
                                 <FontSize>10.00008pt</FontSize>
                                 <VerticalAlign>Bottom</VerticalAlign>
                                 <PaddingLeft>2.00013pt</PaddingLeft>
@@ -1576,7 +1475,6 @@
                                     <TextRun>
                                       <Value>=iif(Fields!ONO.Value == 1, "OFFICE COPY","")</Value>
                                       <Style>
-                                        <FontFamily>Arial</FontFamily>
                                         <FontSize>8.49743pt</FontSize>
                                         <FontWeight>Bold</FontWeight>
                                         <Color>black</Color>
@@ -1584,7 +1482,6 @@
                                     </TextRun>
                                   </TextRuns>
                                   <Style>
-                                    <FontFamily>Arial</FontFamily>
                                     <FontSize>10.00008pt</FontSize>
                                     <TextAlign>Left</TextAlign>
                                   </Style>
@@ -1648,7 +1545,6 @@
         <BottomMargin>0pt</BottomMargin>
         <ColumnSpacing>36.00005pt</ColumnSpacing>
         <Style>
-          <FontFamily>Arial</FontFamily>
           <FontSize>10.00008pt</FontSize>
           <Border>
             <Style>None</Style>

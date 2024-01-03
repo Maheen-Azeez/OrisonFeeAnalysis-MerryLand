@@ -223,7 +223,20 @@ namespace OrisonFeeAnalysis.Logics.Concrete.BoldReport
                 };
                 writer.SetParameters(userParameters);
             }
-            
+            if (ReportName == "Student Fee Receipt")
+            {
+                List<BoldReports.Web.ReportParameter> userParameters = new List<BoldReports.Web.ReportParameter>
+                {
+                    new BoldReports.Web.ReportParameter()
+                    {
+                        Name = "AcademicYear",
+                        Values = new List<string>() { Para[0].Values[0].ToString() }
+                    }
+                    
+                };
+                writer.SetParameters(userParameters);
+            }
+
 
 
             string fileName = ReportName + ".pdf";

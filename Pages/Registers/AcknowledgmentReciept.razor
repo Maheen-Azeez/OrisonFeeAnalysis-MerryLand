@@ -40,6 +40,8 @@
                     <SfDatePicker @bind-Value="@TDate" Format="dd/MM/yyyy" Width="150px"></SfDatePicker>
                     <SfButton IconCss="Icon search" CssClass="e-btn4" @onclick="@Search_Click"></SfButton>
                     <SfButton IconCss="Icon preprint" CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
+                    <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+
                 </div>
             </div>
         </div>
@@ -245,5 +247,10 @@
         ConstantAcknowledgmentRecieptList = AcknowledgmentRecieptList;
         await InvokeAsync(StateHasChanged);
         Loading = false;
+    }
+    
+    public async Task ExportExcel()
+    {
+        await this.Grid.ExportToExcelAsync();
     }
 }
