@@ -308,6 +308,46 @@
                                         }
                                     </FooterTemplate>
                                 </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.FullCount) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.FullCash) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.FullCheque) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
+                                <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.FullTT) Type="AggregateType.Sum">
+                                    <FooterTemplate>
+                                        @{
+                                            var aggregate = (context as AggregateTemplateContext);
+                                            <div>
+                                                <div style="align-items:end;">@aggregate.Sum</div>
+                                            </div>
+                                        }
+                                    </FooterTemplate>
+                                </GridAggregateColumn>
 
 
 

@@ -244,7 +244,9 @@
         if (RType != null)
         {
             if (RType == "RSE")
-                await sessionStorage.SetItemAsync("Vtype", "Receipt StudentExam");
+            { await sessionStorage.SetItemAsync("Vtype", "Receipt StudentExam"+ modAccYear);
+
+            }
             else if (RType == "SF")
                 await sessionStorage.SetItemAsync("Vtype", "Student Fee");
             else if (RType == "RS")
@@ -485,7 +487,7 @@
 
         DataSource dt = new DataSource();
         dt.DataSet1 = new List<ExpandoObject>();
-        if (GetVtype == "Receipt StudentExam")
+        if (GetVtype == "Receipt StudentExam" + modAccYear)
         {
             foreach (var ds in VType)
             {
@@ -577,7 +579,7 @@
                       "Fee Receipt.pdf",
                       Convert.ToBase64String(ms.ToArray()));
         }
-        else if (GetVtype == "Receipt StudentExam")
+        else if (GetVtype == "Receipt StudentExam" + modAccYear)
         {
             var Result = _BoldReport.GetReport("Exam Fee Receipt", dt, null);
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
@@ -601,7 +603,7 @@
                 var VType = await _BoldReport.GetFeeVtype(id);
                 var Data2 = await _BoldReport.GetFeeRecieptByID(id, 1, academicYear);
 
-                if (GetVtype == "Receipt StudentExam")
+                if (GetVtype == "Receipt StudentExam" + modAccYear)
                 {
                     foreach (var ds in VType)
                     {
@@ -702,7 +704,7 @@
                       "Fee Receipt.pdf",
                       Convert.ToBase64String(ms.ToArray()));
         }
-        else if (GetVtype == "Receipt StudentExam")
+        else if (GetVtype == "Receipt StudentExam" + modAccYear)
         {
             var Result = _BoldReport.GetReport("Exam Fee Receipt", dt, null);
             System.IO.MemoryStream ms = new System.IO.MemoryStream();

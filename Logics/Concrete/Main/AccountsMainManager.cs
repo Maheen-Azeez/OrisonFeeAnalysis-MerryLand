@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using OrisonFeeAnalyis.Entities.General;
+using OrisonFeeAnalysis.Entities.Dashboard;
 using OrisonFeeAnalysis.Entities.Main;
+using OrisonFeeAnalysis.Entities.Student;
 using OrisonFeeAnalysis.Logics.Contract.Main;
 using System;
 using System.Collections.Generic;
@@ -29,6 +31,141 @@ namespace OrisonFeeAnalysis.Logics.Concrete.Main
             try
             {
                 var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl+ "AccountsMain/GetGridData?BranchId=" + BranchId+ "&AccYear="+AccYear+"&SDate="+SDate+"&EDate="+EDate+"&Description="+Description+"&Criteria="+Criteria);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public async Task<IEnumerable<dtAccountsMain>> GetDailyCollectionSummary(int BranchId, string AccYear, string SDate, string EDate, string Description)
+        {
+
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl+ "AccountsMain/DailyCollectionSummary?BranchId=" + BranchId+ "&AccYear="+AccYear+"&SDate="+SDate+"&EDate="+EDate+"&Description="+Description);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public async Task<IEnumerable<dtAccountsMain>> GetDailyCollectionDetails(int BranchId, string AccYear, string SDate, string EDate, string Description)
+        {
+
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl+ "AccountsMain/DailyCollectionDetails?BranchId=" + BranchId+ "&AccYear="+AccYear+"&SDate="+SDate+"&EDate="+EDate+"&Description="+Description);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public async Task<IEnumerable<dtAccountsMain>> GetCollectionSummaryTillDate(int BranchId, string AccYear, string EDate, string Description)
+        {
+
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl + "AccountsMain/CollectionSummaryTillDate?BranchId=" + BranchId + "&AccYear=" + AccYear + "&EDate=" + EDate + "&Description=" + Description);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public async Task<IEnumerable<dtAccountsMain>> GetUserwiseCollectionSummary(int BranchId, string AccYear, string SDate, string EDate, string Description, string Criteria, string userName)
+        {
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl + "AccountsMain/UserwiseCollectionSummary?BranchId=" + BranchId + "&AccYear=" + AccYear + "&SDate=" + SDate + "&EDate=" + EDate + "&Description=" + Description + "&Criteria=" + Criteria + "&userName=" + userName);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        public async Task<IEnumerable<dtAccountsMain>> GetUserwiseCollectionDetails(int BranchId, string AccYear, string SDate, string EDate, string Description, string Criteria, string userName)
+        {
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl + "AccountsMain/UserwiseCollectionDetails?BranchId=" + BranchId + "&AccYear=" + AccYear + "&SDate=" + SDate + "&EDate=" + EDate + "&Description=" + Description + "&Criteria=" + Criteria + "&userName=" + userName);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        public async Task<IEnumerable<dtAccountsMain>> GetDetailedCollection(int BranchId, string AccYear, string SDate, string EDate, string Description, string Criteria)
+        {
+
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl + "AccountsMain/DetailedCollection?BranchId=" + BranchId + "&AccYear=" + AccYear + "&SDate=" + SDate + "&EDate=" + EDate + "&Description=" + Description + "&Criteria=" + Criteria);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public async Task<DashboardDetailsDto> GetDashBoardDetails(int BranchId, string AccYear, string SDate, string EDate)
+        {
+
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<DashboardDetailsDto>(BaseUrl + "AccountsMain/DashBoardDetails?BranchId=" + BranchId + "&AccYear=" + AccYear + "&SDate=" + SDate + "&EDate=" + EDate);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public async Task<StudentCountDto> GetStudentCounts(string AccYear, string SDate, string EDate, int BranchId, string Description)
+        {
+
+            try
+            {
+                var Result = httpClient.GetJsonAsync<StudentCountDto>(BaseUrl + "AccountsMain/StudentCount?AccYear=" + AccYear + "&SDate=" + SDate + "&EDate=" + EDate + "&BranchId=" + BranchId + "&Description=" + Description);
+                return await Result;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+
+
+
+        public async Task<IEnumerable<ReRegistrationPaidTcAppliedReportDto>> ReRegistrationPaidTcApplied(int BranchId, string AccYear, string paidStatus, string feeType, string Criteria)
+        {
+
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<ReRegistrationPaidTcAppliedReportDto>>(BaseUrl+ "AccountsMain/ReRegistrationPaidTcApplied?BranchId=" + BranchId+ "&AccYear="+AccYear + "&paidStatus=" + paidStatus + "&feeType=" + feeType + "&Criteria=" + Criteria);
                 return await GridData;
             }
             catch (Exception ex)
@@ -137,19 +274,7 @@ namespace OrisonFeeAnalysis.Logics.Concrete.Main
             }
         }
 		
-		public async Task<IEnumerable<dtAccountsMain>> GetUserwiseCollectionSummary(int BranchId, string AccYear, string SDate, string EDate, string Description, string Criteria, string userName)
-        {
-            try
-            {
-                var GridData = httpClient.GetJsonAsync<IEnumerable<dtAccountsMain>>(BaseUrl + "AccountsMain/GetUserwiseCollectionSummary?BranchId=" + BranchId + "&AccYear=" + AccYear + "&SDate=" + SDate + "&EDate=" + EDate + "&Description=" + Description + "&Criteria=" + Criteria+"&userName="+userName);
-                return await GridData;
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
+		
 
         public async Task<IEnumerable<dtAccountsMain>> GetCount(int BranchId, string AccYear, string SDate, string EDate, string Description, string Criteria)
         {
@@ -193,12 +318,40 @@ namespace OrisonFeeAnalysis.Logics.Concrete.Main
             }
         }
 
-        public async Task<IList<dtReciept>> GetAcknowledgmentRecieptList(DateTime FromDate, DateTime ToDate, string Criteria, int BranchID, string academiYear)
+        public async Task<IList<dtReciept>> GetAcknowledgmentRecieptList(DateTime FromDate, DateTime ToDate, string registerStatus, int BranchID, string dateType)
         {
             try
             {
-                var AcknowledgmentRecieptList = httpClient.GetJsonAsync<List<dtReciept>>(BaseUrl + "AccountsMain/GetAcknowledgmentRecieptList?FromDate=" + FromDate +"&ToDate="+ToDate+ "&Criteria=" + Criteria+"&BranchID="+BranchID + "&academicYear=" + academiYear);
+                var AcknowledgmentRecieptList = httpClient.GetJsonAsync<List<dtReciept>>(BaseUrl + "AccountsMain/GetAcknowledgmentRecieptList?FromDate=" + FromDate +"&ToDate="+ToDate+ "&registerStatus=" + registerStatus + "&BranchID="+BranchID + "&dateType=" + dateType);
                 return await AcknowledgmentRecieptList;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<ReservedPaymentStatusDetailedDTO>> ReservedPaymentStatusDetailed(int BranchId, string AccYear, string Criteria)
+        {
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<ReservedPaymentStatusDetailedDTO>>(BaseUrl + "AccountsMain/ReservedPaymentStatusDetailed?BranchId=" + BranchId + "&AccYear=" + AccYear + "&Criteria=" + Criteria);
+                return await GridData;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<ReservedPaymentStatusSummarizedDTO>> ReservedPaymentStatusSummarized(int BranchId, string AccYear, string Criteria)
+        {
+            try
+            {
+                var GridData = httpClient.GetJsonAsync<IEnumerable<ReservedPaymentStatusSummarizedDTO>>(BaseUrl + "AccountsMain/ReservedPaymentStatusSummarized?BranchId=" + BranchId + "&AccYear=" + AccYear + "&Criteria=" + Criteria);
+                return await GridData;
             }
             catch (Exception ex)
             {

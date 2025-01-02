@@ -57,6 +57,7 @@
                         AllowExcelExport="true"
                         AllowPdfExport="true"
                         AllowFiltering="true"
+                        AllowResizing="true"
                         AllowPaging="true"
                         RowHeight="24"
                         Width="100%"
@@ -71,6 +72,7 @@
                         <GridColumn Field=@nameof(dtPaidandNotPaid.EffectiveDate) HeaderText="Effective Date" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="140" Format="dd/MM/yyyy"></GridColumn>
                         <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="90"></GridColumn>
                         <GridColumn Field=@nameof(dtPaidandNotPaid.Division) HeaderText="Division" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="105"></GridColumn>
+                        <GridColumn Field=@nameof(dtPaidandNotPaid.Gender) HeaderText="Gender" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="105"></GridColumn>
                         <GridColumn Field=@nameof(dtPaidandNotPaid.FatherMobile) HeaderText="Father Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
                         <GridColumn Field=@nameof(dtPaidandNotPaid.MotherMobile) HeaderText="Mother Mobile" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
                         @if (FeeType == "Exam Fee" && GridDataDetails.Count() != 0)

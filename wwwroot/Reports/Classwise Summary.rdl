@@ -132,7 +132,7 @@
                         </Style>
                       </TextRun>
                       <TextRun>
-                        <Value>=Parameters!Accyear.Value</Value>
+                        <Value>=Parameters!AccYear.Value</Value>
                         <Style>
                           <FontWeight>Bold</FontWeight>
                           <Color>#22205f</Color>
@@ -633,7 +633,7 @@
       <AllowBlank>true</AllowBlank>
       <Prompt>Criteria</Prompt>
     </ReportParameter>
-    <ReportParameter Name="Accyear">
+    <ReportParameter Name="AccYear">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <DefaultValue>
@@ -642,7 +642,7 @@
         </Values>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>
-      <Prompt>Accyear</Prompt>
+      <Prompt>AccYear</Prompt>
     </ReportParameter>
     <ReportParameter Name="branchid">
       <DataType>Integer</DataType>
@@ -679,7 +679,7 @@
         <CellDefinition>
           <ColumnIndex>1</ColumnIndex>
           <RowIndex>0</RowIndex>
-          <ParameterName>Accyear</ParameterName>
+          <ParameterName>AccYear</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>

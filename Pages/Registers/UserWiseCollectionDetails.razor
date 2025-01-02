@@ -21,6 +21,11 @@
 <head>
     <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
 </head>
+<style>
+    .e-spinner-pane {
+        display: none !important;
+    }
+</style>
 <div>
 
 
@@ -33,8 +38,6 @@
                     <SfDatePicker @bind-Value="@SDate" Format="dd/MM/yyyy" title="From Date" Width="150px" Placeholder="From Date"></SfDatePicker>
                     <SfDatePicker @bind-Value="@EDate" Format="dd/MM/yyyy" title="To Date" Width="150px" Placeholder="To Date"></SfDatePicker>
                     <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="widthset"></SfButton>
-
-
                     <SfComboBox Width="180px" @bind-Value="@cmbUsername"
                                 DataSource="@UserList" AllowFiltering="true" Placeholder="Select a User" ShowClearButton="true">
                         <ComboBoxFieldSettings Value="UserName"></ComboBoxFieldSettings>
@@ -47,14 +50,14 @@
     <div>
         <div class="box-card-shadow">
            
-            <SfGrid ID="Grid" DataSource="@GridData"
+            <SfGrid ID="Grid" DataSource="@userWiseCollectionDetails"
                     GridLines="GridLine.Both"
                     AllowSorting="true"
                     AllowFiltering="true"
                     AllowExcelExport="true"
                     AllowPdfExport="true"
                     AllowPaging="true"
-                    Height="300"
+                    Height="@GridHeight"
                     RowHeight="24"
                     Width="100%"
                     @ref="Grid">
@@ -145,9 +148,14 @@
                     <GridColumn Field=@nameof(dtAccountsMain.OnlinePayment) HeaderText="OnlinePayment" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="120" Format="0.00"></GridColumn>
                     <GridColumn Field=@nameof(dtAccountsMain.Total) HeaderText="Total" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="120" Format="0.00"></GridColumn>
                 </GridColumns>
-                <SfSpinner @bind-Visible="@AllowOpen"></SfSpinner>
+                @if (Loading)
+                {
+                    <div class="spinner-overlay">
+                        <img src="gif/loading-waiting.gif" alt="Loading..." class="spinner-image" />
+                    </div>
+                }
             </SfGrid>
-                </div>
+        </div>
 
     </div>
 </div>
@@ -156,45 +164,28 @@
     DateTime SDate = DateTime.Now;
     DateTime EDate = DateTime.Now;
     int BranchID, UserID, AccountID;
-    string AccYear = "", Description, cmbUsername, Category;
+    string AccYear = "", Description, cmbUsername, Category, GridHeight = "400px";
     public SfGrid<dtAccountsMain> Grid { get; set; }
-    public IEnumerable<dtAccountsMain> GridData { get; set; }
+    public IEnumerable<dtAccountsMain> userWiseCollectionDetails { get; set; }
     public IList<dtAccountsMain> UserList { get; set; }
-    bool AllowOpen = false, Loading = true;
+    bool  Loading = false;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            AllowOpen = true;
+            var dimension = await jsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+            GridHeight = (dimension.Height - 280).ToString() + "px";
             UserID = await sessionStorage.GetItemAsync<int>("UserID");
             AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
             BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
             Category = await sessionStorage.GetItemAsync<string>("Category");
             AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
-
-            Description = "Default";
-            cmbUsername = null;
-            SDate = DateTime.Now;
-            EDate = DateTime.Now;
-
-            if (Category == "Administrator")
-            {
-                UserList = (await _accountsmain.GetUserName("GetUserName")).ToList();
-                //Loading = false;
-                //AllowOpen = true;
-            }
-            //else
-            //{
-            //    AllowOpen = false;
-            //    Loading = false;
-            //}
-            AllowOpen = false;
+            UserList = (await _accountsmain.GetUserName("GetUserName")).ToList();
         }
         catch (Exception ex)
         {
             await ClearLocalStorage();
-
             throw ex;
         }
 
@@ -213,18 +204,13 @@
 
     public async void Search_Click()
     {
-        AllowOpen = true;
-        //Loading = true;
-        AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
-
-        GridData = await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "", "UserWiseCollectionDetails", cmbUsername);
-        //Loading = false;
-        AllowOpen = false;
+        Loading = true;
+        userWiseCollectionDetails = await _accountsmain.GetUserwiseCollectionDetails(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "", "UserWiseCollectionDetails", cmbUsername);
+        Loading = false;
         await InvokeAsync(StateHasChanged);
 
     }
 
-    //private ElementReference codeBlock;
     public async Task DownLoadDocs()
     {
         var Data = await Grid.GetFilteredRecordsAsync();
@@ -245,10 +231,7 @@
     public async Task ClearLocalStorage()
     {
         LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
-
         await sessionStorage.ClearAsync();
-        //Must check localstorage userid in each razor page
-
         NavigationManager.NavigateTo(LogoutUrl);
 
     }

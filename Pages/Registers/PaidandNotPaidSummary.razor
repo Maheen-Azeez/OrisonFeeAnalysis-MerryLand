@@ -23,150 +23,163 @@
     <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
 </head>
 <div class="box-card-shadow">
-        <div class="row">
-            <div class="col-md-12">
-                <SfButton IconCss="Icon excel"  CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
-                <SfButton IconCss="Icon pdf"  CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
-                <SfComboBox Placeholder="Fee Type" @bind-Value="@FeeType" TValue="string" TItem="string" DataSource="@FeeTypeList" Width="200px">
-                </SfComboBox>
-                <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="widthset"></SfButton>
-                <SfButton IconCss="Icon preprint"  CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
-            </div>
+    <div class="row">
+        <div class="col-md-12">
+            <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+            <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+            <SfComboBox Placeholder="Fee Type" @bind-Value="@FeeType" TValue="string" TItem="string" DataSource="@FeeTypeList" Width="200px">
+            </SfComboBox>
+            <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="widthset"></SfButton>
+            <SfButton IconCss="Icon preprint" CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
         </div>
-</div>
-
-<div>
-    <div class="box-card-shadow">
-       
-                <SfGrid ID="Grid" DataSource="@GridDataSummary"
-                        GridLines="GridLine.Both"
-                        AllowExcelExport="true"
-                        AllowPdfExport="true"
-                        AllowFiltering="true"
-                        RowHeight="24"
-                        Width="100%"
-                        @ref="Grid">
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
-                    <GridAggregates>
-                        <GridAggregate>
-                            <GridAggregateColumns>
-                             
-                                <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term1Paid) Type="AggregateType.Sum">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div>
-                                                <div style="font-size: 13px; position: absolute; left: 7px; font-weight: bold;">TOTAL</div> <div style="align-items:end;">@aggregate.Sum</div>
-
-                                            </div>
-
-                                        }
-                                    </FooterTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term1NotPaid) Type="AggregateType.Sum">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div>
-                                                <div style="align-items:end;">@aggregate.Sum</div>
-
-                                            </div>
-
-                                        }
-                                    </FooterTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term2Paid) Type="AggregateType.Sum">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div>
-                                                <div style="align-items:end;">@aggregate.Sum</div>
-
-                                            </div>
-
-                                        }
-                                    </FooterTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn  Field=@nameof(dtPaidandNotPaid.Term2NotPaid) Type="AggregateType.Sum">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div>
-                                                <div style="align-items:end;">@aggregate.Sum</div>
-
-                                            </div>
-
-                                        }
-                                    </FooterTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn  Field=@nameof(dtPaidandNotPaid.Term3Paid) Type="AggregateType.Sum">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div>
-                                                <div style="align-items:end;">@aggregate.Sum</div>
-
-                                            </div>
-
-                                        }
-                                    </FooterTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn  Field=@nameof(dtPaidandNotPaid.Term3NotPaid) Type="AggregateType.Sum">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div>
-                                                <div style="align-items:end;">@aggregate.Sum</div>
-
-                                            </div>
-
-                                        }
-                                    </FooterTemplate>
-                                </GridAggregateColumn>
-                            </GridAggregateColumns>
-                        </GridAggregate>
-                    </GridAggregates>
-                    <GridColumns>
-                        <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-                        <GridColumn Field=@nameof(dtPaidandNotPaid.Term1Paid) HeaderText="Term1 Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
-                        <GridColumn Field=@nameof(dtPaidandNotPaid.Term1NotPaid) HeaderText="Term1 NotPaid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
-                        <GridColumn Field=@nameof(dtPaidandNotPaid.Term2Paid) HeaderText="Term2 Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
-                        <GridColumn Field=@nameof(dtPaidandNotPaid.Term2NotPaid) HeaderText="Term2 NotPaid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
-                        <GridColumn Field=@nameof(dtPaidandNotPaid.Term3Paid) HeaderText="Term3 Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
-                        <GridColumn Field=@nameof(dtPaidandNotPaid.Term3NotPaid) HeaderText="Term3 NotPaid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
-                    </GridColumns>
-                    <SfSpinner @bind-Visible="AllowOpen"></SfSpinner>
-
-                </SfGrid>
-
     </div>
 </div>
+@if (otherFee)
+{
+    <div>
+        <div class="box-card-shadow">
 
-@if (otherFee == true)
+            <SfPivotView @ref="sfPivot" TValue="dtPaidandNotPaid" Height="@GridHeight" EnableValueSorting=true ShowTooltip=false>
+                
+                <PivotViewDataSourceSettings TValue="dtPaidandNotPaid" DataSource="@GridDataSummary" ExpandAll=true EnableSorting=true>
+                    <PivotViewColumns>
+                        <PivotViewColumn Name="PaidStatus"></PivotViewColumn>
+                    </PivotViewColumns>
+                    <PivotViewRows>
+                        <PivotViewRow Name="Class"></PivotViewRow>
+                    </PivotViewRows>
+                    <PivotViewValues>
+                        <PivotViewValue Name="cnt" Caption="Count"></PivotViewValue>
+                        <PivotViewValue Name="pno" Caption="pno"></PivotViewValue>
+                    </PivotViewValues>
+                    <PivotViewFormatSettings>
+                        <PivotViewFormatSetting Name="cnt" UseGrouping=true></PivotViewFormatSetting>
+                    </PivotViewFormatSettings>
+@*                     <PivotViewEvents TValue="dtPaidandNotPaid" BeforeColumnsRender="BeforeColumnsRender"></PivotViewEvents>
+ *@
+                   @*  <PivotViewSortSettings>
+                        <PivotViewSortSetting Name="pno" Order=Sorting.Ascending></PivotViewSortSetting>
+                    </PivotViewSortSettings> *@
+                    <PivotViewValueSortSettings HeaderText="Paid##pno" HeaderDelimiter="##" SortOrder=Sorting.Ascending></PivotViewValueSortSettings>
+                </PivotViewDataSourceSettings>
+                <PivotViewGridSettings ColumnWidth="120"></PivotViewGridSettings>
+            </SfPivotView>
+
+        </div>
+    </div>
+
+}
+
+else
 {
 <div>
     <div class="box-card-shadow">
-        
-                <SfPivotView  @ref="sfPivot" TValue="dtPaidandNotPaid" Height="300" EnableValueSorting=true ShowTooltip=false>
-                    <PivotViewDataSourceSettings TValue="dtPaidandNotPaid" DataSource="@GridDataSummary" ExpandAll=true EnableSorting=true>
-                        <PivotViewColumns>
-                            <PivotViewColumn Name="PaidStatus"></PivotViewColumn>
-                        </PivotViewColumns>
-                        <PivotViewRows>
-                            <PivotViewRow Name="Class"></PivotViewRow>
-                        </PivotViewRows>
-                        <PivotViewValues>
-                            <PivotViewValue Name="cnt" Caption="cnt"></PivotViewValue>
-                        </PivotViewValues>
-                        <PivotViewFormatSettings>
-                            <PivotViewFormatSetting Name="cnt" UseGrouping=true></PivotViewFormatSetting>
-                        </PivotViewFormatSettings>
-                    </PivotViewDataSourceSettings>
-                    <PivotViewGridSettings ColumnWidth="120"></PivotViewGridSettings>
-                </SfPivotView>
+
+        <SfGrid ID="Grid" DataSource="@GridDataSummary"
+                GridLines="GridLine.Both"
+                AllowExcelExport="true"
+                AllowPdfExport="true"
+                AllowFiltering="true"
+                 Height="360px"
+                RowHeight="24"
+                Width="100%"
+                @ref="Grid">
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+            <GridAggregates>
+                <GridAggregate>
+                    <GridAggregateColumns>
+
+                        <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term1Paid) Type="AggregateType.Sum">
+                            <FooterTemplate>
+                                @{
+                                    var aggregate = (context as AggregateTemplateContext);
+                                    <div>
+                                        <div style="font-size: 13px; position: absolute; left: 7px; font-weight: bold;">TOTAL</div> <div style="align-items:end;">@aggregate.Sum</div>
+
+                                    </div>
+
+                                }
+                            </FooterTemplate>
+                        </GridAggregateColumn>
+                        <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term1NotPaid) Type="AggregateType.Sum">
+                            <FooterTemplate>
+                                @{
+                                    var aggregate = (context as AggregateTemplateContext);
+                                    <div>
+                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                    </div>
+
+                                }
+                            </FooterTemplate>
+                        </GridAggregateColumn>
+                        <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term2Paid) Type="AggregateType.Sum">
+                            <FooterTemplate>
+                                @{
+                                    var aggregate = (context as AggregateTemplateContext);
+                                    <div>
+                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                    </div>
+
+                                }
+                            </FooterTemplate>
+                        </GridAggregateColumn>
+                        <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term2NotPaid) Type="AggregateType.Sum">
+                            <FooterTemplate>
+                                @{
+                                    var aggregate = (context as AggregateTemplateContext);
+                                    <div>
+                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                    </div>
+
+                                }
+                            </FooterTemplate>
+                        </GridAggregateColumn>
+                        <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term3Paid) Type="AggregateType.Sum">
+                            <FooterTemplate>
+                                @{
+                                    var aggregate = (context as AggregateTemplateContext);
+                                    <div>
+                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                    </div>
+
+                                }
+                            </FooterTemplate>
+                        </GridAggregateColumn>
+                        <GridAggregateColumn Field=@nameof(dtPaidandNotPaid.Term3NotPaid) Type="AggregateType.Sum">
+                            <FooterTemplate>
+                                @{
+                                    var aggregate = (context as AggregateTemplateContext);
+                                    <div>
+                                        <div style="align-items:end;">@aggregate.Sum</div>
+
+                                    </div>
+
+                                }
+                            </FooterTemplate>
+                        </GridAggregateColumn>
+                    </GridAggregateColumns>
+                </GridAggregate>
+            </GridAggregates>
+            <GridColumns>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Term1Paid) HeaderText="Term1 Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Term1NotPaid) HeaderText="Term1 NotPaid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Term2Paid) HeaderText="Term2 Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Term2NotPaid) HeaderText="Term2 NotPaid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Term3Paid) HeaderText="Term3 Paid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
+                <GridColumn Field=@nameof(dtPaidandNotPaid.Term3NotPaid) HeaderText="Term3 NotPaid" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="140"></GridColumn>
+            </GridColumns>
+            <SfSpinner @bind-Visible="AllowOpen"></SfSpinner>
+
+        </SfGrid>
 
     </div>
 </div>
+
 }
 
 
@@ -179,7 +192,7 @@
     public string FeeType = "";
     public bool tuitionFee = false;
     public bool otherFee = false;
-
+    string GridHeight = "500px";
     IEnumerable<string> FeeTypeList = new List<string>() {
       "Book Fee",
       "MOE Book Fee",
@@ -205,7 +218,8 @@
             AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
             Category = await sessionStorage.GetItemAsync<string>("Category");
             Dropval = await sessionStorage.GetItemAsync<string>("AcademicYear");
-
+            var dimension = await jsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+            GridHeight = (dimension.Height - 180).ToString() + "px";
             //if (Category == "Administrator")
             //{
             //    GridDataSummary = await _accountsmain.GetPaidandNotPaid(Dropval, BranchID, "GetPaidSummary", "", "", "", "");
@@ -233,7 +247,7 @@
             tuitionFee = true;
             GridDataSummary = await _accountsmain.GetPaidandNotPaid(Dropval, BranchID, "GetPaidSummary", "", "", "", "");
         }
-        else
+        else if(FeeType != "Tuition Fee" && FeeType != "")
         {
             tuitionFee = false;
             otherFee = true;
@@ -270,10 +284,10 @@
                       "Paid Not paid Summary.pdf",
                       Convert.ToBase64String(ms.ToArray()));
         }
-        else if(otherFee == true)
+        else if (otherFee == true)
         {
             List<JSReportParameter> parameters = new List<JSReportParameter>()
-            {
+    {
             new JSReportParameter()
             {
                 Name = "FeeType",
@@ -312,5 +326,16 @@
         NavigationManager.NavigateTo(LogoutUrl);
 
     }
+    // private void BeforeColumnsRender(ColumnRenderEventArgs args)
+    // {
+    //     for (int i = 0; i < args.StackedColumns.Count; i++)
+    //     {
+    //         if (args.StackedColumns[i].Field == "Paid")
+    //         {
+    //             // Hide the specific columns using the “visible” property.
+    //             args.StackedColumns[i].Columns[0].Visible = false;
+    //         }
+    //     }
+    // }
 
 }

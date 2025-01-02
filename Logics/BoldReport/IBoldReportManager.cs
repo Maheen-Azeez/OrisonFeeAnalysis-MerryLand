@@ -18,5 +18,7 @@ namespace OrisonFeeAnalysis.Logics.Contract.BoldReport
         public Task<List<ExpandoObject>> GetAnalysisData(string Criteria,string Accyear, string DateFrom, string DateTo, int branchID, string Description, string UserName);
         public Task<List<ExpandoObject>> FeePaidNotPaid(string Criteria, string Accyear, DateTime DateFrom, DateTime DateTo, int branchID, string Description, string UserName, string Class, string Division, string FeeType, string FeeStatus);
         public FileStreamResult GetReport(string ReportName, DataSource Data, List<JSReportParameter> Para);
+        FileStreamResult GetReport(DataSource Data);
+
     }
 }

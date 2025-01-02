@@ -251,5 +251,10 @@ namespace OrisonFeeAnalysis.Logics.Concrete.BoldReport
             fileStreamResult.FileDownloadName = fileName;
             return fileStreamResult;
         }
+
+        public FileStreamResult GetReport(DataSource Data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -30,7 +30,11 @@
 <head>
     <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
 </head>
-
+<style>
+    .e-spinner-pane {
+        display: none !important;
+    }
+</style>
 <div>
 
     <div class="box-card-shadow">
@@ -56,13 +60,14 @@
         <div class="box-card-shadow">
 
 
-            <SfGrid ID="SGrid" DataSource="@Employees"
+            <SfGrid ID="SGrid" DataSource="@collectionDetails"
                     GridLines="GridLine.Both"
                     AllowSorting="true"
                     AllowFiltering="true"
                     AllowExcelExport="true"
                     AllowPdfExport="true"
-                    Height="300"
+                    AllowPaging = "true"
+                    Height="@GridHeight"
                     RowHeight="24"
                     Width="100%"
                     AllowResizing="true"
@@ -70,6 +75,7 @@
 
                 @*<GridEvents RowSelected="" TValue="dtAccountsMain"></GridEvents>*@
                 <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                <GridPageSettings PageSize="100"></GridPageSettings>
 
                 <GridAggregates>
                     <GridAggregate>
@@ -250,8 +256,12 @@
 
 
                 </GridColumns>
-                <SfSpinner @bind-Visible="@AllowOpen"></SfSpinner>
-
+                @if (Loading)
+                {
+                    <div class="spinner-overlay">
+                        <img src="gif/loading-waiting.gif" alt="Loading..." class="spinner-image" />
+                    </div>
+                }
             </SfGrid>
             <div style="margin-top:5px;">
                 <div class="row">
@@ -270,14 +280,14 @@
                         <label>@BookSum</label>
                     </div>
                 </div>
-                <div class="row">
+               @*  <div class="row">
                     <div class="col-md-6">
                         <label>TOTAL NO OF STUDENTS PAID</label>
                     </div>
                     <div class="col-md-6">
                         <label>@StudentCount</label>
                     </div>
-                </div>
+                </div> *@
             </div>
         </div>
        
@@ -289,7 +299,7 @@
 @code {
 
     DateTime SDate, EDate;
-    string AccYear = "", Description = "Default";
+    string AccYear = "", Description = "Default", GridHeight = "400px";
     public bool Isload = false, Loading = false;
     public string SelectedCustomer { get; set; }
     public int? RowIndex { get; set; } = 1003;
@@ -302,7 +312,7 @@
     public SfGrid<dtAccountsMain> SGrid { get; set; }
 
 
-    private IList<dtAccountsMain> Employees { get; set; }
+    private IList<dtAccountsMain> collectionDetails { get; set; }
     dtAccountsMain Employee = new dtAccountsMain();
     private IList<dtAccountsMain> CountList { get; set; }
 
@@ -357,24 +367,13 @@
 
         try
         {
+            var dimension = await jsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+            GridHeight = (dimension.Height - 280).ToString() + "px";
             UserID = await sessionStorage.GetItemAsync<int>("UserID");
             AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
             BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
             Category = await sessionStorage.GetItemAsync<string>("Category");
             AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
-
-            //if (Category == "Administrator")
-            //{
-
-            //    AllowOpen = true;
-
-            //}
-            //else
-            //{
-
-            //    AllowOpen = false;
-
-            //}
         }
         catch (Exception)
         {
@@ -390,17 +389,24 @@
 
     public async void Search_Click()
     {
-        AllowOpen = true;
-        //Loading = true;
-        StartDate = (SDate).ToString("dd/MM/yyyy");
-        EndDate = (EDate).ToString("dd/MM/yyyy");
-        dtAccountsMain accountsMain = new dtAccountsMain();
-        AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+        Loading = true;
+        collectionDetails = (await _accountsmain.GetDetailedCollection(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "CollectionDetails")).ToList();
+        var summary = collectionDetails.Aggregate(
+            new { BookSum = 0m, GrandTotal = 0m },
+            (acc, data) => new
+            {
+                BookSum = acc.BookSum + data.BookFee,
+                GrandTotal = acc.GrandTotal + data.Total
+            }
+            );
 
-        Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "CollectionDetails")).ToList();
-        //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "GetGridDataCount"));
-        CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "DashBoardCount")).ToList();
-        StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
+        BookSum = summary.BookSum;
+        GrandTotal = summary.GrandTotal;
+        Loading = false;
+        await InvokeAsync(StateHasChanged);
+        // //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "GetGridDataCount"));
+        // CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "DashBoardCount")).ToList();
+        // StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
 
 
         //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, StartDate, EndDate, "All", "GetGridDataCount"));
@@ -425,30 +431,27 @@
         //    //StudentCount = (await _accountsmain.GetGridCount(BranchId, AccYear, StartDate, EndDate, "Tuition Fee", "GetGridDataCount"));
         //}
 
-        GetDayTotal();
+        // GetDayTotal();
         //Loading = false;
-        AllowOpen = false;
-
-
-        await InvokeAsync(StateHasChanged);
+        
 
     }
 
 
-    public decimal GetDayTotal()
-    {
-        // Here, you can calculate custom aggregate operations and return the result.
+    // public decimal GetDayTotal()
+    // {
+    //     // Here, you can calculate custom aggregate operations and return the result.
 
-        cashSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cash)).AsQueryable()));
-        ChequeSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cheque)).AsQueryable()));
-        TTSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.TT)).AsQueryable()));
-        BookSum = Math.Round(Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.BookFee)).AsQueryable())), 2);
+    //     cashSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cash)).AsQueryable()));
+    //     ChequeSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cheque)).AsQueryable()));
+    //     TTSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.TT)).AsQueryable()));
+    //     BookSum = Math.Round(Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.BookFee)).AsQueryable())), 2);
 
-        return GrandTotal = Math.Round((cashSum + ChequeSum + TTSum), 2);
+    //     return GrandTotal = Math.Round((cashSum + ChequeSum + TTSum), 2);
 
 
 
-    }
+    // }
 
     public async Task ExportExcel()
     {

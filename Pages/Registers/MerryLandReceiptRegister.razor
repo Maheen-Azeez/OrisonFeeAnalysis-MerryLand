@@ -144,11 +144,12 @@
                     </Template>
                 </GridColumn>
                 <GridColumn Field=@nameof(DtVoucherMaster.ID) IsPrimaryKey="true" Visible="false" AllowFiltering="false"></GridColumn>
-                <GridColumn Field=@nameof(DtVoucherMaster.VNo) HeaderText=@Localizer["Receipt No."] Index="3" Width="90px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.VNo) HeaderText=@Localizer["Receipt No."] Index="3" Width="120px"></GridColumn>
                 <GridColumn Field=@nameof(DtVoucherMaster.Vdate) HeaderText=@Localizer["Date"] Format="dd/MM/yyyy" Index="4" Width="80px"></GridColumn>
                 <GridColumn Field=@nameof(DtVoucherMaster.AccountId) HeaderText=@Localizer["AccountID"] Visible="false" Index="5" Width="200px"></GridColumn>
-                <GridColumn Field=@nameof(DtVoucherMaster.AccountName) HeaderText=@Localizer["Student Name"] Index="5" Width="200px"></GridColumn>
-                <GridColumn Field=@nameof(DtVoucherMaster.Description) HeaderText=@Localizer["Description"] Index="6" Width="200px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.AccountCode) HeaderText=@Localizer["Student Code"]  Width="140px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.AccountName) HeaderText=@Localizer["Student Name"] Width="200px"></GridColumn>
+                <GridColumn Field=@nameof(DtVoucherMaster.Description) HeaderText=@Localizer["Description"] Width="200px"></GridColumn>
                 <GridColumn Field=@nameof(DtVoucherMaster.Amount) Format="0.00" HeaderText=@Localizer["Amount"] HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Index="7" Width="120px"></GridColumn>
                 @*<GridColumn Field=@nameof(DtVoucherMaster.VATAmt)  Format="0.00" HeaderText="VAT" Index="9" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="110px"></GridColumn>*@
                 @*@if (CompanyCode == "Merryland")
@@ -610,7 +611,7 @@ else
             dt.DataSet1 = new List<ExpandoObject>();
             dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data)));
             dt.DataSet1.AddRange(JsonConvert.DeserializeObject<List<ExpandoObject>>(JsonConvert.SerializeObject(Data2)));
-            var Result = _boldReport.GetReport("Exam Fee Receipt", dt);
+            var Result = _boldReport.GetReport("Exam Fee Receipt Without Copy", dt);
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
             Result.FileStream.CopyTo(ms);
             await jsRuntime.InvokeVoidAsync(
@@ -708,7 +709,7 @@ else
                         "<h2 style='color: #6300c7;text-align:left;font-size:15px;'>Merryland.</h2>";
             if (vType == 1117)
             {
-                FileStreamResult fileStream = await _boldReport.GetDocument("Exam Fee Receipt", SelectedVoucher, CmbAccYear);
+                FileStreamResult fileStream = await _boldReport.GetDocument("Exam Fee Receipt Without Copy", SelectedVoucher, CmbAccYear);
                 mail.Attachments.Add(new Attachment(fileStream.FileStream, "Fee Receipt.pdf"));
             }
             else

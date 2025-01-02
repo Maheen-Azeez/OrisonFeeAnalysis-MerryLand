@@ -13,7 +13,7 @@
             <Left>13.5pt</Left>
             <Top>90.70312pt</Top>
             <Height>85.5pt</Height>
-            <Width>568.7969pt</Width>
+            <Width>568.5pt</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -49,7 +49,7 @@
                               <Left>3.73438pt</Left>
                               <Top>24.71092pt</Top>
                               <Height>54pt</Height>
-                              <Width>562.7pt</Width>
+                              <Width>564.75pt</Width>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -59,16 +59,19 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>225pt</Width>
+                                    <Width>196.5pt</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>112.5pt</Width>
+                                    <Width>81.5pt</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>112.5pt</Width>
+                                    <Width>90.5pt</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>112.5pt</Width>
+                                    <Width>102pt</Width>
+                                  </TablixColumn>
+                                  <TablixColumn>
+                                    <Width>94pt</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -81,7 +84,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>225pt</Width>
+                                            <Width>196.5pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -121,7 +124,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>81.50025pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -161,7 +164,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>90.50025pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -201,7 +204,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>102pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -235,6 +238,46 @@
                                           <RowSpan>1</RowSpan>
                                         </CellContents>
                                       </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="TextBox10">
+                                            <Left>0in</Left>
+                                            <Top>0in</Top>
+                                            <Height>18pt</Height>
+                                            <Width>93.99975pt</Width>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>2pt</PaddingTop>
+                                              <PaddingBottom>2pt</PaddingBottom>
+                                              <Border>
+                                                <Style>Solid</Style>
+                                              </Border>
+                                            </Style>
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>TOTAL</Value>
+                                                    <Style>
+                                                      <FontSize>11.4998pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
+                                                      <Color>black</Color>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Center</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                          </Textbox>
+                                          <ColSpan>1</ColSpan>
+                                          <RowSpan>1</RowSpan>
+                                        </CellContents>
+                                      </TablixCell>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
@@ -246,7 +289,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>225pt</Width>
+                                            <Width>196.5pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -284,7 +327,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>81.50025pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -323,7 +366,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>90.50025pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -362,7 +405,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>102pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -395,6 +438,51 @@
                                           <RowSpan>1</RowSpan>
                                         </CellContents>
                                       </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="TextBox11">
+                                            <Left>0in</Left>
+                                            <Top>0in</Top>
+                                            <Height>18pt</Height>
+                                            <Width>93.99975pt</Width>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>2pt</PaddingTop>
+                                              <PaddingBottom>2pt</PaddingBottom>
+                                              <Border>
+                                                <Style>Solid</Style>
+                                              </Border>
+                                            </Style>
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Total.Value</Value>
+                                                    <Style>
+                                                      <Format>0.00</Format>
+                                                      <rd:FormatType>
+                                                        <rd:Format>Number</rd:Format>
+                                                        <rd:Representation>None</rd:Representation>
+                                                        <rd:NegativeValue>-12345</rd:NegativeValue>
+                                                        <rd:Culture />
+                                                      </rd:FormatType>
+                                                      <Color>black</Color>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                          </Textbox>
+                                          <ColSpan>1</ColSpan>
+                                          <RowSpan>1</RowSpan>
+                                        </CellContents>
+                                      </TablixCell>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
@@ -406,7 +494,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>225pt</Width>
+                                            <Width>196.5pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -448,7 +536,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>81.50025pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -494,7 +582,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>90.50025pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -540,7 +628,7 @@
                                             <Left>0in</Left>
                                             <Top>0in</Top>
                                             <Height>18pt</Height>
-                                            <Width>112.5pt</Width>
+                                            <Width>102pt</Width>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -580,12 +668,65 @@
                                           <RowSpan>1</RowSpan>
                                         </CellContents>
                                       </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="TextBox12">
+                                            <Left>0in</Left>
+                                            <Top>0in</Top>
+                                            <Height>18pt</Height>
+                                            <Width>93.99975pt</Width>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>2pt</PaddingTop>
+                                              <PaddingBottom>2pt</PaddingBottom>
+                                              <Border>
+                                                <Style>Solid</Style>
+                                              </Border>
+                                              <LeftBorder>
+                                                <Style>None</Style>
+                                              </LeftBorder>
+                                              <RightBorder>
+                                                <Style>Solid</Style>
+                                              </RightBorder>
+                                            </Style>
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Sum(Fields!Total.Value)</Value>
+                                                    <Style>
+                                                      <FontWeight>Bold</FontWeight>
+                                                      <Format>0.00</Format>
+                                                      <rd:FormatType>
+                                                        <rd:Format>Number</rd:Format>
+                                                        <rd:Representation>None</rd:Representation>
+                                                        <rd:NegativeValue>-12345</rd:NegativeValue>
+                                                        <rd:Culture />
+                                                      </rd:FormatType>
+                                                      <Color>black</Color>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                          </Textbox>
+                                          <ColSpan>1</ColSpan>
+                                          <RowSpan>1</RowSpan>
+                                        </CellContents>
+                                      </TablixCell>
                                     </TablixCells>
                                   </TablixRow>
                                 </TablixRows>
                               </TablixBody>
                               <TablixColumnHierarchy>
                                 <TablixMembers>
+                                  <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
@@ -1327,9 +1468,9 @@
             </Paragraphs>
           </Textbox>
         </ReportItems>
-        <Height>396pt</Height>
+        <Height>337.5pt</Height>
       </Body>
-      <Width>594.75pt</Width>
+      <Width>591pt</Width>
       <Page>
         <PageHeight>841.68pt</PageHeight>
         <PageWidth>595.44pt</PageWidth>
@@ -1405,6 +1546,10 @@
         <Field Name="ToDate">
           <DataField>ToDate</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="Total">
+          <DataField>Total</DataField>
+          <rd:UserDefined>true</rd:UserDefined>
         </Field>
       </Fields>
       <Query>

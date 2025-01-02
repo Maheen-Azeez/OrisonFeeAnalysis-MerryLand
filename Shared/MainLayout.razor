@@ -307,6 +307,8 @@
         treedata.Add(new TreeData { nodeId = "15", nodeText = @Localizer["Acknowledgment Reciept"], iconCss = "fa fa-handshake-o" });
         treedata.Add(new TreeData { nodeId = "16", nodeText = @Localizer["Rereg Paid & Term1 Not Paid"], iconCss = "fa fa-indent" });
         treedata.Add(new TreeData { nodeId = "17", nodeText = @Localizer["Student Master"], iconCss = "fa fa-graduation-cap" });
+        treedata.Add(new TreeData { nodeId = "18", nodeText = @Localizer["TC Applied & Re-registration Paid"], iconCss = "fa fa-list-alt" });
+        treedata.Add(new TreeData { nodeId = "19", nodeText = @Localizer["Reserved Student Payment Status"], iconCss = "fa fa-list-alt" });
 
 
 
@@ -327,6 +329,14 @@
         else if (args.NodeData.Text == "One Day Collection Details")
         {
             uriHelper.NavigateTo("OneDayCollectionDetails");
+        }
+        else if (args.NodeData.Text == "Reserved Student Payment Status")
+        {
+            uriHelper.NavigateTo("ReservedStudentPaymentStatus");
+        }
+        else if (args.NodeData.Text == "TC Applied & Re-registration Paid")
+        {
+            uriHelper.NavigateTo("ReRegistrationPaidTcApplied");
         }
         else if (args.NodeData.Text == "Collection Summary Till Date")
         {
@@ -428,16 +438,16 @@
     }
     public async Task yesClick()
     {
-        dtupdate.DateFrom = DateTime.Now;
-        dtupdate.DateTo = DateTime.Now;
+        // dtupdate.DateFrom = DateTime.Now;
+        // dtupdate.DateTo = DateTime.Now;
         this.ConfirmDlgVisible = false;
         await sessionStorage.SetItemAsync("AcademicYear", CmbAccYear);
         await sessionStorage.GetItemAsync<string>("AcademicYear");
         await  LocalStorageGet();
-        string AccademicYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
-        dtupdate.academicYear = AccademicYear;
-        HttpResponseMessage result = new HttpResponseMessage();
-        result = await StudentMasterService.Update(dtupdate);
+        // string AccademicYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+        // dtupdate.academicYear = AccademicYear;
+        // HttpResponseMessage result = new HttpResponseMessage();
+        // result = await StudentMasterService.Update(dtupdate);
         uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
         await InvokeAsync(StateHasChanged);
     }

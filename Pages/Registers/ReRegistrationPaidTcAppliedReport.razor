@@ -1,0 +1,166 @@
+﻿@page "/ReRegistrationPaidTcApplied"
+
+@using System.Data
+@using OrisonFeeAnalysis.Entities.Main
+
+@using OrisonFeeAnalysis.Entities.Student
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Calendars;
+@using Syncfusion.Blazor.Spinner;
+@using Syncfusion.Blazor.Data
+
+@layout MainLayout
+@namespace OrisonFeeAnalysis.Pages
+
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService localStorage
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+
+@using Newtonsoft.Json
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+<style>
+    .e-spinner-pane {
+        display: none !important;
+    }
+</style>
+<div>
+
+    <div class="box-card-shadow">
+        <div class="row">
+            <div class="col-md-8">
+                <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+                <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+            </div>
+            <div class="col-md-4" style="text-align:end">
+                <label style="color:#4758A8;font-size:large;font-weight:bold;float:right;">TC Applied & Re-registration Paid</label>
+            </div>
+        </div>
+    </div>
+
+@*     <div class="box-card-shadow">
+
+
+        <SfGrid DataSource="@dataSource"
+                GridLines="GridLine.Both"
+                AllowSorting="true"
+                AllowFiltering="true"
+                AllowExcelExport="true"
+                AllowPdfExport="true"
+                RowHeight="24"
+                Height="@GridHeight"
+                Width="100%"
+                AllowPaging="true"
+                AllowResizing="true"
+                @ref="SGrid">
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+            <GridPageSettings PageSize="100"></GridPageSettings>
+            <GridColumns>
+                <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.AccountCode)" HeaderText="Account Code" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.AccountName)" HeaderText="Account Name" TextAlign="TextAlign.Left" Width="180"></GridColumn>
+                <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.Class)" HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.Division)" HeaderText="Division" TextAlign="TextAlign.Left" Width="110"></GridColumn>
+                <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.RDate)" HeaderText="Re-registration Date" Format="dd/MM/yyyy" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.TDate)" HeaderText="TC Date" Format="dd/MM/yyyy" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+
+            </GridColumns>
+            @if (Loading)
+            {
+                <svg width="2500" height="2500" viewBox="126.444 2.281 589 589"><image href="gif/loading-waiting.gif" height="590px" width="770px" /></svg>
+            }
+        </SfGrid>
+    </div>
+ *@
+    <div class="box-card-shadow">
+        <div class="grid-container">
+            <SfGrid DataSource="@dataSource"
+                    GridLines="GridLine.Both"
+                    AllowSorting="true"
+                    AllowFiltering="true"
+                    AllowExcelExport="true"
+                    AllowPdfExport="true"
+                    RowHeight="24"
+                    Height="@GridHeight"
+                    Width="100%"
+                    AllowPaging="true"
+                    AllowResizing="true"
+                    @ref="SGrid">
+                <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                <GridPageSettings PageSize="100"></GridPageSettings>
+                <GridColumns>
+                    <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.AccountCode)" HeaderText="Account Code" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.AccountName)" HeaderText="Account Name" TextAlign="TextAlign.Left" Width="180"></GridColumn>
+                    <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.Class)" HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.Division)" HeaderText="Division" TextAlign="TextAlign.Left" Width="110"></GridColumn>
+                    <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.RDate)" HeaderText="Re-registration Date" Format="dd/MM/yyyy" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    <GridColumn Field="@nameof(ReRegistrationPaidTcAppliedReportDto.TDate)" HeaderText="TC Date" Format="dd/MM/yyyy" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                </GridColumns>
+                @if (Loading)
+                {
+                    <div class="spinner-overlay">
+                        <img src="gif/loading-waiting.gif" alt="Loading..." class="spinner-image" />
+                    </div>
+                }
+            </SfGrid>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+@code {
+
+
+    string AccYear = "", Description = "Default";
+    string Category;
+    int UserID, AccountID, BranchID;
+    bool Loading = true;
+    string GridHeight =  "500px";
+    public SfGrid<ReRegistrationPaidTcAppliedReportDto> SGrid { get; set; }
+    private IList<ReRegistrationPaidTcAppliedReportDto> dataSource { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+            var dimension = await jsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+            GridHeight = (dimension.Height - 180).ToString() + "px";
+            dataSource = (await _accountsmain.ReRegistrationPaidTcApplied(BranchID, AccYear, "Paid", "Reregistration", "ReRegistrationPaidTcApplied")).ToList();
+            Loading = false;
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async Task ExportExcel()
+    {
+        await this.SGrid.ExportToExcelAsync();
+    }
+
+    public async Task ExportPdf()
+    {
+        await this.SGrid.ExportToPdfAsync();
+    }
+}
+
+

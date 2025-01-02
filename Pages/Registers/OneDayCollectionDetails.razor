@@ -28,7 +28,11 @@
 <head>
     <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
 </head>
-
+<style>
+    .e-spinner-pane {
+        display: none !important;
+    }
+</style>
 <div>
 
     <div class="box-card-shadow">
@@ -36,15 +40,10 @@
             <div class="col-md-12">
                 <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
                 <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
-                <SfComboBox @bind-Value="@Description" TValue="string" TItem="String" DataSource="@DropdownData" Width="180px">
-                </SfComboBox>
-
+                <SfComboBox @bind-Value="@Description" TValue="string" TItem="String" DataSource="@DropdownData" Width="180px"></SfComboBox>
                 <SfDatePicker @bind-Value="@SDate" Format="dd/MM/yyyy" title="From Date" Width="150px" Placeholder="From Date"></SfDatePicker>
                 <SfDatePicker @bind-Value="@EDate" Format="dd/MM/yyyy" title="To Date" Width="150px" Placeholder="To Date"></SfDatePicker>
-
-
                 <SfButton IconCss="Icon search" @onclick="@Search_Click" title="Search" CssClass="e-btn4"></SfButton>
-
                 <SfButton IconCss="Icon preprint"  CssClass="e-btn4" @onclick="@DownLoadDocs"></SfButton>
                 <SfButton IconCss="Icon preprint" Content="Receipt wise" CssClass="btn" @onclick="@DownLoadReportDocs"></SfButton>
 
@@ -53,25 +52,23 @@
 
         </div>
     </div>
-
-    @*@if (Employees.Count() != 0)
-        {*@
 <div class="box-card-shadow">
 
 
-    <SfGrid ID="SGrid" DataSource="@Employees"
+    <SfGrid ID="SGrid" DataSource="@CollectionDetails"
             GridLines="GridLine.Both"
             AllowSorting="true"
             AllowFiltering="true"
             AllowExcelExport="true"
             AllowPdfExport="true"
-            Height="450"
+            Height="@GridHeight"
+            AllowPaging = "true"
             RowHeight="24"
             Width="100%"
             AllowResizing="true"
             @ref="SGrid">
         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
-
+        <GridPageSettings PageSize="100"></GridPageSettings>
         <GridAggregates>
             <GridAggregate>
                 <GridAggregateColumns>
@@ -112,6 +109,18 @@
                             }
                         </FooterTemplate>
                     </GridAggregateColumn>
+                    <GridAggregateColumn Format="0.00" Field=@nameof(dtAccountsMain.Total) Type="AggregateType.Sum">
+                                <FooterTemplate>
+                                    @{
+                                        var aggregate = (context as AggregateTemplateContext);
+                                        <div>
+
+                                            <div style="align-items:end;">@aggregate.Sum</div>
+
+                                        </div>
+                                    }
+                                </FooterTemplate>
+                    </GridAggregateColumn>
                 </GridAggregateColumns>
             </GridAggregate>
         </GridAggregates>
@@ -124,9 +133,9 @@
             <GridColumn Field=@nameof(dtAccountsMain.Class) HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
             <GridColumn Field=@nameof(dtAccountsMain.Division) HeaderText="Division" TextAlign="TextAlign.Left" Width="110"></GridColumn>
             <GridColumn Field=@nameof(dtAccountsMain.Feetype) HeaderText="Description" TextAlign="TextAlign.Left" Width="130"></GridColumn>
-            @if (Employees != null)
+                @if (CollectionDetails != null)
             {
-                if (Description == "Exam Fee" && Employees.Count != 0)
+                    if (Description == "Exam Fee" && CollectionDetails.Count() != 0)
                 {
                     <GridColumn Field=@nameof(dtAccountsMain.FeeName) HeaderText="Subject" TextAlign="TextAlign.Left" Width="220"></GridColumn>
 
@@ -136,9 +145,15 @@
             <GridColumn Field=@nameof(dtAccountsMain.Cash) HeaderText="Cash" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100" Format="0.00"></GridColumn>
             <GridColumn Field=@nameof(dtAccountsMain.Cheque) HeaderText=" Cheque" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="120" Format="0.00"></GridColumn>
             <GridColumn Field=@nameof(dtAccountsMain.TT) HeaderText="TT" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
+            <GridColumn Field=@nameof(dtAccountsMain.Total) HeaderText="Total" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Right" Width="100" Format="0.00"></GridColumn>
 
         </GridColumns>
-        <SfSpinner @bind-Visible="@AllowOpen"></SfSpinner>
+            @if (Loading)
+            {
+                <div class="spinner-overlay">
+                    <img src="gif/loading-waiting.gif" alt="Loading..." class="spinner-image" />
+                </div>
+            }
     </SfGrid>
     <div style="margin-top:5px;">
         <div class="row">
@@ -146,7 +161,7 @@
                 <label>GRAND TOTAL COLLECTION</label>
             </div>
             <div>
-                <label>@GrandTotal</label>
+                <label>@GrandTotal.ToString("0.00")</label>
             </div>
         </div>
         <div class="row">
@@ -160,19 +175,6 @@
     </div>
 
 </div>
-
-
-
-
-
-    @*}*@
-
-    @*@if (Loading == true)
-        {
-            <div class="spin-row">
-            </div>
-        }*@
-
 </div>
 
 
@@ -188,16 +190,13 @@
     int StudentCount = 0;
     decimal cashSum, ChequeSum, TTSum;
     decimal GrandTotal;
+    string GridHeight = "400px";
     string StartDate, EndDate, Category;
     int UserID, AccountID, BranchID;
     bool AllowOpen = false;
-
-
     public SfGrid<dtAccountsMain> SGrid { get; set; }
-
-
-    private IList<dtAccountsMain> Employees { get; set; }
-    private IList<dtAccountsMain> CountList { get; set; }
+    private IEnumerable<dtAccountsMain> CollectionDetails { get; set; }
+    private IEnumerable<dtAccountsMain> CountList { get; set; }
 
     dtAccountsMain Employee = new dtAccountsMain();
 
@@ -212,7 +211,6 @@
 
     };
 
-    //bold report
     private ElementReference codeBlock;
     public async Task DownLoadDocs()
     {
@@ -318,24 +316,13 @@
 
         try
         {
+            var dimension = await jsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+            GridHeight = (dimension.Height - 280).ToString() + "px";
             UserID = await sessionStorage.GetItemAsync<int>("UserID");
             AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
             BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
             Category = await sessionStorage.GetItemAsync<string>("Category");
             AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
-
-            //if (Category == "Administrator")
-            //{
-
-            //    AllowOpen = true;
-
-            //}
-            //else
-            //{
-
-            //    AllowOpen = false;
-
-            //}
         }
         catch (Exception)
         {
@@ -348,122 +335,45 @@
 
     public async void Search_Click()
     {
-        AllowOpen = true;
-        //Loading = true;
+        Loading = true;
 
-        StartDate = (SDate).ToString("dd/MM/yyyy");
-        EndDate = (EDate).ToString("dd/MM/yyyy");
-        dtAccountsMain accountsMain = new dtAccountsMain();
-        Employees = new List<dtAccountsMain>();
-        AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
-
-        if (Description != null)
+        try
         {
-            if (Description == "Default")
-            {
+            string formattedStartDate = SDate.ToString("MM/dd/yyyy");
+            string formattedEndDate = EDate.ToString("MM/dd/yyyy");
+            string descriptionFilter = Description == "Default" ? "All" : Description;
+            string countType = Description == "Default" ? "StudentCount" : "DashBoardCount";
 
-                Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "GetGridDataDetails")).ToList();
-                //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "GetGridDataCount"));
-                CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "DashBoardCount")).ToList();
-                StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
+            var collectionDetailsTask = _accountsmain.GetDailyCollectionDetails(BranchID, AccYear, formattedStartDate, formattedEndDate, descriptionFilter);
+            var countTask = _accountsmain.GetCount(BranchID, AccYear, formattedStartDate, formattedEndDate, descriptionFilter, countType);
 
-            }
-            else if (Description == "Book Fee")
-            {
-                try
-                {
-                    Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Book Fee", "GetGridDataDetails")).ToList();
-                    //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Book Fee", "GetGridDataCount"));
-                    CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Book Fee", "DashBoardCount")).ToList();
-                    StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
-                }
-                catch (Exception e)
-                {
+            CollectionDetails = await collectionDetailsTask;
+            CountList = await countTask;
 
-                    throw e;
-                }
-
-
-
-
-            }
-            else if (Description == "Reregistration Fee")
-            {
-                Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Reregistration Fee", "GetGridDataDetails")).ToList();
-                //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Reregistration Fee", "GetGridDataCount"));
-                CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Reregistration Fee", "DashBoardCount")).ToList();
-                StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
-
-
-
-            }
-            else if (Description == "Transportation Fee")
-            {
-                Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Transportation Fee", "GetGridDataDetails")).ToList();
-                //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Transportation Fee", "GetGridDataCount"));
-                CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Transportation Fee", "DashBoardCount")).ToList();
-                StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
-
-
-
-            }
-            else if (Description == "Tuition Fee")
-            {
-                Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Tuition Fee", "GetGridDataDetails")).ToList();
-                //CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Tuition Fee", "DashBoardCount")).ToList();
-                //StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
-                StudentCount = Employees.Count();
-
-
-            }
-            else if (Description == "MOE Book Fee")
-            {
-                Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "MOE Book Fee", "GetGridDataDetails")).ToList();
-                //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Tuition Fee", "GetGridDataCount"));
-                CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "MOE Book Fee", "DashBoardCount")).ToList();
-                StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
-
-
-            }
-            else if (Description == "Exam Fee")
-            {
-                Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Exam Fee", "GetGridDataDetailsExam")).ToList();
-                foreach (var i in Employees)
-                {
-                    i.FeeName = i.FeeName.Substring(i.FeeName.IndexOf('-') + 1);
-                    i.FeeName = i.FeeName.Remove(i.FeeName.Length - 1);
-                }
-                //StudentCount = (await _accountsmain.GetGridCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Tuition Fee", "GetGridDataCount"));
-                CountList = (await _accountsmain.GetCount(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "Exam Fee", "DashBoardCount")).ToList();
-                StudentCount = Convert.ToInt32(Queryable.Sum(CountList.Select(x => (x.Count)).AsQueryable()));
-
-
-            }
-
-            GetDayTotal();
-            //Loading = false;
-            AllowOpen = false;
-
+            StudentCount = CountList.Sum(x => x.Count);
+            GrandTotal = CollectionDetails.Sum(data => data.Total);
+        }
+        finally
+        {
+            Loading = false;
             await InvokeAsync(StateHasChanged);
         }
-
-
     }
 
 
-    public decimal GetDayTotal()
-    {
-        // Here, you can calculate custom aggregate operations and return the result.
+    // public decimal GetDayTotal()
+    // {
+    //     // Here, you can calculate custom aggregate operations and return the result.
 
-        cashSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cash)).AsQueryable()));
-        ChequeSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cheque)).AsQueryable()));
-        TTSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.TT)).AsQueryable()));
+    //     cashSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cash)).AsQueryable()));
+    //     ChequeSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.Cheque)).AsQueryable()));
+    //     TTSum = Convert.ToDecimal(Queryable.Sum(Employees.Select(x => (x.TT)).AsQueryable()));
 
-        return GrandTotal = Math.Round((cashSum + ChequeSum + TTSum), 2);
+    //     return GrandTotal = Math.Round((cashSum + ChequeSum + TTSum), 2);
 
 
 
-    }
+    // }
 
     public async Task ExportExcel()
     {

@@ -1,0 +1,200 @@
+﻿@page "/ReservedStudentPaymentStatus"
+
+@using System.Data
+@using OrisonFeeAnalysis.Entities.Main
+
+@using OrisonFeeAnalysis.Entities.Student
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Calendars;
+@using Syncfusion.Blazor.Spinner;
+@using Syncfusion.Blazor.Inputs;
+@using Syncfusion.Blazor.Data
+
+@layout MainLayout
+@namespace OrisonFeeAnalysis.Pages
+
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
+@using Newtonsoft.Json
+@using OrisonFeeAnalysis.Data.BoldReport
+@using System.Dynamic
+@inject OrisonFeeAnalysis.Logics.Contract.BoldReport.IBoldReportManager _BoldReport
+
+<head>
+    <link href="css/OrisonSyncfusionStyles.css" rel="stylesheet" />
+</head>
+<style>
+    .e-spinner-pane {
+        display: none !important;
+    }
+</style>
+<div>
+
+    <div class="box-card-shadow">
+        <div class="row">
+            <div class="col-md-12">
+                <SfButton IconCss="Icon excel" CssClass="e-btn4" @onclick="@ExportExcel"></SfButton>
+                <SfButton IconCss="Icon pdf" CssClass="e-btn4" @onclick="@ExportPdf"></SfButton>
+                <SfRadioButton Label="Detailed" Name="options" Value="Detailed" TChecked="string" @onchange="onChange" @bind-Checked="isChecked"></SfRadioButton>
+                <SfRadioButton Label="Summary" Name="options" Value="Summary" TChecked="string" @onchange="onChange" @bind-Checked="isChecked"></SfRadioButton>
+                <label style="color:#4758A8;font-size:large;font-weight:bold;float:right;">ReservedStudent_PaymentStatus</label>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="box-card-shadow">
+        <div class="grid-container">
+            @if (allowOpen)
+            {
+                <SfGrid DataSource="@summarizedStatus"
+                        GridLines="GridLine.Both"
+                        AllowSorting="true"
+                        AllowFiltering="true"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        RowHeight="24"
+                        Height="@GridHeight"
+                        Width="100%"
+                        AllowPaging="true"
+                        AllowResizing="true"
+                        @ref="summarizedGrid">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                    <GridPageSettings PageSize="100"></GridPageSettings>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusSummarizedDTO.Class)" HeaderText="Class" TextAlign="TextAlign.Left" Width="40%"></GridColumn>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusSummarizedDTO.Total)" HeaderText="Total" TextAlign="TextAlign.Left" Width="20%"></GridColumn>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusSummarizedDTO.Paid)" HeaderText="Paid" TextAlign="TextAlign.Left" Width="20%"></GridColumn>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusSummarizedDTO.NotPaid)" HeaderText="NotPaid" TextAlign="TextAlign.Left" Width="20%"></GridColumn>
+                    </GridColumns>
+                    @if (Loading)
+                    {
+                        <div class="spinner-overlay">
+                            <img src="gif/loading-waiting.gif" alt="Loading..." class="spinner-image" />
+                        </div>
+                    }
+                </SfGrid>
+                
+            }else{
+                <SfGrid DataSource="@detailedStatus"
+                        GridLines="GridLine.Both"
+                        AllowSorting="true"
+                        AllowFiltering="true"
+                        AllowExcelExport="true"
+                        AllowPdfExport="true"
+                        RowHeight="24"
+                        Height="@GridHeight"
+                        Width="100%"
+                        AllowPaging="true"
+                        AllowResizing="true"
+                        @ref="detailedGrid">
+                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="true"></GridFilterSettings>
+                    <GridPageSettings PageSize="100"></GridPageSettings>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusDetailedDTO.AccountCode)" HeaderText="Account Code" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusDetailedDTO.AccountName)" HeaderText="Account Name" TextAlign="TextAlign.Left" Width="180"></GridColumn>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusDetailedDTO.Class)" HeaderText="Class" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusDetailedDTO.Division)" HeaderText="Division" TextAlign="TextAlign.Left" Width="110"></GridColumn>
+                        <GridColumn Field="@nameof(ReservedPaymentStatusDetailedDTO.PaidStatus)" HeaderText="Paid Status" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+                    </GridColumns>
+                    @if (Loading)
+                    {
+                        <div class="spinner-overlay">
+                            <img src="gif/loading-waiting.gif" alt="Loading..." class="spinner-image" />
+                        </div>
+                    }
+                </SfGrid>
+            }
+        </div>
+    </div>
+
+</div>
+
+
+
+
+@code {
+
+
+    string AccYear = "", Description = "Default";
+    string Category;
+    int UserID, AccountID, BranchID;
+    bool Loading = true;
+    string GridHeight =  "500px";
+    string isChecked = "Detailed";
+    bool allowOpen = false;
+    public SfGrid<ReservedPaymentStatusDetailedDTO> detailedGrid { get; set; }
+    private IList<ReservedPaymentStatusDetailedDTO> detailedStatus { get; set; }
+    public SfGrid<ReservedPaymentStatusSummarizedDTO> summarizedGrid { get; set; }
+    private IList<ReservedPaymentStatusSummarizedDTO> summarizedStatus { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserID = await sessionStorage.GetItemAsync<int>("UserID");
+            AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
+            BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
+            Category = await sessionStorage.GetItemAsync<string>("Category");
+            AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+            var dimension = await jsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+            GridHeight = (dimension.Height - 180).ToString() + "px";
+            detailedStatus = (await _accountsmain.ReservedPaymentStatusDetailed(BranchID, AccYear, "ReservedPaymentStatusDetailed")).ToList();
+            Loading = false;
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async Task ExportExcel()
+    {
+        //await this.SGrid.ExportToExcelAsync();
+    }
+
+    public async Task ExportPdf()
+    {
+        //await this.SGrid.ExportToPdfAsync();
+    }
+    private async Task onChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+    {
+        try
+        {
+            string selectedValue = args.Value.ToString();
+            Loading = true;
+            if (selectedValue == "Detailed")
+            {
+                detailedStatus = (await _accountsmain.ReservedPaymentStatusDetailed(BranchID, AccYear,"ReservedPaymentStatusDetailed")).ToList();
+                allowOpen = false;
+            }
+            else if (selectedValue == "Summary")
+            {
+                summarizedStatus = (await _accountsmain.ReservedPaymentStatusSummarized(BranchID, AccYear, "ReservedPaymentStatusSummarized")).ToList();
+                allowOpen = true;
+
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        finally
+        {
+            Loading = false;
+        }
+
+    }
+    
+}
+
+

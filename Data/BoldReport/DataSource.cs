@@ -18,5 +18,7 @@ namespace OrisonFeeAnalysis.Data.BoldReport
         public List<ExpandoObject> DataSet8 { get; set; }
         public List<ExpandoObject> DataSet9 { get; set; }
         public List<ExpandoObject> DataSet10 { get; set; }
+        public List<JSReportParameter> Parameters { get; set; }
+        public string ReportName { get; set; }
     }
 }

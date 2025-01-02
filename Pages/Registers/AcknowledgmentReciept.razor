@@ -13,9 +13,11 @@
 
 @inject NavigationManager NavigationManager
 @inject OrisonFeeAnalysis.Services.URLService UrlService
+@inject OrisonFeeAnalysis.Services.GeneralServices generalServices
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject OrisonFeeAnalysis.Logics.Contract.Main.IAccountsMain _accountsmain
 @inject IJSRuntime jsRuntime
+@inject HttpClient httpClient
 
 @using OrisonFeeAnalysis.Data.BoldReport
 @using System.Dynamic
@@ -32,7 +34,6 @@
             <div class="row">
                 <div class="col-md-12">
                     <SfComboBox @bind-Value="@Dropval" TValue="string" TItem="string" Placeholder="Status" DataSource="@ComboList" Width="180px">
-                        <ComboBoxEvents TItem="string" TValue="string" ValueChange="@ChequeStatusChangeHandler"></ComboBoxEvents>
                     </SfComboBox>
                     <SfComboBox @bind-Value="@DropDate" TValue="string" TItem="string" Placeholder="Date Type" DataSource="@ComboListDate" Width="180px">
                     </SfComboBox>
@@ -57,6 +58,7 @@
                     AllowPaging="true"
                     AllowResizing="true"
                     AllowSorting="true"
+                    Height="@GridHeight"
                     RowHeight="24"
                     Width="100%"
                     @ref="Grid">
@@ -86,44 +88,10 @@
                     <GridColumn Field=@nameof(dtReciept.VDate) Format="dd/MM/yyyy" HeaderText="VDate" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="120"></GridColumn>
                     <GridColumn Field=@nameof(dtReciept.ChequeDate) Format="dd/MM/yyyy" HeaderText="ChequeDate" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="120"></GridColumn>
                     <GridColumn Field=@nameof(dtReciept.VNO) HeaderText="Voucher Number" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Center" Width="150"></GridColumn>
-                    @*<GridColumn Field=@nameof(dtReciept.Credit) HeaderText="Credit" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>*@
                     <GridColumn Field=@nameof(dtReciept.ChequeNo) HeaderText="Cheque No" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
                     <GridColumn Field=@nameof(dtReciept.BankName) HeaderText="Bank Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="150"></GridColumn>
                     <GridColumn Field=@nameof(dtReciept.Description) HeaderText="Description" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
                     <GridColumn Field=@nameof(dtReciept.Status) HeaderText="Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="120"></GridColumn>
-
-
-
-                    @*<GridColumn Field=@nameof(dtReciept.VID) HeaderText="VID" Visible="false" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.VEID) HeaderText="VEID" Visible="false" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.ChequeDate) Format="dd/MM/yyyy" HeaderText="Cheque Date" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.VDate) HeaderText="VDate" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.RefNo) HeaderText="RefNo" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.CreatedUser) HeaderText="Created User" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.PostedDate) Format="dd/MM/yyyy" HeaderText="PostedDate" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.PostedVID) Visible="false" HeaderText="PostedVID" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-
-        <GridColumn Field=@nameof(dtReciept.PostedVNo) HeaderText="Posted VNo" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.Status) HeaderText="Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-
-        <GridColumn Field=@nameof(dtReciept.AccountID1) HeaderText="AccountID1" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.Party) HeaderText="Party" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.ContactNo) HeaderText="Contact No" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.Mobile2) HeaderText="Mobile2" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.Email) HeaderText="Email" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="160"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.PartyID) Visible="false" HeaderText="PartyID" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.AccountID) Visible="false" HeaderText="AccountID" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.PAccountName) HeaderText="PAccount Name" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="200"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.StStatus) HeaderText="StStatus" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-
-        <GridColumn Field=@nameof(dtReciept.Date) HeaderText="Date" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.SubStatus) HeaderText="Sub-Status" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.VoucherAgainst) HeaderText="Voucher Against" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.Remark) HeaderText="Remark" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-        <GridColumn Field=@nameof(dtReciept.ModifiedUser) HeaderText="Modified User" HeaderTextAlign="TextAlign.Left" TextAlign="TextAlign.Left" Width="100"></GridColumn>*@
-
-
-
                 </GridColumns>
                 <SfSpinner @bind-Visible="@Loading"></SfSpinner>
 
@@ -135,21 +103,18 @@
 
 
 @code {
-    string Dropval = "", Category, DropDate="";
-    DateTime SDate { get; set; } = DateTime.Now;
+    string Category, DropDate="";
+    DateTime SDate { get; set; }
     DateTime TDate { get; set; } = DateTime.Now;
     int BranchID, UserID, AccountID;
     string academiYear = "";
     public bool AllowOpen = false, Loading = false;
-
+    string GridHeight = "500px";
     public List<dtReciept> AcknowledgmentRecieptList = new List<dtReciept>();
-    public List<dtReciept> ConstantAcknowledgmentRecieptList = new List<dtReciept>();
     SfGrid<dtReciept> Grid;
-    dtReciept Reciept = new dtReciept();
-
     public List<string> ComboList = new List<string> { "All","Posted", "Not Posted", "Returned", "Hold" };
-    public List<string> ComboListDate = new List<string> { "Cheque Date","Voucher Date" };
-
+    public List<string> ComboListDate = new List<string> { "Voucher Date","Cheque Date"};
+    string Dropval = string.Empty;
 
     protected async override Task OnInitializedAsync()
     {
@@ -157,22 +122,17 @@
 
         try
         {
-            Loading = true;
-
+            Dropval = ComboList[0];
+            DropDate = ComboListDate[0];
             BranchID = await sessionStorage.GetItemAsync<int>("BranchID");
             UserID = await sessionStorage.GetItemAsync<int>("UserID");
             AccountID = await sessionStorage.GetItemAsync<int>("AccountID");
             Category = await sessionStorage.GetItemAsync<string>("Category");
             academiYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
+            var dimension = await jsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+            GridHeight = (dimension.Height - 180).ToString() + "px";
+            SDate = await generalServices.getFinancialDateTime(BranchID);
 
-
-
-
-            AllowOpen = false;
-            AcknowledgmentRecieptList = (await _accountsmain.GetAcknowledgmentRecieptList((Convert.ToDateTime(SDate.ToString("MM/dd/yyyy"))), (Convert.ToDateTime(TDate.ToString("MM/dd/yyyy"))), Dropval, BranchID, academiYear)).ToList();
-            ConstantAcknowledgmentRecieptList = AcknowledgmentRecieptList;
-            AllowOpen = true;
-            Loading = false;
 
         }
         catch (Exception ex)
@@ -189,10 +149,7 @@
     public async Task ClearLocalStorage()
     {
         LogoutUrl = (await UrlService.GetURL("LogOut")).ToString();
-
         await sessionStorage.ClearAsync();
-        //Must check localstorage userid in each razor page
-
         NavigationManager.NavigateTo(LogoutUrl);
 
     }
@@ -200,15 +157,7 @@
     public async Task Search_Click()
     {
         Loading = true;
-        if (DropDate == "Voucher Date")
-        {
-            AcknowledgmentRecieptList = ConstantAcknowledgmentRecieptList.Where(obj => obj.VDate >= SDate && obj.VDate <= TDate).ToList();
-        }
-        else if (DropDate == "Cheque Date")
-        {
-            AcknowledgmentRecieptList = ConstantAcknowledgmentRecieptList.Where(obj => obj.ChequeDate >= SDate && obj.ChequeDate <= TDate).ToList();
-        }
-        await Grid.Refresh();
+        AcknowledgmentRecieptList = (await _accountsmain.GetAcknowledgmentRecieptList((Convert.ToDateTime(SDate.ToString("MM/dd/yyyy"))), (Convert.ToDateTime(TDate.ToString("MM/dd/yyyy"))), Dropval, BranchID, DropDate)).ToList();
         await InvokeAsync(StateHasChanged);
         Loading = false;
 
@@ -244,7 +193,6 @@
     {
         Loading = true;
         AcknowledgmentRecieptList = (await _accountsmain.GetAcknowledgmentRecieptList((Convert.ToDateTime(SDate.ToString("MM/dd/yyyy"))), (Convert.ToDateTime(TDate.ToString("MM/dd/yyyy"))), args.Value, BranchID, academiYear)).ToList();
-        ConstantAcknowledgmentRecieptList = AcknowledgmentRecieptList;
         await InvokeAsync(StateHasChanged);
         Loading = false;
     }

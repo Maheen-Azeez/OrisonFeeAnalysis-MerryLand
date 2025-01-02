@@ -28,6 +28,11 @@ namespace OrisonFeeAnalysis.Services
             return await http.GetFromJsonAsync<List<VtypeTran>>(BaseUrl + "Settings/" + EntryMode + "/" + FinWeb);
 
         }
+        public async Task<DateTime> getFinancialDateTime(int branchId)
+        {
+            return await http.GetFromJsonAsync<DateTime>(BaseUrl + "Settings/financial-startdate/" + branchId);
+
+        }
         public async Task<int> getVtype(string type)
         {
             vtype = await http.GetFromJsonAsync<int>(BaseUrl + "Values/" + type);

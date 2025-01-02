@@ -74,11 +74,20 @@
     <script src="https://cdn.boldreports.com/3.2.22/scripts/bold.report-viewer.min.js"></script>
     <script src="~/Scripts/boldreports-interop.js"></script>
     <!--BoldReport End-->
-
     @*<script>
-        Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
-            document.location.reload();
-        }
-    </script>*@
+            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+                document.location.reload();
+            }
+        </script>*@
+    <!--Screen Resolution-->
+    <script>
+        window.getWindowDimensions = function () {
+            return {
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
+        };
+    </script>
+    <!--Screen Resolution-->
 </body>
 </html>

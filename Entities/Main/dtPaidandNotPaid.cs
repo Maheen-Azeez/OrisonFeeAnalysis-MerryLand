@@ -13,6 +13,8 @@ namespace OrisonFeeAnalysis.Entities.Main
         public string subject { get; set; }
         public Decimal Amount { get; set; }
         public string SubjectName { get; set; }
+        public string Gender { get; set; }
+
         public string Permobile { get; set; }
         public string ParentName { get; set; }
         public string Guardian { get; set; }
@@ -41,6 +43,7 @@ namespace OrisonFeeAnalysis.Entities.Main
         public string PaidStatus { get; set; }
         public bool Blocked { get; set; }
         public bool Reregistered { get; set; }
+        public int pno { get; set; }
 
     }
 }

@@ -493,7 +493,7 @@
                                 <label>Seats Filled</label>
                             </div>
                             <div class="col-md-6">
-                                <label>@SeatsFilled</label>
+                        <label>@TSeatsFilled</label>
                             </div>
                         </div>
                         <div class="row">
@@ -615,7 +615,7 @@
     {
         DTotal = 0; NewTotalFee = 0; OldTotalFee = 0; TotalExce = 0; Capacity = 0; NoOfSeats = 0; TSeatsFilled = 0; Reserved = 0; SeatsFilled = 0; Vacancy = 0;
         AccYear = await sessionStorage.GetItemAsync<string>("AcademicYear");
-        Employees = (await _accountsmain.GetUserwiseCollectionSummary(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "VaccancySummary", cmbUsername)).ToList();
+        Employees = (await _accountsmain.GetGridData(BranchID, AccYear, SDate.ToString("MM/dd/yyyy"), EDate.ToString("MM/dd/yyyy"), "All", "VaccancySummary")).ToList();
         foreach (dtAccountsMain Result in Employees)
         {
 
@@ -626,7 +626,7 @@
             TotalExce += Result.TotalExemption;
             Capacity += Result.Capacity;
             NoOfSeats += Result.TotalSeat;
-
+            Reserved += Result.Reserved;
 
             // Seat Filled
             Result.MaleSeatFilled = Result.NewBoysPaid + Result.OldBoysPaid + Result.MaleExemption;
@@ -657,9 +657,9 @@
             Result.TotalVacancy = Result.TotalSeat - Result.TotalSeatFilled - Result.Reserved;
         }
 
-        Reserved = Convert.ToInt32(Queryable.Sum(Employees.Select(x => (x.Reserved)).AsQueryable()));
+        // Reserved = Convert.ToInt32(Queryable.Sum(Employees.Select(x => (x.Reserved)).AsQueryable()));
         SeatsFilled = NewTotalFee + OldTotalFee + TotalExce + Reserved;
-        Vacancy = NoOfSeats - SeatsFilled - Reserved;
+        Vacancy = NoOfSeats - TSeatsFilled - Reserved;
         TvacancyMale = Employees.Sum(item => item.MaleVacancy);
         Tvacancyfemale = Employees.Sum(item => item.FemaleVacancy);
     }
